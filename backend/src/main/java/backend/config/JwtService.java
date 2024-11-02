@@ -20,7 +20,7 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class JwtService {
 
-    @Value("${jwt.secret}")
+    @Value("${jwt.signing.key}")
     private String secret;
 
     @Autowired
