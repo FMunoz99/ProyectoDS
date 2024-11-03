@@ -11,6 +11,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Entity
 @Getter
 @Setter
@@ -44,6 +46,9 @@ public class ObjetoPerdido {
     @NotNull
     @Size(min = 1, max = 15)
     private String phoneNumber;
+
+    @NotNull
+    private LocalDate fechaReporte;
 
     @ManyToOne
     private Estudiante estudiante;

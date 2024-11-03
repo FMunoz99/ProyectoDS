@@ -7,7 +7,10 @@ import backend.estudiante.exceptions.UnauthorizeOperationException;
 import backend.events.email_event.ObjetoPerdidoCreatedEvent;
 import backend.events.email_event.ObjetoPerdidoStatusChangeEvent;
 import backend.exceptions.ResourceNotFoundException;
+import backend.incidente.domain.EstadoReporte;
+import backend.incidente.domain.EstadoTarea;
 import backend.objetoPerdido.dto.ObjetoPerdidoPatchRequestDto;
+import backend.objetoPerdido.dto.ObjetoPerdidoRequestDto;
 import backend.objetoPerdido.dto.ObjetoPerdidoResponseDto;
 import backend.objetoPerdido.infrastructure.ObjetoPerdidoRepository;
 import backend.usuario.domain.UsuarioService;
@@ -16,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -56,18 +60,24 @@ public class ObjetoPerdidoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Objeto perdido no encontrado"));
     }
 
-    public ObjetoPerdidoResponseDto saveObjetoPerdido(ObjetoPerdido objetoPerdido) {
+    public ObjetoPerdidoResponseDto saveObjetoPerdido(ObjetoPerdidoRequestDto requestDto) {
+        ObjetoPerdido objetoPerdido = modelMapper.map(requestDto, ObjetoPerdido.class);
+
+        objetoPerdido.setEstadoReporte(EstadoReporte.PENDIENTE);
+        objetoPerdido.setEstadoTarea(EstadoTarea.NO_FINALIZADO);
+        objetoPerdido.setFechaReporte(LocalDate.now());
+
         ObjetoPerdido savedObjetoPerdido = objetoPerdidoRepository.save(objetoPerdido);
 
         String studentEmail = savedObjetoPerdido.getEmail();
 
+        // Obtener correos electrónicos de empleados
         List<String> employeeEmails = empleadoRepository.findAllEmpleadosEmails();
 
         // Crear una lista de correos que incluye al estudiante y a los empleados
         List<String> recipientEmails = new ArrayList<>(employeeEmails);
         recipientEmails.add(studentEmail);
 
-        // Publicar el evento para notificar a todos los destinatarios
         eventPublisher.publishEvent(new ObjetoPerdidoCreatedEvent(savedObjetoPerdido, recipientEmails));
 
         return modelMapper.map(savedObjetoPerdido, ObjetoPerdidoResponseDto.class);

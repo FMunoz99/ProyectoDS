@@ -3,7 +3,9 @@ package backend.objetoPerdido.application;
 import backend.objetoPerdido.domain.ObjetoPerdido;
 import backend.objetoPerdido.domain.ObjetoPerdidoService;
 import backend.objetoPerdido.dto.ObjetoPerdidoPatchRequestDto;
+import backend.objetoPerdido.dto.ObjetoPerdidoRequestDto;
 import backend.objetoPerdido.dto.ObjetoPerdidoResponseDto;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,9 +36,9 @@ public class ObjetoPerdidoController {
     }
 
     @PostMapping
-    public ResponseEntity<ObjetoPerdidoResponseDto> createObjetoPerdido(@RequestBody ObjetoPerdido objetoPerdido) {
-        ObjetoPerdidoResponseDto responseDto = objetoPerdidoService.saveObjetoPerdido(objetoPerdido);
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+    public ResponseEntity<ObjetoPerdidoResponseDto> saveObjetoPerdido(@RequestBody ObjetoPerdidoRequestDto requestDto) {
+        ObjetoPerdidoResponseDto responseDto = objetoPerdidoService.saveObjetoPerdido(requestDto);
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
     @PatchMapping("/{id}")
