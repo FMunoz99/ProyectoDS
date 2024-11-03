@@ -36,6 +36,7 @@ public class EmpleadoService {
         response.setLastName(empleado.getLastName());
         response.setEmail(empleado.getEmail());
         response.setPhoneNumber(empleado.getPhoneNumber());
+        response.setHorarioDeTrabajo(empleado.getHorarioDeTrabajo());
 
         return response;
     }
@@ -68,6 +69,7 @@ public class EmpleadoService {
         empleado.setFirstName(empleadoInfo.getFirstName());
         empleado.setLastName(empleadoInfo.getLastName());
         empleado.setPhoneNumber(empleadoInfo.getPhoneNumber());
+        empleado.setHorarioDeTrabajo(empleadoInfo.getHorarioDeTrabajo());
 
         empleadoRepository.save(empleado);
 

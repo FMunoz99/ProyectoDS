@@ -2,7 +2,6 @@ package backend.incidente.domain;
 
 import backend.empleado.domain.Empleado;
 import backend.estudiante.domain.Estudiante;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

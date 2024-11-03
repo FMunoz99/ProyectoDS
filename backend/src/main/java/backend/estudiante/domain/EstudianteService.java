@@ -20,7 +20,8 @@ public class EstudianteService {
     private final AuthorizationUtils authorizationUtils;
 
     @Autowired
-    public EstudianteService(EstudianteRepository estudianteRepository, ModelMapper modelMapper, AuthorizationUtils authorizationUtils) {
+    public EstudianteService(EstudianteRepository estudianteRepository, ModelMapper modelMapper,
+                             AuthorizationUtils authorizationUtils) {
         this.estudianteRepository = estudianteRepository;
         this.modelMapper = modelMapper;
         this.authorizationUtils = authorizationUtils;
