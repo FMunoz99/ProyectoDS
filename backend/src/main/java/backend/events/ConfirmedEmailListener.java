@@ -1,8 +1,7 @@
 package backend.events;
 
 import backend.events.domain.EmailSenderService;
-import backend.events.email_event.IncidenteCreatedEvent;
-import backend.events.email_event.IncidenteStatusChangeEvent;
+import backend.events.email_event.*;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
@@ -21,8 +20,7 @@ public class ConfirmedEmailListener {
         this.emailSenderService = emailSenderService;
     }
 
-    /*---- INCIDENTE ---- */
-
+    /* ---- INCIDENTE ---- */
     @Async
     @EventListener
     public void handleIncidenteStatusChangeEvent(IncidenteStatusChangeEvent event) throws MessagingException, IOException {
@@ -34,6 +32,33 @@ public class ConfirmedEmailListener {
     public void handleIncidenteCreatedEvent(IncidenteCreatedEvent event) throws MessagingException, IOException {
         emailSenderService.sendEmail(event.getMail());
     }
-
     /* ------------------ */
+
+    /* ---- OBJETO PERDIDO ---- */
+    @Async
+    @EventListener
+    public void handleObjetoPerdidoCreatedEvent(ObjetoPerdidoCreatedEvent event) throws MessagingException, IOException {
+        emailSenderService.sendEmail(event.getMail());
+    }
+
+    @Async
+    @EventListener
+    public void handleObjetoPerdidoStatusChangeEvent(ObjetoPerdidoStatusChangeEvent event) throws MessagingException, IOException {
+        emailSenderService.sendEmail(event.getMail());
+    }
+    /* ----------------------- */
+
+    /* ---- ESTUDIANTE ---- */
+    @Async
+    @EventListener
+    public void handleEstudianteCreatedEvent(EstudianteCreatedEvent event) throws MessagingException, IOException {
+        emailSenderService.sendEmail(event.getMail());
+    }
+
+    @Async
+    @EventListener
+    public void  handleEstudianteUpdatedEvent(EstudianteUpdatedEvent event) throws MessagingException, IOException {
+        emailSenderService.sendEmail(event.getMail());
+    }
+    /* -------------------- */
 }

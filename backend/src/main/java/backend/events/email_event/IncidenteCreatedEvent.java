@@ -6,6 +6,7 @@ import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -14,7 +15,7 @@ public class IncidenteCreatedEvent extends ApplicationEvent {
     private final Incidente incidente;
     private final Mail mail;
 
-    public IncidenteCreatedEvent(Incidente incidente, String recipientEmail) {
+    public IncidenteCreatedEvent(Incidente incidente, List<String> recipientEmails) {
         super(incidente);
         this.incidente = incidente;
 
@@ -27,9 +28,12 @@ public class IncidenteCreatedEvent extends ApplicationEvent {
         properties.put("Estado del Reporte", incidente.getEstadoReporte());
         properties.put("Descripción", incidente.getDescripcion());
 
+        // Convertir la lista de correos a un solo String
+        String recipientEmailsString = String.join(",", recipientEmails);
+
         Mail mail = Mail.builder()
                 .from("notificaciones@miapp.com")
-                .to(recipientEmail)
+                .to(recipientEmailsString) // Aquí se usa un String
                 .htmlTemplate(new Mail.HtmlTemplate("IncidenteCreatedTemplate", properties))
                 .subject("Nuevo Incidente Creado")
                 .build();

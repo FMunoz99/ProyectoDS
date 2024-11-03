@@ -1,9 +1,12 @@
 package backend.usuario.domain;
 
 import backend.empleado.infrastructure.EmpleadoRepository;
+import backend.estudiante.domain.Estudiante;
 import backend.estudiante.infrastructure.EstudianteRepository;
 import backend.usuario.infrastructure.BaseUsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,9 +15,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class UsuarioService {
 
-    final private BaseUsuarioRepository<Usuario> usuarioRepository;
-    final private EstudianteRepository estudianteRepository;
-    final private EmpleadoRepository empleadoRepository;
+    private final BaseUsuarioRepository<Usuario> usuarioRepository;
+    private final EstudianteRepository estudianteRepository;
+    private final EmpleadoRepository empleadoRepository;
 
     @Autowired
     public UsuarioService(BaseUsuarioRepository<Usuario> usuarioRepository,
@@ -23,7 +26,6 @@ public class UsuarioService {
         this.estudianteRepository = estudianteRepository;
         this.empleadoRepository = empleadoRepository;
     }
-
 
     public Usuario findByEmail(String username, String role){
         Usuario usuario;
@@ -45,5 +47,13 @@ public class UsuarioService {
                     .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
             return (UserDetails) usuario;
         };
+    }
+
+    public Estudiante getAuthenticatedEstudiante() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        return estudianteRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Estudiante no encontrado"));
     }
 }
