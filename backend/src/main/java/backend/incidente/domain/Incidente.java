@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Entity
 @Getter
 @Setter
@@ -45,6 +47,9 @@ public class Incidente {
 
     @Size(max = 255)
     private String descripcion;
+
+    @NotNull
+    private LocalDate fechaReporte;
 
     @ManyToOne
     private Estudiante estudiante;

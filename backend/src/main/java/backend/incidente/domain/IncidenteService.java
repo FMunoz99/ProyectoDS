@@ -8,6 +8,7 @@ import backend.events.email_event.IncidenteCreatedEvent;
 import backend.events.email_event.IncidenteStatusChangeEvent;
 import backend.exceptions.ResourceNotFoundException;
 import backend.incidente.dto.IncidentePatchRequestDto;
+import backend.incidente.dto.IncidenteRequestDto;
 import backend.incidente.dto.IncidenteResponseDto;
 import backend.incidente.infrastructure.IncidenteRepository;
 import backend.usuario.domain.UsuarioService;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -55,11 +57,18 @@ public class IncidenteService {
                 .orElseThrow(() -> new ResourceNotFoundException("Incidente no encontrado"));
     }
 
-    public IncidenteResponseDto saveIncidente(Incidente incidente) {
+    public IncidenteResponseDto saveIncidente(IncidenteRequestDto requestDto) {
+        Incidente incidente = modelMapper.map(requestDto, Incidente.class);
+
+        incidente.setEstadoReporte(EstadoReporte.PENDIENTE);
+        incidente.setEstadoTarea(EstadoTarea.NO_FINALIZADO);
+        incidente.setFechaReporte(LocalDate.now());
+
         Incidente savedIncidente = incidenteRepository.save(incidente);
 
         String studentEmail = savedIncidente.getEmail();
 
+        // Obtener correos electrónicos de empleados
         List<String> employeeEmails = empleadoRepository.findAllEmpleadosEmails();
 
         // Crear una lista de correos que incluye al estudiante y a los empleados
@@ -69,6 +78,7 @@ public class IncidenteService {
         // Publicar el evento para notificar a todos los destinatarios
         eventPublisher.publishEvent(new IncidenteCreatedEvent(savedIncidente, recipientEmails));
 
+        // Mapear y devolver el DTO de respuesta
         return modelMapper.map(savedIncidente, IncidenteResponseDto.class);
     }
 

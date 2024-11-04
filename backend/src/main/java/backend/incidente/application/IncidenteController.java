@@ -3,6 +3,7 @@ package backend.incidente.application;
 import backend.incidente.domain.Incidente;
 import backend.incidente.domain.IncidenteService;
 import backend.incidente.dto.IncidentePatchRequestDto;
+import backend.incidente.dto.IncidenteRequestDto;
 import backend.incidente.dto.IncidenteResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,8 +36,8 @@ public class IncidenteController {
     }
 
     @PostMapping
-    public ResponseEntity<IncidenteResponseDto> createIncidente(@RequestBody Incidente incidente) {
-        IncidenteResponseDto savedIncidente = incidenteService.saveIncidente(incidente);
+    public ResponseEntity<IncidenteResponseDto> createIncidente(@RequestBody IncidenteRequestDto requestDto) {
+        IncidenteResponseDto savedIncidente = incidenteService.saveIncidente(requestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedIncidente);
     }
 

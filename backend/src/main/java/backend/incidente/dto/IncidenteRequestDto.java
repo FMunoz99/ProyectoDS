@@ -1,4 +1,4 @@
-package backend.objetoPerdido.dto;
+package backend.incidente.dto;
 
 import backend.incidente.domain.EstadoReporte;
 import backend.incidente.domain.EstadoTarea;
@@ -9,7 +9,7 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-public class ObjetoPerdidoRequestDto {
+public class IncidenteRequestDto {
 
     @NotNull
     @Size(min = 1, max = 10)
@@ -32,6 +32,5 @@ public class ObjetoPerdidoRequestDto {
     private LocalDate fechaReporte;
 
     private EstadoReporte estadoReporte;
-
     private EstadoTarea estadoTarea;
 }
