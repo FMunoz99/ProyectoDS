@@ -1,6 +1,7 @@
 package backend.usuario.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -29,6 +30,7 @@ public class Usuario implements UserDetails {
     private String lastName;
 
     @Column(name = "email", nullable = false)
+    @Email
     private String email;
 
     @Column(name = "password", nullable = false)
