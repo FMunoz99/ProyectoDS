@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actualización de Perfil</title>
+    <link rel="stylesheet" href="src/main/resources/static/css/emailStyles.css">
+</head>
+<body>
+
+<!-- Contenedor principal -->
+<div class="container">
+
+    <!-- Encabezado con logo -->
+    <div class="header">
+        <img src="cid:logo2" alt="Logo de la aplicación">
+    </div>
+
+    <!-- Título -->
+    <h2 class="title">Actualización de Perfil</h2>
+
+    <!-- Mensaje de bienvenida -->
+    <p class="text">
+        Hola, <strong>${Nombre} ${Apellido}</strong>:
+    </p>
+    <p class="text">
+        Este es un correo para notificarte que la información de tu perfil en nuestra plataforma ha sido actualizada exitosamente. Aquí están tus nuevos datos:
+    </p>
+
+    <!-- Información actualizada -->
+    <table class="info-table">
+        <tr>
+            <td class="label">Nombre</td>
+            <td class="value">${Nombre}</td>
+        </tr>
+        <tr>
+            <td class="label">Apellido</td>
+            <td class="value">${Apellido}</td>
+        </tr>
+        <tr>
+            <td class="label">Email</td>
+            <td class="value">${Email}</td>
+        </tr>
+        <tr>
+            <td class="label">Teléfono</td>
+            <td class="value">${Teléfono}</td>
+        </tr>
+        <tr>
+            <td class="label">Horario de Trabajo</td>
+            <td class="value">${Horario de Trabajo}</td>
+        </tr>
+    </table>
+
+    <!-- Pie de página -->
+    <p class="footer-text">
+        Si no realizaste esta actualización, por favor contacta a nuestro soporte inmediatamente.
+    </p>
+
+    <p class="footer-text">
+        &copy; 2024 Tu Aplicación. Todos los derechos reservados.
+    </p>
+</div>
+</body>
+</html>
