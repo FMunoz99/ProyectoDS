@@ -12,8 +12,9 @@ body {
     margin: 0 auto;
     padding: 20px;
     background-color: #ffffff;
-    border: 1px solid #dddddd;
+    border: 1px solid #e0e0e0;
     border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Encabezado */
@@ -29,41 +30,55 @@ body {
 
 /* Título */
 .title {
-    color: #333333;
+    color: #2c3e50;
     text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
 }
 
 /* Texto general */
 .text {
-    color: #333333;
+    color: #34495e;
     font-size: 16px;
+    margin-bottom: 20px;
 }
 
-/* Tabla de información */
-.info-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
+/* Tarjetas de información */
+.info-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
 }
 
-.info-table td {
-    padding: 8px;
-    border: 1px solid #dddddd;
+.card {
+    background-color: #ecf0f1;
+    border-radius: 8px;
+    padding: 15px;
+    width: calc(50% - 10px);
+    box-sizing: border-box;
+    text-align: center;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.info-table .label {
-    color: #555555;
+.card-label {
     font-weight: bold;
+    color: #2980b9;
+    margin-bottom: 5px;
 }
 
-.info-table .value {
-    color: #333333;
+.card-value {
+    color: #34495e;
+    font-size: 18px;
 }
 
 /* Pie de página */
 .footer-text {
-    color: #888888;
+    color: #95a5a6;
     font-size: 14px;
     text-align: center;
-    padding-top: 10px;
+    padding-top: 15px;
+    margin-top: 20px;
+    border-top: 1px solid #e0e0e0;
 }
