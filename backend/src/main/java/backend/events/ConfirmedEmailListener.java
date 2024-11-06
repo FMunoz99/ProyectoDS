@@ -61,4 +61,18 @@ public class ConfirmedEmailListener {
         emailSenderService.sendEmail(event.getMail());
     }
     /* -------------------- */
+
+    /* ---- EMPLEADO ---- */
+    @Async
+    @EventListener
+    public void handleEmpleadoCreatedEvent(EmpleadoCreatedEvent event) throws MessagingException, IOException {
+        emailSenderService.sendEmail(event.getMail());
+    }
+
+    @Async
+    @EventListener
+    public void handleEmpleadoUpdatedEvent(EmpleadoUpdatedEvent event) throws MessagingException, IOException {
+        emailSenderService.sendEmail(event.getMail());
+    }
+    /* -------------------- */
 }
