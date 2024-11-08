@@ -25,7 +25,7 @@ public class EstudianteUpdatedEvent extends ApplicationEvent {
         properties.put("Teléfono", estudiante.getPhoneNumber());
 
         this.mail = Mail.builder()
-                .from("notificaciones@miapp.com")
+                .from("fernando.munoz.p@utec.edu.pe")
                 .to(recipientEmail)
                 .subject("Actualización de Datos de Estudiante")
                 .htmlTemplate(new Mail.HtmlTemplate("EstudianteUpdatedTemplate", properties))

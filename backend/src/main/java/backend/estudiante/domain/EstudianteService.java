@@ -69,12 +69,22 @@ public class EstudianteService {
 
     public EstudianteResponseDto updateEstudiante(EstudiantePatchRequestDto estudianteSelfResponseDto) {
         String username = authorizationUtils.getCurrentUserEmail();
-        Estudiante estudiante = estudianteRepository.findByEmail(username).orElseThrow(
-                () -> new UsernameNotFoundException("Estudiante no encontrado"));
+        Estudiante estudiante = estudianteRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Estudiante no encontrado"));
 
-        estudiante.setFirstName(estudianteSelfResponseDto.getFirstName());
-        estudiante.setLastName(estudianteSelfResponseDto.getLastName());
-        estudiante.setPhoneNumber(estudianteSelfResponseDto.getPhoneNumber());
+        // Solo actualiza los campos que han sido enviados en el DTO
+        if (estudianteSelfResponseDto.getFirstName() != null) {
+            estudiante.setFirstName(estudianteSelfResponseDto.getFirstName());
+        }
+        if (estudianteSelfResponseDto.getLastName() != null) {
+            estudiante.setLastName(estudianteSelfResponseDto.getLastName());
+        }
+        if (estudianteSelfResponseDto.getPhoneNumber() != null) {
+            estudiante.setPhoneNumber(estudianteSelfResponseDto.getPhoneNumber());
+        }
+        if (estudianteSelfResponseDto.getEmail() != null) {
+            estudiante.setEmail(estudianteSelfResponseDto.getEmail());
+        }
 
         Estudiante updatedEstudiante = estudianteRepository.save(estudiante);
 
@@ -84,4 +94,5 @@ public class EstudianteService {
 
         return modelMapper.map(updatedEstudiante, EstudianteResponseDto.class);
     }
+
 }

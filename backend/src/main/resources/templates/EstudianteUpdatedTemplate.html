@@ -1,10 +1,147 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Actualización de Perfil</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actualización de Datos de Estudiante</title>
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        /* Contenedor principal */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Encabezado */
+        .header {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .header img {
+            width: 120px;
+            height: auto;
+        }
+
+        /* Título */
+        .title {
+            color: #2c3e50;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* Texto general */
+        .text {
+            color: #34495e;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        /* Tarjetas de información */
+        .info-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .card {
+            background-color: #ecf0f1;
+            border-radius: 8px;
+            padding: 15px;
+            width: calc(50% - 10px);
+            box-sizing: border-box;
+            text-align: center;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-label {
+            font-weight: bold;
+            color: #2980b9;
+            margin-bottom: 5px;
+        }
+
+        .card-value {
+            color: #34495e;
+            font-size: 18px;
+        }
+
+        /* Pie de página */
+        .footer-text {
+            color: #95a5a6;
+            font-size: 14px;
+            text-align: center;
+            padding-top: 15px;
+            margin-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+    </style>
 </head>
 <body>
+
+<!-- Contenedor principal -->
+<div class="container">
+
+    <!-- Encabezado con logo -->
+    <div class="header">
+        <!-- Imagen en formato Base64 usando Thymeleaf -->
+        <img th:src="'data:image/png;base64,' + ${logoBase64}" alt="Logo de la aplicación">
+    </div>
+
+    <!-- Título -->
+    <h2 class="title">Actualización de Datos de Estudiante</h2>
+
+    <!-- Mensaje de bienvenida -->
+    <p class="text">
+        Hola, <strong>Nombre Apellido</strong>:
+    </p>
+    <p class="text">
+        Este es un correo para notificarte que la información de tu perfil en nuestra plataforma ha sido actualizada exitosamente. Aquí están tus nuevos datos:
+    </p>
+
+    <!-- Información actualizada en tarjetas -->
+    <div class="info-cards">
+        <div class="card">
+            <p class="card-label">Nombre</p>
+            <p class="card-value">Fernando Jose</p>
+        </div>
+        <div class="card">
+            <p class="card-label">Apellido</p>
+            <p class="card-value">Muñoz Paucar</p>
+        </div>
+        <div class="card">
+            <p class="card-label">Email</p>
+            <p class="card-value">seretope69@gmail.com</p>
+        </div>
+        <div class="card">
+            <p class="card-label">Teléfono</p>
+            <p class="card-value">972113335</p>
+        </div>
+    </div>
+
+    <!-- Pie de página -->
+    <p class="footer-text">
+        Si no realizaste esta actualización, por favor contacta a nuestro soporte inmediatamente.
+    </p>
+
+    <p class="footer-text">
+        &copy; 2024 Lost&Found. Todos los derechos reservados.
+    </p>
+</div>
 
 </body>
 </html>

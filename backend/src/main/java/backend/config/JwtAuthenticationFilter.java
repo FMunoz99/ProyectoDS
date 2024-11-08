@@ -15,17 +15,22 @@ import java.io.IOException;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    final private JwtService jwtService;
+    private final JwtService jwtService;
 
     @Autowired
-    public JwtAuthenticationFilter(JwtService jwtService) { this.jwtService = jwtService; }
-
+    public JwtAuthenticationFilter(JwtService jwtService) {
+        this.jwtService = jwtService;
+    }
     @Override
-    protected void doFilterInternal (HttpServletRequest request, HttpServletResponse response,
-                                     FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
         String jwt;
         String userEmail;
+
+        /*
+        if(authHeader == null && request.getRequestURI().equals("/ws"))
+            authHeader = request.getParameter("token");
+        */
 
         if (!StringUtils.hasText(authHeader) || !StringUtils.startsWithIgnoreCase(authHeader, "Bearer")) {
             filterChain.doFilter(request, response);
