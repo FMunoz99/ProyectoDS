@@ -107,7 +107,7 @@
 
     <!-- Mensaje de bienvenida -->
     <p class="text">
-        Hola, <strong>Nombre Apellido</strong>:
+        Hola, <strong th:text="${nombre} + ' ' + ${apellido}">Nombre Apellido</strong>:
     </p>
     <p class="text">
         Este es un correo para notificarte que la información de tu perfil en nuestra plataforma ha sido actualizada exitosamente. Aquí están tus nuevos datos:
@@ -117,20 +117,21 @@
     <div class="info-cards">
         <div class="card">
             <p class="card-label">Nombre</p>
-            <p class="card-value">Fernando Jose</p>
+            <p class="card-value" th:text="${nombre}"></p>
         </div>
         <div class="card">
             <p class="card-label">Apellido</p>
-            <p class="card-value">Muñoz Paucar</p>
+            <p class="card-value" th:text="${apellido}"></p>
         </div>
         <div class="card">
             <p class="card-label">Email</p>
-            <p class="card-value">seretope69@gmail.com</p>
+            <p class="card-value" th:text="${email}"></p>
         </div>
         <div class="card">
             <p class="card-label">Teléfono</p>
-            <p class="card-value">972113335</p>
+            <p class="card-value" th:text="${telefono}"></p>
         </div>
+
     </div>
 
     <!-- Pie de página -->

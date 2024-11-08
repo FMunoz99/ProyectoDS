@@ -33,10 +33,10 @@ public class EmailSenderService {
 
         String html = getHtmlContent(mail);
 
-        helper.setText(html, true);
         helper.setTo(mail.getTo());
         helper.setFrom(mail.getFrom());
         helper.setSubject(mail.getSubject());
+        helper.setText(html, true);
 
         mailSender.send(message);
     }
