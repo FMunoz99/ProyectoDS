@@ -56,4 +56,8 @@ public class Incidente {
 
     @ManyToOne
     private Empleado empleado;
+
+    // Campos para almacenar los IDs
+    private Long estudianteId;
+    private Long empleadoId;
 }

@@ -32,7 +32,7 @@ public class IncidenteCreatedEvent extends ApplicationEvent {
         String recipientEmailsString = String.join(",", recipientEmails);
 
         Mail mail = Mail.builder()
-                .from("notificaciones@miapp.com")
+                .from("fernando.munoz.p@utec.edu.pe")
                 .to(recipientEmailsString) // Aquí se usa un String
                 .htmlTemplate(new Mail.HtmlTemplate("IncidenteCreatedTemplate", properties))
                 .subject("Nuevo Incidente Creado")

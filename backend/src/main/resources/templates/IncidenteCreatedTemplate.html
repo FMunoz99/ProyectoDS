@@ -1,10 +1,55 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Incidentes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Incidente Creado</title>
+    <link rel="stylesheet" href="../static/css/emailStyles.css">
 </head>
 <body>
+
+<div class="container">
+    <div class="header">
+        <img src="../static/img/logo2.png" alt="Logo de la aplicación">
+    </div>
+
+    <h2 class="title">Nuevo Incidente Creado</h2>
+
+    <p class="text">
+        Se ha registrado un nuevo incidente en nuestra plataforma. A continuación, se detallan los datos del incidente:
+    </p>
+
+    <div class="info-cards">
+        <div class="card">
+            <p class="card-label">ID del Incidente</p>
+            <p class="card-value" th:text="${ID_Incidente}">ID</p>
+        </div>
+        <div class="card">
+            <p class="card-label">Piso</p>
+            <p class="card-value" th:text="${Piso}">Piso</p>
+        </div>
+        <div class="card">
+            <p class="card-label">Detalle</p>
+            <p class="card-value" th:text="${Detalle}">Detalle</p>
+        </div>
+        <div class="card">
+            <p class="card-label">Ubicación</p>
+            <p class="card-value" th:text="${Ubicacion}">Ubicación</p>
+        </div>
+        <div class="card">
+            <p class="card-label">Estado del Reporte</p>
+            <p class="card-value" th:text="${Estado_Reporte}">Estado</p>
+        </div>
+        <div class="card">
+            <p class="card-label">Descripción</p>
+            <p class="card-value" th:text="${Descripcion}">Descripción</p>
+        </div>
+    </div>
+
+    <p class="footer-text">
+        &copy; 2024 Lost&Found. Todos los derechos reservados.
+    </p>
+</div>
 
 </body>
 </html>

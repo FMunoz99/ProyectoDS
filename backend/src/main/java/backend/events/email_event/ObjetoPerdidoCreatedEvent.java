@@ -34,7 +34,7 @@ public class ObjetoPerdidoCreatedEvent extends ApplicationEvent {
         String recipientEmailsString = String.join(",", recipientEmails);
 
         Mail mail = Mail.builder()
-                .from("notificaciones@miapp.com")
+                .from("fernando.munoz.p@utec.edu.pe")
                 .to(recipientEmailsString) // Aquí se usa un String
                 .htmlTemplate(new Mail.HtmlTemplate("ObjetoPerdidoCreatedTemplate", properties))
                 .subject("Nuevo Objeto Perdido Creado")

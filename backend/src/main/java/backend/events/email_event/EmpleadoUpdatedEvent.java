@@ -23,13 +23,12 @@ public class EmpleadoUpdatedEvent extends ApplicationEvent {
         properties.put("Apellido", empleado.getLastName());
         properties.put("Email", empleado.getEmail());
         properties.put("Teléfono", empleado.getPhoneNumber());
-        properties.put("Horario de Trabajo", empleado.getHorarioDeTrabajo());
 
         this.mail = Mail.builder()
-                .from("notificaciones@miapp.com")
+                .from("fernando.munoz.p@utec.edu.pe")
                 .to(recipientEmail)
                 .subject("Actualización de Datos de Empleado")
-                .htmlTemplate(new Mail.HtmlTemplate("EmpleadoUpdatedTemplate", properties))
+                .htmlTemplate(new Mail.HtmlTemplate("ActualizacionTemplate", properties))
                 .build();
     }
 }

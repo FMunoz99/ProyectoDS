@@ -47,6 +47,9 @@ public class ObjetoPerdido {
     @Size(min = 1, max = 15)
     private String phoneNumber;
 
+    @Size(max = 255)
+    private String descripcion;
+
     @NotNull
     private LocalDate fechaReporte;
 

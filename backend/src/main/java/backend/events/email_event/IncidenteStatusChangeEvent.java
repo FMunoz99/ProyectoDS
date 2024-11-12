@@ -26,7 +26,7 @@ public class IncidenteStatusChangeEvent extends ApplicationEvent {
         properties.put("Descripción", incidente.getDescripcion());
 
         Mail mail = Mail.builder()
-                .from("notificaciones@miapp.com")
+                .from("fernando.munoz.p@utec.edu.pe")
                 .to(recipientEmail)
                 .htmlTemplate(new Mail.HtmlTemplate("IncidenteStatusChangeTemplate", properties))
                 .subject("Actualización de Estado del Incidente")
