@@ -46,7 +46,7 @@ public class Incidente {
     private String phoneNumber;
 
     @Size(max = 255)
-    private String descripcion;
+    private String description;
 
     @NotNull
     private LocalDate fechaReporte;
@@ -56,8 +56,4 @@ public class Incidente {
 
     @ManyToOne
     private Empleado empleado;
-
-    // Campos para almacenar los IDs
-    private Long estudianteId;
-    private Long empleadoId;
 }

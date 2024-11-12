@@ -29,7 +29,7 @@ public class IncidenteRequestDto {
     private String phoneNumber;
 
     @Size(max = 255)
-    private String descripcion;
+    private String description;
 
     @NotNull
     private LocalDate fechaReporte;

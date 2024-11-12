@@ -74,7 +74,7 @@ public class IncidenteService {
         incidente.setUbicacion(requestDto.getUbicacion());
         incidente.setEmail(requestDto.getEmail());
         incidente.setPhoneNumber(requestDto.getPhoneNumber());
-        incidente.setDescripcion(requestDto.getDescripcion());
+        incidente.setDescription(requestDto.getDescription());
         incidente.setEstadoReporte(EstadoReporte.PENDIENTE);
         incidente.setEstadoTarea(EstadoTarea.NO_FINALIZADO);
         incidente.setFechaReporte(requestDto.getFechaReporte());
@@ -86,45 +86,36 @@ public class IncidenteService {
         Optional<Estudiante> optionalEstudiante = estudianteRepository.findByEmail(studentEmail);
         if (optionalEstudiante.isPresent()) {
             Estudiante estudiante = optionalEstudiante.get();
-            // Asignar la entidad Estudiante al incidente y su ID
             incidente.setEstudiante(estudiante);
-            incidente.setEstudianteId(estudiante.getId());  // Asignar el ID del estudiante
         } else {
             incidente.setEstudiante(null);
-            incidente.setEstudianteId(null);
         }
 
         // Buscar un empleado disponible al azar
-        List<Empleado> empleados = empleadoRepository.findAll();  // Obtener todos los empleados
+        List<Empleado> empleados = empleadoRepository.findAll();
         if (!empleados.isEmpty()) {
             // Seleccionar un empleado aleatorio
             Random random = new Random();
             Empleado empleado = empleados.get(random.nextInt(empleados.size()));
-            // Asignar el empleado al incidente y su ID
             incidente.setEmpleado(empleado);
-            incidente.setEmpleadoId(empleado.getId());  // Asignar el ID del empleado
+
+            // Crear la lista de correos: estudiante y empleado aleatorio
+            List<String> recipientEmails = new ArrayList<>();
+            recipientEmails.add(studentEmail);            // Correo del estudiante
+            recipientEmails.add(empleado.getEmail());     // Correo del empleado seleccionado
+
+            // Guardar el incidente en la base de datos
+            Incidente savedIncidente = incidenteRepository.save(incidente);
+
+            // Publicar el evento para notificar al estudiante y al empleado asignado
+            eventPublisher.publishEvent(new IncidenteCreatedEvent(savedIncidente, recipientEmails));
+
+            // Mapear y devolver el DTO de respuesta
+            return modelMapper.map(savedIncidente, IncidenteResponseDto.class);
         } else {
-            incidente.setEmpleado(null);
-            incidente.setEmpleadoId(null);  // En caso de que no haya empleados disponibles
+            throw new RuntimeException("No hay empleados disponibles para asignar al incidente.");
         }
-
-        // Guardar el incidente en la base de datos
-        Incidente savedIncidente = incidenteRepository.save(incidente);
-
-        // Obtener los correos de los empleados
-        List<String> employeeEmails = empleadoRepository.findAllEmpleadosEmails();
-
-        // Crear una lista de correos que incluye al estudiante y a los empleados
-        List<String> recipientEmails = new ArrayList<>(employeeEmails);
-        recipientEmails.add(studentEmail);  // También agregamos el correo del estudiante
-
-        // Publicar el evento para notificar a los destinatarios
-        eventPublisher.publishEvent(new IncidenteCreatedEvent(savedIncidente, recipientEmails));
-
-        // Mapear y devolver el DTO de respuesta
-        return modelMapper.map(savedIncidente, IncidenteResponseDto.class);
     }
-
 
     public IncidenteResponseDto updateStatusIncidente(Long id, IncidentePatchRequestDto patchDto) {
         Incidente incidente = incidenteRepository.findById(id)

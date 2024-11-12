@@ -26,7 +26,7 @@ public class IncidenteCreatedEvent extends ApplicationEvent {
         properties.put("Detalle", incidente.getDetalle());
         properties.put("Ubicación", incidente.getUbicacion());
         properties.put("Estado del Reporte", incidente.getEstadoReporte());
-        properties.put("Descripción", incidente.getDescripcion());
+        properties.put("Descripción", incidente.getDescription());
 
         // Convertir la lista de correos a un solo String
         String recipientEmailsString = String.join(",", recipientEmails);

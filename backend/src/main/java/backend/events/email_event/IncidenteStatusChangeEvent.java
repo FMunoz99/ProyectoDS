@@ -23,7 +23,7 @@ public class IncidenteStatusChangeEvent extends ApplicationEvent {
         properties.put("ID del Incidente", incidente.getId());
         properties.put("Estado del Reporte", incidente.getEstadoReporte());
         properties.put("Estado de la Tarea", incidente.getEstadoTarea());
-        properties.put("Descripción", incidente.getDescripcion());
+        properties.put("Descripción", incidente.getDescription());
 
         Mail mail = Mail.builder()
                 .from("fernando.munoz.p@utec.edu.pe")
