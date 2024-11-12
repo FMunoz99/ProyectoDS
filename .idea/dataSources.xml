@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-<<<<<<< HEAD
-    <data-source source="LOCAL" name="localhost_postgres" uuid="54643d55-2303-4b4f-b05b-b87568fcd53e">
-=======
-    <data-source source="LOCAL" name="localhost_postgres" uuid="5b47e246-70d2-4877-a06b-45320279a662">
->>>>>>> eb9b84690c469e31fe0a10ee90bfc1477382ebb3
+    <data-source source="LOCAL" name="localhost_postgres" uuid="9126278a-c22a-4965-8476-07afa9ea1b54">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <imported>true</imported>
@@ -14,25 +10,6 @@
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
-<<<<<<< HEAD
-        <property name="com.intellij.clouds.kubernetes.db.resource.type" value="Deployment" />
-        <property name="com.intellij.clouds.kubernetes.db.container.port" />
-      </jdbc-additional-properties>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
-    <data-source source="LOCAL" name="postgres" uuid="65de0ba8-d34e-4804-8f45-a0de4cf3bc0a">
-      <driver-ref>postgresql</driver-ref>
-      <synchronize>true</synchronize>
-      <imported>true</imported>
-      <configured-by-url>true</configured-by-url>
-      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}</jdbc-url>
-      <jdbc-additional-properties>
-        <property name="com.intellij.clouds.kubernetes.db.host.port" />
-        <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
-        <property name="com.intellij.clouds.kubernetes.db.resource.type" value="Deployment" />
-=======
->>>>>>> eb9b84690c469e31fe0a10ee90bfc1477382ebb3
         <property name="com.intellij.clouds.kubernetes.db.container.port" />
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>

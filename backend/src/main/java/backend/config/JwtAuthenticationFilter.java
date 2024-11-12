@@ -32,12 +32,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             authHeader = request.getParameter("token");
         */
 
-        if (!StringUtils.hasText(authHeader) || !StringUtils.startsWithIgnoreCase(authHeader, "Bearer")) {
+        if (!StringUtils.hasText(authHeader) || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        jwt = authHeader.substring(7);
+        jwt = authHeader.substring(7);  // Eliminar el prefijo "Bearer"
+
         userEmail = jwtService.extractUsername(jwt);
 
         if (StringUtils.hasText(userEmail) && SecurityContextHolder.getContext().getAuthentication() == null) {
