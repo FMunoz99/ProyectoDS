@@ -6,6 +6,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
+<<<<<<< HEAD
   <component name="TemplatesService">
     <option name="TEMPLATE_FOLDERS">
       <list>
@@ -13,4 +14,6 @@
       </list>
     </option>
   </component>
+=======
+>>>>>>> eb9b84690c469e31fe0a10ee90bfc1477382ebb3
 </module>

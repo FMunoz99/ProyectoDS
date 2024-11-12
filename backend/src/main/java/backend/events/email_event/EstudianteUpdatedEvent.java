@@ -18,7 +18,7 @@ public class EstudianteUpdatedEvent extends ApplicationEvent {
         super(estudiante);
         this.estudiante = estudiante;
 
-        Map<String, Object> properties = new HashMap<>();
+        Map<String, Object> properties = new HashMap<String, Object>();
         properties.put("Nombre", estudiante.getFirstName());
         properties.put("Apellido", estudiante.getLastName());
         properties.put("Email", estudiante.getEmail());
@@ -27,8 +27,8 @@ public class EstudianteUpdatedEvent extends ApplicationEvent {
         this.mail = Mail.builder()
                 .from("fernando.munoz.p@utec.edu.pe")
                 .to(recipientEmail)
-                .subject("Actualización de Datos de Estudiante")
                 .htmlTemplate(new Mail.HtmlTemplate("EstudianteUpdatedTemplate", properties))
+                .subject("Actualización de Datos de Estudiante")
                 .build();
     }
 }
