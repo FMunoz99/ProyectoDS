@@ -6,6 +6,7 @@ import backend.empleado.infrastructure.EmpleadoRepository;
 import backend.estudiante.domain.Estudiante;
 import backend.estudiante.exceptions.UnauthorizeOperationException;
 import backend.estudiante.infrastructure.EstudianteRepository;
+import backend.events.email_event.IncidenteCreatedEmpleadoEvent;
 import backend.events.email_event.IncidenteCreatedEvent;
 import backend.events.email_event.IncidenteStatusChangeEvent;
 import backend.exceptions.ResourceNotFoundException;
@@ -93,28 +94,28 @@ public class IncidenteService {
 
         // Buscar un empleado disponible al azar
         List<Empleado> empleados = empleadoRepository.findAll();
+        String empleadoEmail = null;
         if (!empleados.isEmpty()) {
             // Seleccionar un empleado aleatorio
             Random random = new Random();
             Empleado empleado = empleados.get(random.nextInt(empleados.size()));
             incidente.setEmpleado(empleado);
-
-            // Crear la lista de correos: estudiante y empleado aleatorio
-            List<String> recipientEmails = new ArrayList<>();
-            recipientEmails.add(studentEmail);            // Correo del estudiante
-            recipientEmails.add(empleado.getEmail());     // Correo del empleado seleccionado
-
-            // Guardar el incidente en la base de datos
-            Incidente savedIncidente = incidenteRepository.save(incidente);
-
-            // Publicar el evento para notificar al estudiante y al empleado asignado
-            eventPublisher.publishEvent(new IncidenteCreatedEvent(savedIncidente, recipientEmails));
-
-            // Mapear y devolver el DTO de respuesta
-            return modelMapper.map(savedIncidente, IncidenteResponseDto.class);
-        } else {
-            throw new RuntimeException("No hay empleados disponibles para asignar al incidente.");
+            empleadoEmail = empleado.getEmail(); // Obtener el correo del empleado seleccionado
         }
+
+        // Guardar el incidente en la base de datos
+        Incidente savedIncidente = incidenteRepository.save(incidente);
+
+        // Publicar el evento para notificar solo al estudiante
+        eventPublisher.publishEvent(new IncidenteCreatedEvent(savedIncidente, studentEmail));
+
+        // solo si se asignó un empleado, publicar el evento para notificar al empleado
+        if (empleadoEmail != null) {
+            eventPublisher.publishEvent(new IncidenteCreatedEmpleadoEvent(savedIncidente, empleadoEmail));
+        }
+
+        // Mapear y devolver el DTO de respuesta
+        return modelMapper.map(savedIncidente, IncidenteResponseDto.class);
     }
 
     public IncidenteResponseDto updateStatusIncidente(Long id, IncidentePatchRequestDto patchDto) {

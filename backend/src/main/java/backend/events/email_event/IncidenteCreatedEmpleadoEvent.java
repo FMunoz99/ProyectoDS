@@ -10,12 +10,12 @@ import java.util.List;
 import java.util.Map;
 
 @Getter
-public class IncidenteCreatedEvent extends ApplicationEvent {
+public class IncidenteCreatedEmpleadoEvent extends ApplicationEvent {
 
     private final Incidente incidente;
     private final Mail mail;
 
-    public IncidenteCreatedEvent(Incidente incidente, String recipientEmail) {
+    public IncidenteCreatedEmpleadoEvent(Incidente incidente, String recipientEmail) { // Cambiado a String
         super(incidente);
         this.incidente = incidente;
 
@@ -28,11 +28,10 @@ public class IncidenteCreatedEvent extends ApplicationEvent {
         properties.put("Estado del Reporte", incidente.getEstadoReporte());
         properties.put("Descripción", incidente.getDescription());
 
-        // Crear el objeto Mail con un solo destinatario
         Mail mail = Mail.builder()
                 .from("fernando.munoz.p@utec.edu.pe")
-                .to(recipientEmail) // Usar un solo correo
-                .htmlTemplate(new Mail.HtmlTemplate("IncidenteCreatedTemplate", properties))
+                .to(recipientEmail) // Ahora usa un solo String
+                .htmlTemplate(new Mail.HtmlTemplate("IncidenteCreatedEmpleadoTemplate", properties))
                 .subject("Nuevo Incidente Creado")
                 .build();
 

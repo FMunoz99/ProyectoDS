@@ -48,7 +48,6 @@ public class Incidente {
     @Size(max = 255)
     private String description;
 
-    @NotNull
     private LocalDate fechaReporte;
 
     @ManyToOne
@@ -56,4 +55,11 @@ public class Incidente {
 
     @ManyToOne
     private Empleado empleado;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.fechaReporte == null) {
+            this.fechaReporte = LocalDate.now();
+        }
+    }
 }
