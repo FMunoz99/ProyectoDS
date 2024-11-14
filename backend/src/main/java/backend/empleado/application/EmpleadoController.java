@@ -44,7 +44,7 @@ public class EmpleadoController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<EmpleadoResponseDto> updateEmleadoInfo(@PathVariable Long id,
+    public ResponseEntity<EmpleadoResponseDto> updateEmpleadoInfo(@PathVariable Long id,
                                                                  @RequestBody EmpleadoPatchRequestDto empleadoInfo) {
         return ResponseEntity.ok().body(empleadoService.updateEmpleadoInfo(id, empleadoInfo));
     }

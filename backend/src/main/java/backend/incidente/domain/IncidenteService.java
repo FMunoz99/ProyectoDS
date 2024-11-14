@@ -126,13 +126,20 @@ public class IncidenteService {
             throw new UnauthorizeOperationException("El usuario no tiene permiso para modificar este recurso");
         }
 
-        incidente.setEstadoReporte(patchDto.getEstadoReporte());
-        incidente.setEstadoTarea(patchDto.getEstadoTarea());
+        // Actualiza solo los campos que no son null en patchDto
+        if (patchDto.getEstadoReporte() != null) {
+            incidente.setEstadoReporte(patchDto.getEstadoReporte());
+        }
+        if (patchDto.getEstadoTarea() != null) {
+            incidente.setEstadoTarea(patchDto.getEstadoTarea());
+        }
+
         Incidente updatedIncidente = incidenteRepository.save(incidente);
 
         eventPublisher.publishEvent(new IncidenteStatusChangeEvent(updatedIncidente, updatedIncidente.getEmail()));
         return modelMapper.map(updatedIncidente, IncidenteResponseDto.class);
     }
+
 
     public void deleteIncidente(Long id) {
         Incidente incidente = incidenteRepository.findById(id)

@@ -81,17 +81,30 @@ public class EmpleadoService {
     }
 
     public EmpleadoResponseDto updateEmpleadoInfo(Long id, EmpleadoPatchRequestDto empleadoInfo) {
-        if (!authorizationUtils.isAdminOrResourceOwner(id))
+        if (!authorizationUtils.isAdminOrResourceOwner(id)) {
             throw new UnauthorizeOperationException("El usuario no tiene permiso para modificar este recurso");
+        }
 
         Empleado empleado = empleadoRepository
                 .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Empleado no encontrado"));
 
-        empleado.setFirstName(empleadoInfo.getFirstName());
-        empleado.setLastName(empleadoInfo.getLastName());
-        empleado.setPhoneNumber(empleadoInfo.getPhoneNumber());
-        empleado.setHorarioDeTrabajo(empleadoInfo.getHorarioDeTrabajo());
+        // Actualiza solo los campos que han sido enviados en el DTO
+        if (empleadoInfo.getFirstName() != null) {
+            empleado.setFirstName(empleadoInfo.getFirstName());
+        }
+        if (empleadoInfo.getLastName() != null) {
+            empleado.setLastName(empleadoInfo.getLastName());
+        }
+        if (empleadoInfo.getPhoneNumber() != null) {
+            empleado.setPhoneNumber(empleadoInfo.getPhoneNumber());
+        }
+        if (empleadoInfo.getEmail() != null) {
+            empleado.setEmail(empleadoInfo.getEmail());
+        }
+        if (empleadoInfo.getHorarioDeTrabajo() != null) {
+            empleado.setHorarioDeTrabajo(empleadoInfo.getHorarioDeTrabajo());
+        }
 
         Empleado updatedEmpleado = empleadoRepository.save(empleado);
 
@@ -101,5 +114,6 @@ public class EmpleadoService {
 
         return modelMapper.map(updatedEmpleado, EmpleadoResponseDto.class);
     }
+
 
 }

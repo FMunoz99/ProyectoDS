@@ -41,7 +41,7 @@ public class IncidenteController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedIncidente);
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/{id}/estado")
     public ResponseEntity<IncidenteResponseDto> updateIncidenteStatus(
             @PathVariable Long id,
             @RequestBody IncidentePatchRequestDto patchDto) {
