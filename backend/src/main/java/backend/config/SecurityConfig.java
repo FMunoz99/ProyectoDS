@@ -39,8 +39,11 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers("/**").permitAll()
-                                .anyRequest().authenticated()
+                                .requestMatchers("/noticias/**").permitAll()  // Permitir acceso público a /noticias
+                                .requestMatchers("/estudiante/**", "/empleado/**", "/incidente/**", "/objetoPerdido/**")  // Rutas protegidas que requieren autenticación
+                                .authenticated()
+                                .requestMatchers("/admin/**").hasRole("ADMIN")  // Solo admin puede acceder a rutas /admin
+                                .anyRequest().authenticated()  // Para cualquier otra ruta se requiere autenticación
                 )
                 .build();
     }

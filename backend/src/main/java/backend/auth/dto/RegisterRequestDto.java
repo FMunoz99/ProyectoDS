@@ -11,4 +11,5 @@ public class RegisterRequestDto {
     private String password;
     private String phone;
     private Boolean isEmpleado = false;
+    private Boolean isAdmin = false;
 }

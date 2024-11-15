@@ -63,7 +63,7 @@ public class AuthorizationUtils {
         String username = userDetails.getUsername();
         String role = userDetails.getAuthorities().toArray()[0].toString(); // Asumimos que hay un solo rol
 
-        return role.equals(Role.ADMIN.toString()) || role.equals(Role.EMPLEADO.toString());
+        return role.equals("ROLE_ADMIN") || role.equals("ROLE_EMPLEADO");
     }
 
 
@@ -83,7 +83,7 @@ public class AuthorizationUtils {
         String role = userDetails.getAuthorities().toArray()[0].toString();
 
         // Verifica si el rol del usuario es ADMIN
-        return role.equals(Role.ADMIN.toString());
+        return role.equals("ROLE_ADMIN");
     }
 
     public String getCurrentUserEmail() {

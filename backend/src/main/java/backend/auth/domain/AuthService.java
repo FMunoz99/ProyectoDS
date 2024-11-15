@@ -62,7 +62,20 @@ public class AuthService {
 
         AuthResponseDto response = new AuthResponseDto();
 
-        if (registerRequestDto.getIsEmpleado()) {
+        if (registerRequestDto.getIsAdmin() != null && registerRequestDto.getIsAdmin()) {
+            // Crear perfil de administrador
+            Usuario admin = new Usuario();
+            admin.setRole(Role.ADMIN);
+            admin.setFirstName(registerRequestDto.getFirstName());
+            admin.setLastName(registerRequestDto.getLastName());
+            admin.setEmail(registerRequestDto.getEmail());
+            admin.setPassword(passwordEncoder.encode(registerRequestDto.getPassword()));
+            admin.setPhoneNumber(registerRequestDto.getPhone());
+
+            usuarioRepository.save(admin);
+            response.setToken(jwtService.generateToken(admin));
+            return response;
+        } else if (registerRequestDto.getIsEmpleado()) {
             Empleado empleado = new Empleado();
             empleado.setRole(Role.EMPLEADO);
             empleado.setFirstName(registerRequestDto.getFirstName());
@@ -96,4 +109,5 @@ public class AuthService {
             return response;
         }
     }
+
 }

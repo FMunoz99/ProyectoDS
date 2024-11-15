@@ -6,6 +6,8 @@ import backend.empleado.dto.EmpleadoRequestDto;
 import backend.empleado.dto.EmpleadoResponseDto;
 import backend.empleado.dto.EmpleadoSelfResponseDto;
 import backend.empleado.infrastructure.EmpleadoRepository;
+import backend.estudiante.domain.Estudiante;
+import backend.estudiante.dto.EstudianteResponseDto;
 import backend.estudiante.exceptions.UnauthorizeOperationException;
 import backend.events.email_event.EmpleadoCreatedEvent;
 import backend.events.email_event.EmpleadoUpdatedEvent;
@@ -13,8 +15,11 @@ import backend.exceptions.ResourceNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class EmpleadoService {
@@ -30,6 +35,19 @@ public class EmpleadoService {
         this.empleadoRepository = empleadoRepository;
         this.authorizationUtils = authorizationUtils;
         this.eventPublisher = eventPublisher;
+    }
+
+    public List<EmpleadoResponseDto> getAllEmpleados() {
+
+        // Verificación del rol de usuario
+        if (!authorizationUtils.isAdmin()) {
+            throw new UnauthorizeOperationException("Solo los administradores pueden ver la lista de empleados");
+        }
+
+        List<Empleado> empleados = empleadoRepository.findAll();
+        return empleados.stream()
+                .map(empleado -> modelMapper.map(empleado, EmpleadoResponseDto.class))
+                .toList();
     }
 
     public EmpleadoResponseDto getEmpleadoInfo (Long id) {
@@ -79,15 +97,22 @@ public class EmpleadoService {
     }
 
 
-    public void deleteEmpleado(Long id) {
-        // Verifica si el usuario autenticado es un administrador
+    public ResponseEntity<String> deleteEmpleado(Long id) {
+        // Verificar que el usuario tiene permisos para eliminar
         if (!authorizationUtils.isAdmin()) {
             throw new UnauthorizeOperationException("El usuario no tiene permiso para eliminar este recurso");
         }
 
-        empleadoRepository.deleteById(id);
-    }
+        // Verificar si el empleado existe
+        if (!empleadoRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Empleado con ID " + id + " no encontrado");
+        }
 
+        empleadoRepository.deleteById(id);
+
+        // Retornar una respuesta con el mensaje de éxito
+        return ResponseEntity.ok("Empleado con ID " + id + " eliminado con éxito");
+    }
 
     public EmpleadoResponseDto updateEmpleadoInfo(Long id, EmpleadoPatchRequestDto empleadoInfo) {
         if (!authorizationUtils.isAdminOrResourceOwner(id)) {
