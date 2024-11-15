@@ -34,6 +34,10 @@ public class EstudianteService {
     }
 
     public EstudianteResponseDto createEstudiante(EstudianteRequestDto dto) {
+
+        if (!authorizationUtils.isAdmin()) {
+            throw new UnauthorizeOperationException("Solo los administradores pueden crear estudiantes");
+        }
         Estudiante estudiante = modelMapper.map(dto, Estudiante.class);
         Estudiante savedEstudiante = estudianteRepository.save(estudiante);
         EstudianteResponseDto responseDto = modelMapper.map(savedEstudiante, EstudianteResponseDto.class);
@@ -62,8 +66,8 @@ public class EstudianteService {
     }
 
     public void deleteEstudiante(Long id) {
-        if (!authorizationUtils.isAdminOrResourceOwner(id))
-            throw new UnauthorizeOperationException("El usuario no tiene permiso para modificar este recurso");
+        if (!authorizationUtils.isAdmin()) {
+            throw new UnauthorizeOperationException("El usuario no tiene permiso para eliminar este recurso");}
         estudianteRepository.deleteById(id);
     }
 

@@ -41,7 +41,7 @@ public class ObjetoPerdidoController {
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/{id}/estado")
     public ResponseEntity<ObjetoPerdidoResponseDto> updateObjetoPerdidoStatus(@PathVariable Long id,
                                                                               @RequestBody ObjetoPerdidoPatchRequestDto patchDto) {
         ObjetoPerdidoResponseDto responseDto = objetoPerdidoService.updateStatusObjetoPerdido(id, patchDto);

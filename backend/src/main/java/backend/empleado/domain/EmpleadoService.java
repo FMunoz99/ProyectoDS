@@ -50,8 +50,15 @@ public class EmpleadoService {
     }
 
     public EmpleadoResponseDto createEmpleado(EmpleadoRequestDto dto) {
+        // Verificar si el usuario tiene el rol de administrador
+        if (!authorizationUtils.isAdmin()) {
+            throw new UnauthorizeOperationException("Solo los administradores pueden crear empleados");
+        }
+
         Empleado empleado = modelMapper.map(dto, Empleado.class);
+
         Empleado savedEmpleado = empleadoRepository.save(empleado);
+
         EmpleadoResponseDto responseDto = modelMapper.map(savedEmpleado, EmpleadoResponseDto.class);
 
         String recipientEmail = savedEmpleado.getEmail();
@@ -60,7 +67,6 @@ public class EmpleadoService {
 
         return responseDto;
     }
-
 
     public EmpleadoSelfResponseDto getEmpleadoOwnInfo() {
         String username = authorizationUtils.getCurrentUserEmail();
@@ -73,12 +79,15 @@ public class EmpleadoService {
     }
 
 
-    public void deleteEmpleado (Long id) {
-        if (!authorizationUtils.isAdminOrResourceOwner(id))
-            throw new UnauthorizeOperationException("El usuario no tiene permiso para modificar este recurso");
+    public void deleteEmpleado(Long id) {
+        // Verifica si el usuario autenticado es un administrador
+        if (!authorizationUtils.isAdmin()) {
+            throw new UnauthorizeOperationException("El usuario no tiene permiso para eliminar este recurso");
+        }
 
         empleadoRepository.deleteById(id);
     }
+
 
     public EmpleadoResponseDto updateEmpleadoInfo(Long id, EmpleadoPatchRequestDto empleadoInfo) {
         if (!authorizationUtils.isAdminOrResourceOwner(id)) {

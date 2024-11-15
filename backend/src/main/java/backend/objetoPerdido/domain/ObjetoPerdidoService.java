@@ -12,6 +12,7 @@ import backend.events.email_event.ObjetoPerdidoStatusChangeEvent;
 import backend.exceptions.ResourceNotFoundException;
 import backend.incidente.domain.EstadoReporte;
 import backend.incidente.domain.EstadoTarea;
+import backend.incidente.domain.Incidente;
 import backend.objetoPerdido.dto.ObjetoPerdidoPatchRequestDto;
 import backend.objetoPerdido.dto.ObjetoPerdidoRequestDto;
 import backend.objetoPerdido.dto.ObjetoPerdidoResponseDto;
@@ -56,6 +57,11 @@ public class ObjetoPerdidoService {
     }
 
     public List<ObjetoPerdidoResponseDto> findAllObjetosPerdidos() {
+
+        // Verificar si el usuario autenticado es un administrador o un empleado
+        if (!authorizationUtils.isAdminOrEmpleado()) {
+            throw new UnauthorizeOperationException("Solo los administradores y empleados pueden ver todos los reportes de objetos perdidos");
+        }
         return objetoPerdidoRepository.findAll().stream()
                 .map(objetoPerdido -> modelMapper.map(objetoPerdido, ObjetoPerdidoResponseDto.class))
                 .toList();
@@ -68,6 +74,11 @@ public class ObjetoPerdidoService {
     }
 
     public ObjetoPerdidoResponseDto saveObjetoPerdido(ObjetoPerdidoRequestDto requestDto) {
+
+        if (!authorizationUtils.isEstudiante()) {
+            throw new UnauthorizeOperationException("Solo los estudiantes pueden crear un reporte de objeto perdido");
+        }
+
         // Mapeo del DTO a la entidad ObjetoPerdido
         ObjetoPerdido objetoPerdido = modelMapper.map(requestDto, ObjetoPerdido.class);
 
@@ -125,8 +136,18 @@ public class ObjetoPerdidoService {
         ObjetoPerdido objetoPerdido = objetoPerdidoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Objeto perdido no encontrado"));
 
-        objetoPerdido.setEstadoReporte(patchDto.getEstadoReporte());
-        objetoPerdido.setEstadoTarea(patchDto.getEstadoTarea());
+        if (!authorizationUtils.isAdminOrEmpleado(objetoPerdido.getEmpleado())) {
+            throw new UnauthorizeOperationException("El usuario no tiene permiso para modificar este recurso");
+        }
+
+        // Actualiza solo los campos que no son null en patchDto
+        if (patchDto.getEstadoReporte() != null) {
+            objetoPerdido.setEstadoReporte(patchDto.getEstadoReporte());
+        }
+        if (patchDto.getEstadoTarea() != null) {
+            objetoPerdido.setEstadoTarea(patchDto.getEstadoTarea());
+        }
+
         ObjetoPerdido updatedObjetoPerdido = objetoPerdidoRepository.save(objetoPerdido);
 
         String recipientEmail = updatedObjetoPerdido.getEmail();
@@ -136,6 +157,9 @@ public class ObjetoPerdidoService {
 
 
     public void deleteObjetoPerdido(Long id) {
+        ObjetoPerdido objetoPerdido = objetoPerdidoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Objeto Perdido no encontrado"));
+
         if (!authorizationUtils.isAdminOrResourceOwner(id))
             throw new UnauthorizeOperationException("El usuario no tiene permiso para eliminar este recurso");
         objetoPerdidoRepository.deleteById(id);

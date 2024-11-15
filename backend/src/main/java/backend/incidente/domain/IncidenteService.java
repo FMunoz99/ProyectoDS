@@ -54,6 +54,12 @@ public class IncidenteService {
     }
 
     public List<IncidenteResponseDto> findAllIncidentes() {
+        // Verificar si el usuario autenticado es un administrador o un empleado
+        if (!authorizationUtils.isAdminOrEmpleado()) {
+            throw new UnauthorizeOperationException("Solo los administradores y empleados pueden ver todos los reportes de incidentes");
+        }
+
+        // Obtener todos los incidentes y mapearlos a DTO
         return incidenteRepository.findAll().stream()
                 .map(incidente -> modelMapper.map(incidente, IncidenteResponseDto.class))
                 .toList();
@@ -66,6 +72,11 @@ public class IncidenteService {
     }
 
     public IncidenteResponseDto saveIncidente(IncidenteRequestDto requestDto) {
+
+        if (!authorizationUtils.isEstudiante()) {
+            throw new UnauthorizeOperationException("Solo los estudiantes pueden crear un reporte de incidente");
+        }
+
         // Mapeo del DTO a la entidad Incidente
         Incidente incidente = modelMapper.map(requestDto, Incidente.class);
 
@@ -122,7 +133,7 @@ public class IncidenteService {
         Incidente incidente = incidenteRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Incidente no encontrado"));
 
-        if (!authorizationUtils.isAdminOrResourceOwner(incidente.getEstudiante(), incidente.getEmpleado())) {
+        if (!authorizationUtils.isAdminOrEmpleado(incidente.getEmpleado())) {
             throw new UnauthorizeOperationException("El usuario no tiene permiso para modificar este recurso");
         }
 
@@ -145,7 +156,7 @@ public class IncidenteService {
         Incidente incidente = incidenteRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Incidente no encontrado"));
 
-        if (!authorizationUtils.isAdminOrResourceOwner(incidente.getEstudiante(), incidente.getEmpleado())) {
+        if (!authorizationUtils.isAdminOrEmpleado(incidente.getEmpleado())) {
             throw new UnauthorizeOperationException("El usuario no tiene permiso para eliminar este recurso");
         }
 
