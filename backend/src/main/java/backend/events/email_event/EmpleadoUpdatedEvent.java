@@ -11,25 +11,23 @@ import java.util.Map;
 @Getter
 public class EmpleadoUpdatedEvent extends ApplicationEvent {
 
-    private final Empleado empleado;
     private final Mail mail;
+    private final Empleado empleado;
 
-    public EmpleadoUpdatedEvent(Empleado empleado, String recipientEmail) {
+    public EmpleadoUpdatedEvent(Empleado empleado, Map<String, String> updatedFields, String recipientEmail) {
         super(empleado);
         this.empleado = empleado;
 
         Map<String, Object> properties = new HashMap<>();
-        properties.put("Nombre", empleado.getFirstName());
-        properties.put("Apellido", empleado.getLastName());
-        properties.put("Email", empleado.getEmail());
-        properties.put("Teléfono", empleado.getPhoneNumber());
-        properties.put("Horario de Trabajo", empleado.getHorarioDeTrabajo().toString());
+        properties.put("Nombre", empleado.getFirstName() + " " + empleado.getLastName());
+        properties.put("updatedFields", updatedFields);
+        properties.put("updatedAt", empleado.getUpdatedAt().toString()); // Fecha de actualización
 
         this.mail = Mail.builder()
                 .from("fernando.munoz.p@utec.edu.pe")
                 .to(recipientEmail)
+                .htmlTemplate(new Mail.HtmlTemplate("ActualizacionPerfilTemplate", properties))
                 .subject("Actualización de Datos de Empleado")
-                .htmlTemplate(new Mail.HtmlTemplate("ActualizacionEmpleadoTemplate", properties))
                 .build();
     }
 }

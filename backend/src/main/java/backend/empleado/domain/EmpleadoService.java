@@ -17,24 +17,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class EmpleadoService {
 
     final private EmpleadoRepository empleadoRepository;
     final private AuthorizationUtils authorizationUtils;
+    final private PasswordEncoder passwordEncoder;
     final private ModelMapper modelMapper = new ModelMapper();
     final private ApplicationEventPublisher eventPublisher;
 
     @Autowired
     public EmpleadoService(EmpleadoRepository empleadoRepository, AuthorizationUtils authorizationUtils,
-                           ApplicationEventPublisher eventPublisher) {
+                           ApplicationEventPublisher eventPublisher, PasswordEncoder passwordEncoder) {
         this.empleadoRepository = empleadoRepository;
         this.authorizationUtils = authorizationUtils;
         this.eventPublisher = eventPublisher;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<EmpleadoResponseDto> getAllEmpleados() {
@@ -123,31 +129,47 @@ public class EmpleadoService {
                 .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Empleado no encontrado"));
 
-        // Actualiza solo los campos que han sido enviados en el DTO
-        if (empleadoInfo.getFirstName() != null) {
+        // Map para registrar los campos actualizados
+        Map<String, String> updatedFields = new HashMap<>();
+
+        if (empleadoInfo.getFirstName() != null && !empleadoInfo.getFirstName().equals(empleado.getFirstName())) {
+            updatedFields.put("Nombre", empleadoInfo.getFirstName());
             empleado.setFirstName(empleadoInfo.getFirstName());
         }
-        if (empleadoInfo.getLastName() != null) {
+        if (empleadoInfo.getLastName() != null && !empleadoInfo.getLastName().equals(empleado.getLastName())) {
+            updatedFields.put("Apellido", empleadoInfo.getLastName());
             empleado.setLastName(empleadoInfo.getLastName());
         }
-        if (empleadoInfo.getPhoneNumber() != null) {
+        if (empleadoInfo.getPhoneNumber() != null && !empleadoInfo.getPhoneNumber().equals(empleado.getPhoneNumber())) {
+            updatedFields.put("Teléfono", empleadoInfo.getPhoneNumber());
             empleado.setPhoneNumber(empleadoInfo.getPhoneNumber());
         }
-        if (empleadoInfo.getEmail() != null) {
+        if (empleadoInfo.getEmail() != null && !empleadoInfo.getEmail().equals(empleado.getEmail())) {
+            updatedFields.put("Email", empleadoInfo.getEmail());
             empleado.setEmail(empleadoInfo.getEmail());
         }
-        if (empleadoInfo.getHorarioDeTrabajo() != null) {
+        if (empleadoInfo.getHorarioDeTrabajo() != null && !empleadoInfo.getHorarioDeTrabajo().equals(empleado.getHorarioDeTrabajo())) {
+            updatedFields.put("Horario de Trabajo", empleadoInfo.getHorarioDeTrabajo().toString());
             empleado.setHorarioDeTrabajo(empleadoInfo.getHorarioDeTrabajo());
         }
+
+        if (empleadoInfo.getPassword() != null && !empleadoInfo.getPassword().equals(empleado.getPassword())) {
+            updatedFields.put("Contraseña", "Actualizada");
+            empleado.setPassword(passwordEncoder.encode(empleadoInfo.getPassword()));
+        }
+
+        // Actualizar la fecha de modificación
+        empleado.setUpdatedAt(ZonedDateTime.now());
 
         Empleado updatedEmpleado = empleadoRepository.save(empleado);
 
         String recipientEmail = updatedEmpleado.getEmail();
-        EmpleadoUpdatedEvent event = new EmpleadoUpdatedEvent(updatedEmpleado, recipientEmail);
+        EmpleadoUpdatedEvent event = new EmpleadoUpdatedEvent(updatedEmpleado, updatedFields, recipientEmail);
         eventPublisher.publishEvent(event);
 
         return modelMapper.map(updatedEmpleado, EmpleadoResponseDto.class);
     }
+
 
 
 }

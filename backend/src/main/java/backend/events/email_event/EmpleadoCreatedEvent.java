@@ -18,11 +18,15 @@ public class EmpleadoCreatedEvent extends ApplicationEvent {
         super(empleado);
         this.empleado = empleado;
 
+        String Nombre= empleado.getFirstName() + " " + empleado.getLastName();
+        String Email = empleado.getEmail();
+
         // Configuración del correo electrónico
         Map<String, Object> properties = new HashMap<>();
-        properties.put("Nombre", empleado.getFirstName() + " " + empleado.getLastName());
-        properties.put("Email", empleado.getEmail());
-        properties.put("Mensaje", "Bienvenido a nuestra plataforma");
+        properties.put("Nombre", Nombre);
+        properties.put("Email", Email);
+        properties.put("updatedAt", empleado.getUpdatedAt().toString()); // Fecha de actualización
+        properties.put("Mensaje", "Bienvenido a nuestro equipo");
 
         this.mail = Mail.builder()
                 .from("fernando.munoz.p@utec.edu.pe")

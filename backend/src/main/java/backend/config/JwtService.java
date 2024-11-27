@@ -35,7 +35,7 @@ public class JwtService {
 
     public String generateToken(UserDetails data){
         Date now = new Date();
-        Date expiration = new Date(now.getTime() + 1000 * 60 * 60 * 10);
+        Date expiration = new Date(now.getTime() + 1000 * 60 * 60 * 24);
         Algorithm algorithm = Algorithm.HMAC256(secret);
 
         return JWT.create()

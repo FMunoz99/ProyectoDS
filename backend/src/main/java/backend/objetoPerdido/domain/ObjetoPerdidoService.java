@@ -21,6 +21,7 @@ import backend.usuario.domain.UsuarioService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -75,9 +76,16 @@ public class ObjetoPerdidoService {
 
     public ObjetoPerdidoResponseDto saveObjetoPerdido(ObjetoPerdidoRequestDto requestDto) {
 
-        if (!authorizationUtils.isEstudiante()) {
-            throw new UnauthorizeOperationException("Solo los estudiantes pueden crear un reporte de objeto perdido");
+        String username = authorizationUtils.getCurrentUserEmail();
+        if (username == null)
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
+
+        // Buscar al estudiante que está realizando la solicitud usando el email del usuario autenticado
+        Optional<Estudiante> optionalEstudianteRegistrador = estudianteRepository.findByEmail(username);
+        if (optionalEstudianteRegistrador.isEmpty()) {
+            throw new ResourceNotFoundException("No se encontró un estudiante asociado al usuario autenticado");
         }
+        Estudiante estudianteRegistrador = optionalEstudianteRegistrador.get();
 
         // Mapeo del DTO a la entidad ObjetoPerdido
         ObjetoPerdido objetoPerdido = modelMapper.map(requestDto, ObjetoPerdido.class);
@@ -93,17 +101,8 @@ public class ObjetoPerdidoService {
         objetoPerdido.setEstadoTarea(EstadoTarea.NO_FINALIZADO);
         objetoPerdido.setFechaReporte(requestDto.getFechaReporte());
 
-        // Obtener el correo del estudiante
-        String studentEmail = objetoPerdido.getEmail();
-
-        // Buscar al estudiante en la base de datos usando su email
-        Optional<Estudiante> optionalEstudiante = estudianteRepository.findByEmail(studentEmail);
-        if (optionalEstudiante.isPresent()) {
-            Estudiante estudiante = optionalEstudiante.get();
-            objetoPerdido.setEstudiante(estudiante);  // Asignar estudiante al objeto perdido
-        } else {
-            objetoPerdido.setEstudiante(null);  // En caso de no encontrar el estudiante, se asigna null
-        }
+        // Asignar el estudiante que registró el objeto perdido
+        objetoPerdido.setEstudiante(estudianteRegistrador);
 
         // Buscar un empleado disponible al azar
         List<Empleado> empleados = empleadoRepository.findAll();
@@ -119,8 +118,8 @@ public class ObjetoPerdidoService {
         // Guardar el objeto perdido en la base de datos
         ObjetoPerdido savedObjetoPerdido = objetoPerdidoRepository.save(objetoPerdido);
 
-        // Publicar el evento para notificar solo al estudiante
-        eventPublisher.publishEvent(new ObjetoPerdidoCreatedEvent(savedObjetoPerdido, studentEmail));
+        // Publicar el evento para notificar solo al estudiante que lo registró
+        eventPublisher.publishEvent(new ObjetoPerdidoCreatedEvent(savedObjetoPerdido, estudianteRegistrador.getEmail()));
 
         // Solo si se asignó un empleado, publicar el evento para notificar al empleado
         if (empleadoEmail != null) {
@@ -130,6 +129,7 @@ public class ObjetoPerdidoService {
         // Mapear y devolver el DTO de respuesta
         return modelMapper.map(savedObjetoPerdido, ObjetoPerdidoResponseDto.class);
     }
+
 
 
     public ObjetoPerdidoResponseDto updateStatusObjetoPerdido(Long id, ObjetoPerdidoPatchRequestDto patchDto) {

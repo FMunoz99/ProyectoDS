@@ -14,21 +14,20 @@ public class EstudianteUpdatedEvent extends ApplicationEvent {
     private final Estudiante estudiante;
     private final Mail mail;
 
-    public EstudianteUpdatedEvent(Estudiante estudiante, String recipientEmail) {
+    public EstudianteUpdatedEvent(Estudiante estudiante, Map<String, String> updatedFields, String recipientEmail) {
         super(estudiante);
         this.estudiante = estudiante;
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put("Nombre", estudiante.getFirstName());
-        properties.put("Apellido", estudiante.getLastName());
-        properties.put("Email", estudiante.getEmail());
-        properties.put("Teléfono", estudiante.getPhoneNumber());
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("Nombre", estudiante.getFirstName() + " " + estudiante.getLastName());
+        properties.put("updatedFields", updatedFields);
+        properties.put("updatedAt", estudiante.getUpdatedAt().toString()); // Fecha de actualización
 
         this.mail = Mail.builder()
                 .from("fernando.munoz.p@utec.edu.pe")
                 .to(recipientEmail)
-                .htmlTemplate(new Mail.HtmlTemplate("ActualizacionEstudianteTemplate", properties))
-                .subject("Actualización de Datos de Estudiante")
+                .htmlTemplate(new Mail.HtmlTemplate("ActualizacionPerfilTemplate", properties))
+                .subject("Actualización de Datos")
                 .build();
     }
 }

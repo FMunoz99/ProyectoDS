@@ -1,45 +1,116 @@
-<!DOCTYPE html>
-<html lang="es">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bienvenido a Lost&Found</title>
-  <link rel="stylesheet" href="../static/css/emailStyles.css">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco con opacidad */
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      max-width: 600px;
+      margin: auto;
+      border: 2px solid #457bb8; /* Borde verde */
+      position: relative; /* Para posicionar los adornos */
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .header img {
+      max-width: 150px;
+      height: auto;
+    }
+    .highlight {
+      color: #274a71;
+      font-weight: bold;
+    }
+    .title {
+      font-size: 24px;
+      color: #333;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      font-size: 18px;
+      color: #555;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .text {
+      color: #666;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .footer-text {
+      font-size: 14px;
+      color: #888;
+      margin: 5px 0;
+    }
+    .image-container {
+      text-align: center;
+      margin: 20px 0;
+    }
+    .image-container img {
+      width: 100%;
+      max-width: 300px;
+      height: auto;
+      border-radius: 8px;
+    }
+  </style>
 </head>
 <body>
 
 <div class="container">
+  <!-- Header con logo -->
   <div class="header">
-    <img src="../static/img/logo2.png" alt="Logo de la aplicación">
+    <img src="https://preview.redd.it/5lzdqhgbc3d81.png?width=1080&crop=smart&auto=webp&s=ba3add550b768382e39f834649c97d8aee87fda9" alt="Logo de la aplicación">
   </div>
 
-  <h2 class="title">Bienvenido a la Plataforma</h2>
+  <!-- Título principal -->
+  <h1 class="title">¡Bienvenido a nuestra plataforma, <span th:text="${Nombre}">[Nombre]</span>!</h1>
+  <h2 class="subtitle">Estamos felices de tenerte con nosotros</h2>
 
-  <p class="text">
-    Hola, <strong th:text="${Nombre}">Nombre Apellido</strong>:
-  </p>
-  <p class="text">
-    Te damos la bienvenida a nuestra plataforma. Aquí tienes tu información registrada:
-  </p>
-
-  <div class="info-cards">
-    <div class="card">
-      <p class="card-label">Nombre</p>
-      <p class="card-value" th:text="${Nombre}">Nombre</p>
-    </div>
-    <div class="card">
-      <p class="card-label">Email</p>
-      <p class="card-value" th:text="${Email}">Email</p>
-    </div>
+  <!-- Imagen principal -->
+  <div class="image-container">
+    <img src="https://img.freepik.com/vector-gratis/dibujado-mano-gente-diseno-plano-agitando-ilustracion_23-2149195759.jpg" alt="Bienvenida">
   </div>
 
-  <p class="footer-text">
-    ¡Esperamos que disfrutes de la experiencia con nosotros!
+  <!-- Mensaje personalizado -->
+  <p class="text">
+    Hola, <strong th:text="${Nombre}">[Nombre]</strong>:
+  </p>
+  <p class="text">
+    Nos complace informarte que te has registrado exitosamente en nuestra plataforma. Aquí tienes tu información registrada:
   </p>
 
-  <p class="footer-text">
-    &copy; 2024 Lost&Found. Todos los derechos reservados.
+  <!-- Información del usuario en tarjetas -->
+  <p>
+    <strong>Nombre:</strong> <span class="highlight" th:text="${Nombre}">[Nombre]</span><br>
+    <strong>Correo electrónico:</strong> <span class="highlight" th:text="${Email}">[Email]</span><br>
+    <strong>Mensaje:</strong> <span class="highlight" th:text="${Mensaje}">Gracias por registrarte en nuestra plataforma.</span>
   </p>
+
+  <!-- Mensaje adicional -->
+  <p class="text">
+    Si tienes alguna pregunta o necesitas asistencia adicional, no dudes en contactarnos.
+  </p>
+
+  <!-- Pie de página -->
+  <div class="footer">
+    <p class="footer-text">El equipo de <strong>Lost&Found</strong></p>
+    <p class="footer-text">&copy; 2024 Lost&Found. Todos los derechos reservados.</p>
+  </div>
 </div>
 
 </body>

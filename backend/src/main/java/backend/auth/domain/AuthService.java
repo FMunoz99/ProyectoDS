@@ -19,6 +19,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 @Service
@@ -65,24 +66,28 @@ public class AuthService {
         if (registerRequestDto.getIsAdmin() != null && registerRequestDto.getIsAdmin()) {
             // Crear perfil de administrador
             Usuario admin = new Usuario();
+            admin.setCreatedAt(ZonedDateTime.now());
             admin.setRole(Role.ADMIN);
             admin.setFirstName(registerRequestDto.getFirstName());
             admin.setLastName(registerRequestDto.getLastName());
             admin.setEmail(registerRequestDto.getEmail());
             admin.setPassword(passwordEncoder.encode(registerRequestDto.getPassword()));
             admin.setPhoneNumber(registerRequestDto.getPhone());
+            admin.setUpdatedAt(ZonedDateTime.now());
 
             usuarioRepository.save(admin);
             response.setToken(jwtService.generateToken(admin));
             return response;
         } else if (registerRequestDto.getIsEmpleado()) {
             Empleado empleado = new Empleado();
+            empleado.setCreatedAt(ZonedDateTime.now());
             empleado.setRole(Role.EMPLEADO);
             empleado.setFirstName(registerRequestDto.getFirstName());
             empleado.setLastName(registerRequestDto.getLastName());
             empleado.setEmail(registerRequestDto.getEmail());
             empleado.setPassword(passwordEncoder.encode(registerRequestDto.getPassword()));
             empleado.setPhoneNumber(registerRequestDto.getPhone());
+            empleado.setUpdatedAt(ZonedDateTime.now());
 
             usuarioRepository.save(empleado);
 
@@ -93,12 +98,14 @@ public class AuthService {
             return response;
         } else {
             Estudiante estudiante = new Estudiante();
+            estudiante.setCreatedAt(ZonedDateTime.now());
             estudiante.setRole(Role.ESTUDIANTE);
             estudiante.setFirstName(registerRequestDto.getFirstName());
             estudiante.setLastName(registerRequestDto.getLastName());
             estudiante.setEmail(registerRequestDto.getEmail());
             estudiante.setPassword(passwordEncoder.encode(registerRequestDto.getPassword()));
             estudiante.setPhoneNumber(registerRequestDto.getPhone());
+            estudiante.setUpdatedAt(ZonedDateTime.now());
 
             usuarioRepository.save(estudiante);
 

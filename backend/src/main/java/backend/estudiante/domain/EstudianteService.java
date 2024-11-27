@@ -15,9 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class EstudianteService {
@@ -25,13 +29,16 @@ public class EstudianteService {
     private final EstudianteRepository estudianteRepository;
     private final ModelMapper modelMapper;
     private final AuthorizationUtils authorizationUtils;
+    private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
     public EstudianteService(EstudianteRepository estudianteRepository, ModelMapper modelMapper,
-                             AuthorizationUtils authorizationUtils, ApplicationEventPublisher eventPublisher) {
+                             AuthorizationUtils authorizationUtils, ApplicationEventPublisher eventPublisher,
+                             PasswordEncoder passwordEncoder) {
         this.estudianteRepository = estudianteRepository;
         this.modelMapper = modelMapper;
+        this.passwordEncoder = passwordEncoder;
         this.authorizationUtils = authorizationUtils;
         this.eventPublisher = eventPublisher;
     }
@@ -99,29 +106,47 @@ public class EstudianteService {
         return ResponseEntity.ok("Estudiante con ID " + id + " eliminado con éxito");
     }
 
-    public EstudianteResponseDto updateEstudiante(EstudiantePatchRequestDto estudianteSelfResponseDto) {
+    public EstudianteResponseDto updateEstudiante(EstudiantePatchRequestDto patchEstudianteDto) {
         String username = authorizationUtils.getCurrentUserEmail();
         Estudiante estudiante = estudianteRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Estudiante no encontrado"));
 
-        // Solo actualiza los campos que han sido enviados en el DTO
-        if (estudianteSelfResponseDto.getFirstName() != null) {
-            estudiante.setFirstName(estudianteSelfResponseDto.getFirstName());
+        // Map para registrar los campos que se actualizan
+        Map<String, String> updatedFields = new HashMap<>();
+
+        // Comparar y actualizar solo los campos proporcionados
+        if (patchEstudianteDto.getFirstName() != null && !patchEstudianteDto.getFirstName().equals(estudiante.getFirstName())) {
+            updatedFields.put("Nombre", patchEstudianteDto.getFirstName());
+            estudiante.setFirstName(patchEstudianteDto.getFirstName());
         }
-        if (estudianteSelfResponseDto.getLastName() != null) {
-            estudiante.setLastName(estudianteSelfResponseDto.getLastName());
+
+        if (patchEstudianteDto.getLastName() != null && !patchEstudianteDto.getLastName().equals(estudiante.getLastName())) {
+            updatedFields.put("Apellido", patchEstudianteDto.getLastName());
+            estudiante.setLastName(patchEstudianteDto.getLastName());
         }
-        if (estudianteSelfResponseDto.getPhoneNumber() != null) {
-            estudiante.setPhoneNumber(estudianteSelfResponseDto.getPhoneNumber());
+
+        if (patchEstudianteDto.getPhoneNumber() != null && !patchEstudianteDto.getPhoneNumber().equals(estudiante.getPhoneNumber())) {
+            updatedFields.put("Teléfono", patchEstudianteDto.getPhoneNumber());
+            estudiante.setPhoneNumber(patchEstudianteDto.getPhoneNumber());
         }
-        if (estudianteSelfResponseDto.getEmail() != null) {
-            estudiante.setEmail(estudianteSelfResponseDto.getEmail());
+
+        if (patchEstudianteDto.getEmail() != null && !patchEstudianteDto.getEmail().equals(estudiante.getEmail())) {
+            updatedFields.put("Email", patchEstudianteDto.getEmail());
+            estudiante.setEmail(patchEstudianteDto.getEmail());
         }
+
+        if (patchEstudianteDto.getPassword() != null && !patchEstudianteDto.getPassword().equals(estudiante.getPassword())) {
+            updatedFields.put("Contraseña", "Actualizada");
+            estudiante.setPassword(passwordEncoder.encode(patchEstudianteDto.getPassword()));
+        }
+
+        // Actualizar la fecha de modificación
+        estudiante.setUpdatedAt(ZonedDateTime.now());
 
         Estudiante updatedEstudiante = estudianteRepository.save(estudiante);
 
         String recipientEmail = updatedEstudiante.getEmail();
-        EstudianteUpdatedEvent event = new EstudianteUpdatedEvent(updatedEstudiante, recipientEmail);
+        EstudianteUpdatedEvent event = new EstudianteUpdatedEvent(updatedEstudiante, updatedFields, recipientEmail);
         eventPublisher.publishEvent(event);
 
         return modelMapper.map(updatedEstudiante, EstudianteResponseDto.class);

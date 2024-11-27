@@ -18,10 +18,13 @@ public class EstudianteCreatedEvent extends ApplicationEvent {
         super(estudiante);
         this.estudiante = estudiante;
 
+        String Nombre= estudiante.getFirstName() + " " + estudiante.getLastName();
+        String Email = estudiante.getEmail();
+
         // Configuración del correo electrónico
         Map<String, Object> properties = new HashMap<>();
-        properties.put("Nombre", estudiante.getFirstName() + " " + estudiante.getLastName());
-        properties.put("Email", estudiante.getEmail());
+        properties.put("Nombre", Nombre);
+        properties.put("Email", Email);
         properties.put("Mensaje", "Bienvenido a nuestra plataforma");
 
         this.mail = Mail.builder()
