@@ -6,7 +6,6 @@ import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -19,22 +18,33 @@ public class ObjetoPerdidoCreatedEvent extends ApplicationEvent {
         super(objetoPerdido);
         this.objetoPerdido = objetoPerdido;
 
+        String nombreAlumno = objetoPerdido.getEstudiante().getFirstName() + " " + objetoPerdido.getEstudiante().getLastName();
+        String idObjetoPerdido = objetoPerdido.getId().toString();
+        String pisoReporte = objetoPerdido.getPiso();
+        String locationReporte = objetoPerdido.getUbicacion();
+        String statusReporte = String.valueOf(objetoPerdido.getEstadoReporte());
+        String statusTask = String.valueOf(objetoPerdido.getEstadoTarea());
+        String detallesReporte = objetoPerdido.getDetalle();
+        String email = objetoPerdido.getEmpleado().getEmail();
+        String phoneNumber = objetoPerdido.getPhoneNumber();
+
         // Configuración del correo electrónico
         Map<String, Object> properties = new HashMap<>();
-        properties.put("ID del Objeto Perdido", objetoPerdido.getId());
-        properties.put("Piso", objetoPerdido.getPiso());
-        properties.put("Ubicación", objetoPerdido.getUbicacion());
-        properties.put("Estado del Reporte", objetoPerdido.getEstadoReporte());
-        properties.put("Estado de la Tarea", objetoPerdido.getEstadoTarea());
-        properties.put("Detalle", objetoPerdido.getDetalle());
-        properties.put("Email", objetoPerdido.getEmail());
-        properties.put("Número de Teléfono", objetoPerdido.getPhoneNumber());
+        properties.put("NombreAlumno", nombreAlumno);
+        properties.put("IDObjetoPerdido", idObjetoPerdido);
+        properties.put("Piso", pisoReporte);
+        properties.put("Ubicacion", locationReporte);
+        properties.put("EstadoReporte", statusReporte);
+        properties.put("EstadoTarea", statusTask);
+        properties.put("Detalle", detallesReporte);
+        properties.put("EmailContacto", email);
+        properties.put("TelefonoContacto", phoneNumber);
 
         Mail mail = Mail.builder()
-                .from("fernando.munoz.p@utec.edu.pe")
+                .from("Lost&Found")
                 .to(recipientEmail) // Ahora usa un solo String
                 .htmlTemplate(new Mail.HtmlTemplate("ObjetoPerdidoCreatedTemplate", properties))
-                .subject("Nuevo Objeto Perdido Creado")
+                .subject("Nuevo Reporte de Objeto Perdido Creado")
                 .build();
 
         this.mail = mail;

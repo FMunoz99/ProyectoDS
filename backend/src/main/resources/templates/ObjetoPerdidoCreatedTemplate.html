@@ -1,63 +1,113 @@
-<!DOCTYPE html>
-<html lang="es">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuevo Objeto Perdido Registrado</title>
-    <link rel="stylesheet" href="../static/css/emailStyles.css">
+    <title>Nuevo Reporte Registrado</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco con opacidad */
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            margin: auto;
+            border: 2px solid #457bb8; /* Borde azul */
+            position: relative;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header img {
+            max-width: 150px;
+            height: auto;
+        }
+        .highlight {
+            color: #274a71;
+            font-weight: bold;
+        }
+        .title {
+            font-size: 24px;
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .text {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .footer-text {
+            font-size: 14px;
+            color: #888;
+            margin: 5px 0;
+        }
+        .image-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .image-container img {
+            width: 35%;
+            max-width: 300px;
+            height: auto;
+            border-radius: 8px;
+        }
+    </style>
 </head>
 <body>
 
 <div class="container">
+    <!-- Header con logo -->
     <div class="header">
-        <img src="../static/img/logo2.png" alt="Logo de la aplicación">
+        <img src="https://preview.redd.it/5lzdqhgbc3d81.png?width=1080&crop=smart&auto=webp&s=ba3add550b768382e39f834649c97d8aee87fda9" alt="Logo de la aplicación">
     </div>
 
-    <h2 class="title">Nuevo Objeto Perdido Registrado</h2>
+    <!-- Título principal -->
+    <h1 class="title">Nuevo Objeto Perdido Registrado</h1>
+
+
+    <div class="image-container">
+        <img src="https://cdn-icons-png.flaticon.com/512/7415/7415672.png" alt="Nuevo Reporte">
+    </div>
 
     <p class="text">
-        Se ha registrado un nuevo objeto perdido en nuestra plataforma. A continuación, los detalles:
+        Estimado, <strong th:text="${NombreAlumno}">[NombreAlumno]</strong>:
     </p>
 
-    <div class="info-cards">
-        <div class="card">
-            <p class="card-label">ID del Objeto Perdido</p>
-            <p class="card-value" th:text="${ID_ObjetoPerdido}">ID</p>
-        </div>
-        <div class="card">
-            <p class="card-label">Piso</p>
-            <p class="card-value" th:text="${Piso}">Piso</p>
-        </div>
-        <div class="card">
-            <p class="card-label">Ubicación</p>
-            <p class="card-value" th:text="${Ubicacion}">Ubicación</p>
-        </div>
-        <div class="card">
-            <p class="card-label">Estado del Reporte</p>
-            <p class="card-value" th:text="${Estado_Reporte}">Estado del Reporte</p>
-        </div>
-        <div class="card">
-            <p class="card-label">Estado de la Tarea</p>
-            <p class="card-value" th:text="${Estado_Tarea}">Estado de la Tarea</p>
-        </div>
-        <div class="card">
-            <p class="card-label">Detalle</p>
-            <p class="card-value" th:text="${Detalle}">Detalle</p>
-        </div>
-        <div class="card">
-            <p class="card-label">Email</p>
-            <p class="card-value" th:text="${Email}">Email</p>
-        </div>
-        <div class="card">
-            <p class="card-label">Número de Teléfono</p>
-            <p class="card-value" th:text="${PhoneNumber}">Número de Teléfono</p>
-        </div>
+    <!-- Mensaje de bienvenida -->
+    <p class="text">
+        Se ha registrado un nuevo reporte sobre objetos perdidos en nuestra plataforma. A continuación, los detalles:
+    </p>
 
+    <!-- Información del objeto perdido -->
+
+    <!-- Información del objeto perdido -->
+    <p>
+        <strong>ID:</strong> <span class="highlight" th:text="${IDObjetoPerdido}">[IDObjetoPerdido]</span><br>
+        <strong>Piso:</strong> <span class="highlight" th:text="${Piso}">[Piso]</span><br>
+        <strong>Ubicación:</strong> <span class="highlight" th:text="${Ubicacion}">[Ubicacion]</span><br>
+        <strong>Estado del Reporte:</strong> <span class="highlight" th:text="${EstadoReporte}">[EstadoReporte]</span><br>
+        <strong>Estado de la Tarea:</strong> <span class="highlight" th:text="${EstadoTarea}">[EstadoTarea]</span><br>
+        <strong>Detalle:</strong> <span class="highlight" th:text="${Detalle}">[Detalle]</span><br>
+        <strong>Correo electrónico de contacto:</strong> <span class="highlight" th:text="${EmailContacto}">[EmailContacto]</span><br>
+        <strong>Número de Teléfono:</strong> <span class="highlight" th:text="${TelefonoContacto}">[TelefonoContacto]</span>
+    </p>
+
+
+    <!-- Pie de página -->
+    <div class="footer">
+        <p class="footer-text">El equipo de <strong>Lost&Found</strong></p>
+        <p class="footer-text">&copy; 2024 Lost&Found. Todos los derechos reservados.</p>
     </div>
-
-    <p class="footer-text">
-        &copy; 2024 Lost&Found. Todos los derechos reservados.
-    </p>
 </div>
 
 </body>

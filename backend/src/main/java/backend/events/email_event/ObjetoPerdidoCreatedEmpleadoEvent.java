@@ -18,19 +18,26 @@ public class ObjetoPerdidoCreatedEmpleadoEvent extends ApplicationEvent {
         super(objetoPerdido);
         this.objetoPerdido = objetoPerdido;
 
+        String nombreEmpleado = objetoPerdido.getEmpleado().getFirstName() + " " + objetoPerdido.getEmpleado().getLastName();
+        String idObjetoPerdido = objetoPerdido.getId().toString();
+        String pisoReporte = objetoPerdido.getPiso();
+        String locationReporte = objetoPerdido.getUbicacion();
+        String detallesReporte = objetoPerdido.getDetalle();
+        String nombreAlumno = objetoPerdido.getEstudiante().getFirstName() + " " + objetoPerdido.getEstudiante().getLastName();
+        String phoneNumber = objetoPerdido.getPhoneNumber();
+
         // Configuración del correo electrónico
         Map<String, Object> properties = new HashMap<>();
-        properties.put("ID del Objeto Perdido", objetoPerdido.getId());
-        properties.put("Piso", objetoPerdido.getPiso());
-        properties.put("Ubicación", objetoPerdido.getUbicacion());
-        properties.put("Estado del Reporte", objetoPerdido.getEstadoReporte());
-        properties.put("Estado de la Tarea", objetoPerdido.getEstadoTarea());
-        properties.put("Detalle", objetoPerdido.getDetalle());
-        properties.put("Email", objetoPerdido.getEmail());
-        properties.put("Número de Teléfono", objetoPerdido.getPhoneNumber());
+        properties.put("NombreEmpleado", nombreEmpleado);
+        properties.put("IDObjetoPerdido", idObjetoPerdido);
+        properties.put("Piso", pisoReporte);
+        properties.put("Ubicacion", locationReporte);
+        properties.put("Detalle", detallesReporte);
+        properties.put("NombreAlumno",nombreAlumno);
+        properties.put("TelefonoContacto", phoneNumber);
 
         Mail mail = Mail.builder()
-                .from("fernando.munoz.p@utec.edu.pe")
+                .from("Lost&Found")
                 .to(recipientEmail) // Aquí se usa un solo String
                 .htmlTemplate(new Mail.HtmlTemplate("ObjetoPerdidoCreatedEmpleadoTemplate", properties))
                 .subject("Nuevo Objeto Perdido Asignado")

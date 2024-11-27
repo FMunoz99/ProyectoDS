@@ -1,10 +1,113 @@
-<!DOCTYPE html>
-<html lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Nuevo Objeto Perdido Asignado</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco con opacidad */
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            margin: auto;
+            border: 2px solid #457bb8; /* Borde azul */
+            position: relative;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header img {
+            max-width: 150px;
+            height: auto;
+        }
+        .highlight {
+            color: #274a71;
+            font-weight: bold;
+        }
+        .title {
+            font-size: 24px;
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .text {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .footer-text {
+            font-size: 14px;
+            color: #888;
+            margin: 5px 0;
+        }
+        .image-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .image-container img {
+            width: 35%;
+            max-width: 300px;
+            height: auto;
+            border-radius: 8px;
+        }
+    </style>
 </head>
 <body>
+
+<div class="container">
+    <!-- Header con logo -->
+    <div class="header">
+        <img src="https://preview.redd.it/5lzdqhgbc3d81.png?width=1080&crop=smart&auto=webp&s=ba3add550b768382e39f834649c97d8aee87fda9" alt="Logo de la aplicación">
+    </div>
+
+    <!-- Título principal -->
+    <h1 class="title">Nuevo Objeto Perdido Asignado</h1>
+
+    <div class="image-container">
+        <img src="https://cdn-icons-png.flaticon.com/512/6208/6208579.png" alt="Tarea asignada">
+    </div>
+
+    <p class="text">
+        Estimado, <strong th:text="${NombreEmpleado}">[NombreEmpleado]</strong>:
+    </p>
+
+    <!-- Mensaje principal -->
+    <p class="text">
+        Un nuevo reporte de objetos perdidos ha sido asignado a ti. A continuación, te presentamos los detalles:
+    </p>
+
+    <!-- Información del objeto perdido -->
+    <p>
+        <strong>ID del Objeto Perdido:</strong> <span class="highlight" th:text="${IDObjetoPerdido}">[IDObjetoPerdido]</span><br>
+        <strong>Piso:</strong> <span class="highlight" th:text="${Piso}">[Piso]</span><br>
+        <strong>Ubicación:</strong> <span class="highlight" th:text="${Ubicacion}">[Ubicacion]</span><br>
+        <strong>Detalle:</strong> <span class="highlight" th:text="${Detalle}">[Detalle]</span><br>
+        <strong>Nombre del Alumno:</strong> <span class="highlight" th:text="${NombreAlumno}">[NombreAlumno]</span><br>
+        <strong>Teléfono de contacto:</strong> <span class="highlight" th:text="${TelefonoContacto}">[TelefonoContacto]</span>
+    </p>
+
+    <!-- Mensaje adicional -->
+    <p class="text">
+        Por favor, revisa esta asignación en la plataforma y procede con las acciones necesarias.
+    </p>
+
+    <!-- Pie de página -->
+    <div class="footer">
+        <p class="footer-text">El equipo de <strong>Lost&Found</strong></p>
+        <p class="footer-text">&copy; 2024 Lost&Found. Todos los derechos reservados.</p>
+    </div>
+</div>
 
 </body>
 </html>
