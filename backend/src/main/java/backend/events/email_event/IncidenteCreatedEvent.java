@@ -15,7 +15,7 @@ public class IncidenteCreatedEvent extends ApplicationEvent {
     private final Incidente incidente;
     private final Mail mail;
 
-    public IncidenteCreatedEvent(Incidente incidente, List<String> recipientEmails) {
+    public IncidenteCreatedEvent(Incidente incidente, String recipientEmail) {
         super(incidente);
         this.incidente = incidente;
 
@@ -26,14 +26,12 @@ public class IncidenteCreatedEvent extends ApplicationEvent {
         properties.put("Detalle", incidente.getDetalle());
         properties.put("Ubicación", incidente.getUbicacion());
         properties.put("Estado del Reporte", incidente.getEstadoReporte());
-        properties.put("Descripción", incidente.getDescripcion());
+        properties.put("Descripción", incidente.getDescription());
 
-        // Convertir la lista de correos a un solo String
-        String recipientEmailsString = String.join(",", recipientEmails);
-
+        // Crear el objeto Mail con un solo destinatario
         Mail mail = Mail.builder()
-                .from("notificaciones@miapp.com")
-                .to(recipientEmailsString) // Aquí se usa un String
+                .from("fernando.munoz.p@utec.edu.pe")
+                .to(recipientEmail) // Usar un solo correo
                 .htmlTemplate(new Mail.HtmlTemplate("IncidenteCreatedTemplate", properties))
                 .subject("Nuevo Incidente Creado")
                 .build();

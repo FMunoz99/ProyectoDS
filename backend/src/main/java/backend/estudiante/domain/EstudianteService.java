@@ -13,8 +13,11 @@ import backend.exceptions.ResourceNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class EstudianteService {
@@ -33,7 +36,24 @@ public class EstudianteService {
         this.eventPublisher = eventPublisher;
     }
 
+    public List<EstudianteResponseDto> getAllEstudiantes() {
+
+        // Verificación del rol de usuario
+        if (!authorizationUtils.isAdminOrEmpleado()) {
+            throw new UnauthorizeOperationException("Solo los administradores o empleados pueden ver la lista de estudiantes");
+        }
+
+        List<Estudiante> estudiantes = estudianteRepository.findAll();
+        return estudiantes.stream()
+                .map(estudiante -> modelMapper.map(estudiante, EstudianteResponseDto.class))
+                .toList();
+    }
+
     public EstudianteResponseDto createEstudiante(EstudianteRequestDto dto) {
+
+        if (!authorizationUtils.isAdmin()) {
+            throw new UnauthorizeOperationException("Solo los administradores pueden crear estudiantes");
+        }
         Estudiante estudiante = modelMapper.map(dto, Estudiante.class);
         Estudiante savedEstudiante = estudianteRepository.save(estudiante);
         EstudianteResponseDto responseDto = modelMapper.map(savedEstudiante, EstudianteResponseDto.class);
@@ -61,10 +81,22 @@ public class EstudianteService {
         return modelMapper.map(estudiante, EstudianteResponseDto.class);
     }
 
-    public void deleteEstudiante(Long id) {
-        if (!authorizationUtils.isAdminOrResourceOwner(id))
-            throw new UnauthorizeOperationException("El usuario no tiene permiso para modificar este recurso");
+    public ResponseEntity<String> deleteEstudiante(Long id) {
+        // Verificar que el usuario tiene permisos para eliminar
+        if (!authorizationUtils.isAdmin()) {
+            throw new UnauthorizeOperationException("El usuario no tiene permiso para eliminar este recurso");
+        }
+
+        // Verificar si el estudiante existe
+        if (!estudianteRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Estudiante con ID " + id + " no encontrado");
+        }
+
+        // Eliminar el estudiante
         estudianteRepository.deleteById(id);
+
+        // Retornar una respuesta con el mensaje de éxito
+        return ResponseEntity.ok("Estudiante con ID " + id + " eliminado con éxito");
     }
 
     public EstudianteResponseDto updateEstudiante(EstudiantePatchRequestDto estudianteSelfResponseDto) {

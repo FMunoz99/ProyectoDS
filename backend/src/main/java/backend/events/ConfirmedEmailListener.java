@@ -32,6 +32,13 @@ public class ConfirmedEmailListener {
     public void handleIncidenteCreatedEvent(IncidenteCreatedEvent event) throws MessagingException, IOException {
         emailSenderService.sendEmail(event.getMail());
     }
+
+    @Async
+    @EventListener
+    public void handleIncidenteCreatedEmpleadoEvent(IncidenteCreatedEmpleadoEvent event) throws MessagingException, IOException {
+        emailSenderService.sendEmail(event.getMail());
+    }
+
     /* ------------------ */
 
     /* ---- OBJETO PERDIDO ---- */
@@ -44,6 +51,12 @@ public class ConfirmedEmailListener {
     @Async
     @EventListener
     public void handleObjetoPerdidoStatusChangeEvent(ObjetoPerdidoStatusChangeEvent event) throws MessagingException, IOException {
+        emailSenderService.sendEmail(event.getMail());
+    }
+
+    @Async
+    @EventListener
+    public void handleObjetoPerdidoCreatedEmpleadoEvent(ObjetoPerdidoCreatedEmpleadoEvent event) throws MessagingException, IOException {
         emailSenderService.sendEmail(event.getMail());
     }
     /* ----------------------- */

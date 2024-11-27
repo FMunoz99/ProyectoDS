@@ -7,11 +7,14 @@ import backend.auth.exceptions.UserAlreadyExistException;
 import backend.config.JwtService;
 import backend.empleado.domain.Empleado;
 import backend.estudiante.domain.Estudiante;
+import backend.events.email_event.EmpleadoCreatedEvent;
+import backend.events.email_event.EstudianteCreatedEvent;
 import backend.usuario.domain.Role;
 import backend.usuario.domain.Usuario;
 import backend.usuario.infrastructure.BaseUsuarioRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,14 +28,17 @@ public class AuthService {
     final private JwtService jwtService;
     final private PasswordEncoder passwordEncoder;
     final private ModelMapper modelMapper;
+    final private ApplicationEventPublisher eventPublisher;
 
     @Autowired
     public AuthService (BaseUsuarioRepository<Usuario> usuarioRepository,
-                        JwtService jwtService, PasswordEncoder passwordEncoder) {
+                        JwtService jwtService, PasswordEncoder passwordEncoder,
+                        ApplicationEventPublisher eventPublisher) {
         this.usuarioRepository = usuarioRepository;
         this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
         this.modelMapper = new ModelMapper();
+        this.eventPublisher = eventPublisher;
     }
 
     public AuthResponseDto login (LoginRequestDto req) {
@@ -50,11 +56,26 @@ public class AuthService {
         return response;
     }
 
-    public AuthResponseDto register (RegisterRequestDto registerRequestDto) {
+    public AuthResponseDto register(RegisterRequestDto registerRequestDto) {
         Optional<Usuario> usuario = usuarioRepository.findByEmail(registerRequestDto.getEmail());
         if (usuario.isPresent()) throw new UserAlreadyExistException("El correo electrónico ya está registrado");
 
-        if (registerRequestDto.getIsEmpleado()) {
+        AuthResponseDto response = new AuthResponseDto();
+
+        if (registerRequestDto.getIsAdmin() != null && registerRequestDto.getIsAdmin()) {
+            // Crear perfil de administrador
+            Usuario admin = new Usuario();
+            admin.setRole(Role.ADMIN);
+            admin.setFirstName(registerRequestDto.getFirstName());
+            admin.setLastName(registerRequestDto.getLastName());
+            admin.setEmail(registerRequestDto.getEmail());
+            admin.setPassword(passwordEncoder.encode(registerRequestDto.getPassword()));
+            admin.setPhoneNumber(registerRequestDto.getPhone());
+
+            usuarioRepository.save(admin);
+            response.setToken(jwtService.generateToken(admin));
+            return response;
+        } else if (registerRequestDto.getIsEmpleado()) {
             Empleado empleado = new Empleado();
             empleado.setRole(Role.EMPLEADO);
             empleado.setFirstName(registerRequestDto.getFirstName());
@@ -65,7 +86,9 @@ public class AuthService {
 
             usuarioRepository.save(empleado);
 
-            AuthResponseDto response = new AuthResponseDto();
+            // Publicar evento de creación de empleado
+            eventPublisher.publishEvent(new EmpleadoCreatedEvent(empleado, empleado.getEmail()));
+
             response.setToken(jwtService.generateToken(empleado));
             return response;
         } else {
@@ -79,9 +102,12 @@ public class AuthService {
 
             usuarioRepository.save(estudiante);
 
-            AuthResponseDto response = new AuthResponseDto();
+            // Publicar evento de creación de estudiante
+            eventPublisher.publishEvent(new EstudianteCreatedEvent(estudiante, estudiante.getEmail()));
+
             response.setToken(jwtService.generateToken(estudiante));
             return response;
         }
     }
+
 }

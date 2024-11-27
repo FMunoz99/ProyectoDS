@@ -33,6 +33,12 @@ public class EstudianteController {
         this.objetoPerdidoService = objetoPerdidoService;
     }
 
+    @GetMapping("/lista")
+    public ResponseEntity<List<EstudianteResponseDto>> getAllEstudiantes() {
+        List<EstudianteResponseDto> estudiantes = estudianteService.getAllEstudiantes();
+        return ResponseEntity.ok(estudiantes);
+    }
+
     @GetMapping("/me")
     public ResponseEntity<EstudianteSelfResponseDto> getEstudiante() {
         return ResponseEntity.ok(estudianteService.getEstudianteOwnInfo());
@@ -50,9 +56,8 @@ public class EstudianteController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEstudiante(@PathVariable Long id) {
-        estudianteService.deleteEstudiante(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<String> deleteEstudiante(@PathVariable Long id) {
+        return estudianteService.deleteEstudiante(id);
     }
 
     @PatchMapping("/me")

@@ -1,10 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Incidentes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actualización del Estado del Incidente</title>
+    <link rel="stylesheet" href="../static/css/emailStyles.css">
 </head>
 <body>
+
+<div class="container">
+    <div class="header">
+        <img src="../static/img/logo2.png" alt="Logo de la aplicación">
+    </div>
+
+    <h2 class="title">Actualización del Estado del Incidente</h2>
+
+    <p class="text">
+        Te notificamos que el estado de un incidente ha sido actualizado. Aquí están los detalles:
+    </p>
+
+    <div class="info-cards">
+        <div class="card">
+            <p class="card-label">ID del Incidente</p>
+            <p class="card-value" th:text="${ID_Incidente}">ID</p>
+        </div>
+        <div class="card">
+            <p class="card-label">Estado Actual</p>
+            <p class="card-value" th:text="${Estado_Reporte}">Estado</p>
+        </div>
+        <div class="card">
+            <p class="card-label">Estado Tarea</p>
+            <p class="card-value" th:text="${Estado_Tarea}">Estado</p>
+        </div>
+        <div class="card">
+            <p class="card-label">Descripción</p>
+            <p class="card-value" th:text="${Descripcion}">Descripcion</p>
+        </div>
+    </div>
+
+    <p class="footer-text">
+        &copy; 2024 Lost&Found. Todos los derechos reservados.
+    </p>
+</div>
 
 </body>
 </html>

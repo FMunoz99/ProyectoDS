@@ -15,7 +15,7 @@ public class ObjetoPerdidoCreatedEvent extends ApplicationEvent {
     private final ObjetoPerdido objetoPerdido;
     private final Mail mail;
 
-    public ObjetoPerdidoCreatedEvent(ObjetoPerdido objetoPerdido, List<String> recipientEmails) {
+    public ObjetoPerdidoCreatedEvent(ObjetoPerdido objetoPerdido, String recipientEmail) {
         super(objetoPerdido);
         this.objetoPerdido = objetoPerdido;
 
@@ -30,12 +30,9 @@ public class ObjetoPerdidoCreatedEvent extends ApplicationEvent {
         properties.put("Email", objetoPerdido.getEmail());
         properties.put("Número de Teléfono", objetoPerdido.getPhoneNumber());
 
-        // Convertir la lista de correos a un solo String
-        String recipientEmailsString = String.join(",", recipientEmails);
-
         Mail mail = Mail.builder()
-                .from("notificaciones@miapp.com")
-                .to(recipientEmailsString) // Aquí se usa un String
+                .from("fernando.munoz.p@utec.edu.pe")
+                .to(recipientEmail) // Ahora usa un solo String
                 .htmlTemplate(new Mail.HtmlTemplate("ObjetoPerdidoCreatedTemplate", properties))
                 .subject("Nuevo Objeto Perdido Creado")
                 .build();

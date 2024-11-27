@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,7 +42,7 @@ public class ObjetoPerdidoController {
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/{id}/estado")
     public ResponseEntity<ObjetoPerdidoResponseDto> updateObjetoPerdidoStatus(@PathVariable Long id,
                                                                               @RequestBody ObjetoPerdidoPatchRequestDto patchDto) {
         ObjetoPerdidoResponseDto responseDto = objetoPerdidoService.updateStatusObjetoPerdido(id, patchDto);

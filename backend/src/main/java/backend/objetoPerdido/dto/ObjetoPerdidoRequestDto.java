@@ -28,6 +28,9 @@ public class ObjetoPerdidoRequestDto {
     @Size(min = 1, max = 15)
     private String phoneNumber;
 
+    @Size(max = 255)
+    private String description;
+
     @NotNull
     private LocalDate fechaReporte;
 

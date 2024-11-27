@@ -44,6 +44,48 @@ public class AuthorizationUtils {
                 usuario.getRole().equals(Role.ADMIN);
     }
 
+    public boolean isAdminOrEmpleado(Empleado empleado) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String username = userDetails.getUsername();
+        String role = userDetails.getAuthorities().toArray()[0].toString();
+
+        // Obtiene el usuario autenticado a partir de su correo electrónico y rol
+        Usuario usuario = usuarioService.findByEmail(username, role);
+
+        // Permitir si es ADMIN o si el usuario autenticado es un EMPLEADO
+        return usuario.getRole().equals(Role.ADMIN) || (empleado != null && empleado.getId().equals(usuario.getId()));
+    }
+
+    public boolean isAdminOrEmpleado() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String username = userDetails.getUsername();
+        String role = userDetails.getAuthorities().toArray()[0].toString(); // Asumimos que hay un solo rol
+
+        return role.equals("ROLE_ADMIN") || role.equals("ROLE_EMPLEADO");
+    }
+
+
+    public boolean isEstudiante() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String username = userDetails.getUsername();
+        String role = userDetails.getAuthorities().toArray()[0].toString(); // Asumimos que hay un solo rol
+
+        return role.equals(Role.ESTUDIANTE.toString());  // Verifica si el rol es ESTUDIANTE
+    }
+
+    public boolean isAdmin() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String username = userDetails.getUsername();
+        String role = userDetails.getAuthorities().toArray()[0].toString();
+
+        // Verifica si el rol del usuario es ADMIN
+        return role.equals("ROLE_ADMIN");
+    }
+
     public String getCurrentUserEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         try {

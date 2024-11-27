@@ -8,14 +8,18 @@ import lombok.Data;
 public class IncidenteResponseDto {
 
     private Long id;
+
     private String piso;
     private String detalle;
     private String ubicacion;
+
     private EstadoReporte estadoReporte;
     private EstadoTarea estadoTarea;
     private String email;
+
     private String phoneNumber;
-    private String descripcion;
+    private String description;
+
     private Long estudianteId;
     private Long empleadoId;
 }

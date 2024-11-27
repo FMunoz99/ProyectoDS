@@ -1,9 +1,12 @@
 package backend.incidente.domain;
 
 import backend.auth.utils.AuthorizationUtils;
+import backend.empleado.domain.Empleado;
 import backend.empleado.infrastructure.EmpleadoRepository;
 import backend.estudiante.domain.Estudiante;
 import backend.estudiante.exceptions.UnauthorizeOperationException;
+import backend.estudiante.infrastructure.EstudianteRepository;
+import backend.events.email_event.IncidenteCreatedEmpleadoEvent;
 import backend.events.email_event.IncidenteCreatedEvent;
 import backend.events.email_event.IncidenteStatusChangeEvent;
 import backend.exceptions.ResourceNotFoundException;
@@ -20,6 +23,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,21 +36,30 @@ public class IncidenteService {
     private final AuthorizationUtils authorizationUtils;
     private final UsuarioService usuarioService;
     private final EmpleadoRepository empleadoRepository;
+    private final EstudianteRepository estudianteRepository;
 
     @Autowired
     public IncidenteService(IncidenteRepository incidenteRepository,
                             ApplicationEventPublisher publisher,
                             ModelMapper modelMapper, UsuarioService usuarioService ,
-                            AuthorizationUtils authorizationUtils, EmpleadoRepository empleadoRepository) {
+                            AuthorizationUtils authorizationUtils, EmpleadoRepository empleadoRepository,
+                            EstudianteRepository estudianteRepository) {
         this.incidenteRepository = incidenteRepository;
         this.eventPublisher = publisher;
         this.modelMapper = modelMapper;
         this.authorizationUtils = authorizationUtils;
         this.usuarioService = usuarioService;
         this.empleadoRepository = empleadoRepository;
+        this.estudianteRepository = estudianteRepository;
     }
 
     public List<IncidenteResponseDto> findAllIncidentes() {
+        // Verificar si el usuario autenticado es un administrador o un empleado
+        if (!authorizationUtils.isAdminOrEmpleado()) {
+            throw new UnauthorizeOperationException("Solo los administradores y empleados pueden ver todos los reportes de incidentes");
+        }
+
+        // Obtener todos los incidentes y mapearlos a DTO
         return incidenteRepository.findAll().stream()
                 .map(incidente -> modelMapper.map(incidente, IncidenteResponseDto.class))
                 .toList();
@@ -58,52 +72,91 @@ public class IncidenteService {
     }
 
     public IncidenteResponseDto saveIncidente(IncidenteRequestDto requestDto) {
+
+        if (!authorizationUtils.isEstudiante()) {
+            throw new UnauthorizeOperationException("Solo los estudiantes pueden crear un reporte de incidente");
+        }
+
+        // Mapeo del DTO a la entidad Incidente
         Incidente incidente = modelMapper.map(requestDto, Incidente.class);
 
+        // Seteo de otros campos
+        incidente.setPiso(requestDto.getPiso());
+        incidente.setDetalle(requestDto.getDetalle());
+        incidente.setUbicacion(requestDto.getUbicacion());
+        incidente.setEmail(requestDto.getEmail());
+        incidente.setPhoneNumber(requestDto.getPhoneNumber());
+        incidente.setDescription(requestDto.getDescription());
         incidente.setEstadoReporte(EstadoReporte.PENDIENTE);
         incidente.setEstadoTarea(EstadoTarea.NO_FINALIZADO);
-        incidente.setFechaReporte(LocalDate.now());
+        incidente.setFechaReporte(requestDto.getFechaReporte());
 
+        // Obtener el correo del estudiante
+        String studentEmail = incidente.getEmail();
+
+        // Buscar al estudiante en la base de datos usando su email
+        Optional<Estudiante> optionalEstudiante = estudianteRepository.findByEmail(studentEmail);
+        if (optionalEstudiante.isPresent()) {
+            Estudiante estudiante = optionalEstudiante.get();
+            incidente.setEstudiante(estudiante);
+        } else {
+            incidente.setEstudiante(null);
+        }
+
+        // Buscar un empleado disponible al azar
+        List<Empleado> empleados = empleadoRepository.findAll();
+        String empleadoEmail = null;
+        if (!empleados.isEmpty()) {
+            // Seleccionar un empleado aleatorio
+            Random random = new Random();
+            Empleado empleado = empleados.get(random.nextInt(empleados.size()));
+            incidente.setEmpleado(empleado);
+            empleadoEmail = empleado.getEmail(); // Obtener el correo del empleado seleccionado
+        }
+
+        // Guardar el incidente en la base de datos
         Incidente savedIncidente = incidenteRepository.save(incidente);
 
-        String studentEmail = savedIncidente.getEmail();
+        // Publicar el evento para notificar solo al estudiante
+        eventPublisher.publishEvent(new IncidenteCreatedEvent(savedIncidente, studentEmail));
 
-        // Obtener correos electrónicos de empleados
-        List<String> employeeEmails = empleadoRepository.findAllEmpleadosEmails();
-
-        // Crear una lista de correos que incluye al estudiante y a los empleados
-        List<String> recipientEmails = new ArrayList<>(employeeEmails);
-        recipientEmails.add(studentEmail);
-
-        // Publicar el evento para notificar a todos los destinatarios
-        eventPublisher.publishEvent(new IncidenteCreatedEvent(savedIncidente, recipientEmails));
+        // solo si se asignó un empleado, publicar el evento para notificar al empleado
+        if (empleadoEmail != null) {
+            eventPublisher.publishEvent(new IncidenteCreatedEmpleadoEvent(savedIncidente, empleadoEmail));
+        }
 
         // Mapear y devolver el DTO de respuesta
         return modelMapper.map(savedIncidente, IncidenteResponseDto.class);
     }
 
-
     public IncidenteResponseDto updateStatusIncidente(Long id, IncidentePatchRequestDto patchDto) {
         Incidente incidente = incidenteRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Incidente no encontrado"));
 
-        if (!authorizationUtils.isAdminOrResourceOwner(incidente.getEstudiante(), incidente.getEmpleado())) {
+        if (!authorizationUtils.isAdminOrEmpleado(incidente.getEmpleado())) {
             throw new UnauthorizeOperationException("El usuario no tiene permiso para modificar este recurso");
         }
 
-        incidente.setEstadoReporte(patchDto.getEstadoReporte());
-        incidente.setEstadoTarea(patchDto.getEstadoTarea());
+        // Actualiza solo los campos que no son null en patchDto
+        if (patchDto.getEstadoReporte() != null) {
+            incidente.setEstadoReporte(patchDto.getEstadoReporte());
+        }
+        if (patchDto.getEstadoTarea() != null) {
+            incidente.setEstadoTarea(patchDto.getEstadoTarea());
+        }
+
         Incidente updatedIncidente = incidenteRepository.save(incidente);
 
         eventPublisher.publishEvent(new IncidenteStatusChangeEvent(updatedIncidente, updatedIncidente.getEmail()));
         return modelMapper.map(updatedIncidente, IncidenteResponseDto.class);
     }
 
+
     public void deleteIncidente(Long id) {
         Incidente incidente = incidenteRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Incidente no encontrado"));
 
-        if (!authorizationUtils.isAdminOrResourceOwner(incidente.getEstudiante(), incidente.getEmpleado())) {
+        if (!authorizationUtils.isAdminOrEmpleado(incidente.getEmpleado())) {
             throw new UnauthorizeOperationException("El usuario no tiene permiso para eliminar este recurso");
         }
 

@@ -6,6 +6,8 @@ import backend.empleado.dto.EmpleadoRequestDto;
 import backend.empleado.dto.EmpleadoResponseDto;
 import backend.empleado.dto.EmpleadoSelfResponseDto;
 import backend.empleado.infrastructure.EmpleadoRepository;
+import backend.estudiante.domain.Estudiante;
+import backend.estudiante.dto.EstudianteResponseDto;
 import backend.estudiante.exceptions.UnauthorizeOperationException;
 import backend.events.email_event.EmpleadoCreatedEvent;
 import backend.events.email_event.EmpleadoUpdatedEvent;
@@ -13,8 +15,11 @@ import backend.exceptions.ResourceNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class EmpleadoService {
@@ -30,6 +35,19 @@ public class EmpleadoService {
         this.empleadoRepository = empleadoRepository;
         this.authorizationUtils = authorizationUtils;
         this.eventPublisher = eventPublisher;
+    }
+
+    public List<EmpleadoResponseDto> getAllEmpleados() {
+
+        // Verificación del rol de usuario
+        if (!authorizationUtils.isAdmin()) {
+            throw new UnauthorizeOperationException("Solo los administradores pueden ver la lista de empleados");
+        }
+
+        List<Empleado> empleados = empleadoRepository.findAll();
+        return empleados.stream()
+                .map(empleado -> modelMapper.map(empleado, EmpleadoResponseDto.class))
+                .toList();
     }
 
     public EmpleadoResponseDto getEmpleadoInfo (Long id) {
@@ -50,8 +68,15 @@ public class EmpleadoService {
     }
 
     public EmpleadoResponseDto createEmpleado(EmpleadoRequestDto dto) {
+        // Verificar si el usuario tiene el rol de administrador
+        if (!authorizationUtils.isAdmin()) {
+            throw new UnauthorizeOperationException("Solo los administradores pueden crear empleados");
+        }
+
         Empleado empleado = modelMapper.map(dto, Empleado.class);
+
         Empleado savedEmpleado = empleadoRepository.save(empleado);
+
         EmpleadoResponseDto responseDto = modelMapper.map(savedEmpleado, EmpleadoResponseDto.class);
 
         String recipientEmail = savedEmpleado.getEmail();
@@ -60,7 +85,6 @@ public class EmpleadoService {
 
         return responseDto;
     }
-
 
     public EmpleadoSelfResponseDto getEmpleadoOwnInfo() {
         String username = authorizationUtils.getCurrentUserEmail();
@@ -73,25 +97,48 @@ public class EmpleadoService {
     }
 
 
-    public void deleteEmpleado (Long id) {
-        if (!authorizationUtils.isAdminOrResourceOwner(id))
-            throw new UnauthorizeOperationException("El usuario no tiene permiso para modificar este recurso");
+    public ResponseEntity<String> deleteEmpleado(Long id) {
+        // Verificar que el usuario tiene permisos para eliminar
+        if (!authorizationUtils.isAdmin()) {
+            throw new UnauthorizeOperationException("El usuario no tiene permiso para eliminar este recurso");
+        }
+
+        // Verificar si el empleado existe
+        if (!empleadoRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Empleado con ID " + id + " no encontrado");
+        }
 
         empleadoRepository.deleteById(id);
+
+        // Retornar una respuesta con el mensaje de éxito
+        return ResponseEntity.ok("Empleado con ID " + id + " eliminado con éxito");
     }
 
     public EmpleadoResponseDto updateEmpleadoInfo(Long id, EmpleadoPatchRequestDto empleadoInfo) {
-        if (!authorizationUtils.isAdminOrResourceOwner(id))
+        if (!authorizationUtils.isAdminOrResourceOwner(id)) {
             throw new UnauthorizeOperationException("El usuario no tiene permiso para modificar este recurso");
+        }
 
         Empleado empleado = empleadoRepository
                 .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Empleado no encontrado"));
 
-        empleado.setFirstName(empleadoInfo.getFirstName());
-        empleado.setLastName(empleadoInfo.getLastName());
-        empleado.setPhoneNumber(empleadoInfo.getPhoneNumber());
-        empleado.setHorarioDeTrabajo(empleadoInfo.getHorarioDeTrabajo());
+        // Actualiza solo los campos que han sido enviados en el DTO
+        if (empleadoInfo.getFirstName() != null) {
+            empleado.setFirstName(empleadoInfo.getFirstName());
+        }
+        if (empleadoInfo.getLastName() != null) {
+            empleado.setLastName(empleadoInfo.getLastName());
+        }
+        if (empleadoInfo.getPhoneNumber() != null) {
+            empleado.setPhoneNumber(empleadoInfo.getPhoneNumber());
+        }
+        if (empleadoInfo.getEmail() != null) {
+            empleado.setEmail(empleadoInfo.getEmail());
+        }
+        if (empleadoInfo.getHorarioDeTrabajo() != null) {
+            empleado.setHorarioDeTrabajo(empleadoInfo.getHorarioDeTrabajo());
+        }
 
         Empleado updatedEmpleado = empleadoRepository.save(empleado);
 
@@ -101,5 +148,6 @@ public class EmpleadoService {
 
         return modelMapper.map(updatedEmpleado, EmpleadoResponseDto.class);
     }
+
 
 }

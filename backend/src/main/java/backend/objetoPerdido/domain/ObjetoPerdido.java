@@ -47,7 +47,9 @@ public class ObjetoPerdido {
     @Size(min = 1, max = 15)
     private String phoneNumber;
 
-    @NotNull
+    @Size(max = 255)
+    private String description;
+
     private LocalDate fechaReporte;
 
     @ManyToOne
@@ -55,4 +57,11 @@ public class ObjetoPerdido {
 
     @ManyToOne
     private Empleado empleado;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.fechaReporte == null) {
+            this.fechaReporte = LocalDate.now();
+        }
+    }
 }

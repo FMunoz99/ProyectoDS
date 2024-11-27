@@ -1,14 +1,18 @@
 package backend.objetoPerdido.domain;
 
 import backend.auth.utils.AuthorizationUtils;
+import backend.empleado.domain.Empleado;
 import backend.empleado.infrastructure.EmpleadoRepository;
 import backend.estudiante.domain.Estudiante;
 import backend.estudiante.exceptions.UnauthorizeOperationException;
+import backend.estudiante.infrastructure.EstudianteRepository;
+import backend.events.email_event.ObjetoPerdidoCreatedEmpleadoEvent;
 import backend.events.email_event.ObjetoPerdidoCreatedEvent;
 import backend.events.email_event.ObjetoPerdidoStatusChangeEvent;
 import backend.exceptions.ResourceNotFoundException;
 import backend.incidente.domain.EstadoReporte;
 import backend.incidente.domain.EstadoTarea;
+import backend.incidente.domain.Incidente;
 import backend.objetoPerdido.dto.ObjetoPerdidoPatchRequestDto;
 import backend.objetoPerdido.dto.ObjetoPerdidoRequestDto;
 import backend.objetoPerdido.dto.ObjetoPerdidoResponseDto;
@@ -22,6 +26,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,22 +39,29 @@ public class ObjetoPerdidoService {
     private final AuthorizationUtils authorizationUtils;
     private final UsuarioService usuarioService;
     private final EmpleadoRepository empleadoRepository;
+    private final EstudianteRepository estudianteRepository;
 
     @Autowired
     public ObjetoPerdidoService(ObjetoPerdidoRepository objetoPerdidoRepository,
                                 ApplicationEventPublisher publisher,
                                 ModelMapper modelMapper, UsuarioService usuarioService,
                                 AuthorizationUtils authorizationUtils,
-                                EmpleadoRepository empleadoRepository) {
+                                EmpleadoRepository empleadoRepository, EstudianteRepository estudianteRepository) {
         this.objetoPerdidoRepository = objetoPerdidoRepository;
         this.eventPublisher = publisher;
         this.modelMapper = modelMapper;
         this.authorizationUtils = authorizationUtils;
         this.usuarioService = usuarioService;
         this.empleadoRepository = empleadoRepository;
+        this.estudianteRepository = estudianteRepository;
     }
 
     public List<ObjetoPerdidoResponseDto> findAllObjetosPerdidos() {
+
+        // Verificar si el usuario autenticado es un administrador o un empleado
+        if (!authorizationUtils.isAdminOrEmpleado()) {
+            throw new UnauthorizeOperationException("Solo los administradores y empleados pueden ver todos los reportes de objetos perdidos");
+        }
         return objetoPerdidoRepository.findAll().stream()
                 .map(objetoPerdido -> modelMapper.map(objetoPerdido, ObjetoPerdidoResponseDto.class))
                 .toList();
@@ -61,34 +74,80 @@ public class ObjetoPerdidoService {
     }
 
     public ObjetoPerdidoResponseDto saveObjetoPerdido(ObjetoPerdidoRequestDto requestDto) {
+
+        if (!authorizationUtils.isEstudiante()) {
+            throw new UnauthorizeOperationException("Solo los estudiantes pueden crear un reporte de objeto perdido");
+        }
+
+        // Mapeo del DTO a la entidad ObjetoPerdido
         ObjetoPerdido objetoPerdido = modelMapper.map(requestDto, ObjetoPerdido.class);
 
+        // Seteo de otros campos
+        objetoPerdido.setPiso(requestDto.getPiso());
+        objetoPerdido.setDetalle(requestDto.getDetalle());
+        objetoPerdido.setUbicacion(requestDto.getUbicacion());
+        objetoPerdido.setEmail(requestDto.getEmail());
+        objetoPerdido.setPhoneNumber(requestDto.getPhoneNumber());
+        objetoPerdido.setDescription(requestDto.getDescription());
         objetoPerdido.setEstadoReporte(EstadoReporte.PENDIENTE);
         objetoPerdido.setEstadoTarea(EstadoTarea.NO_FINALIZADO);
-        objetoPerdido.setFechaReporte(LocalDate.now());
+        objetoPerdido.setFechaReporte(requestDto.getFechaReporte());
 
+        // Obtener el correo del estudiante
+        String studentEmail = objetoPerdido.getEmail();
+
+        // Buscar al estudiante en la base de datos usando su email
+        Optional<Estudiante> optionalEstudiante = estudianteRepository.findByEmail(studentEmail);
+        if (optionalEstudiante.isPresent()) {
+            Estudiante estudiante = optionalEstudiante.get();
+            objetoPerdido.setEstudiante(estudiante);  // Asignar estudiante al objeto perdido
+        } else {
+            objetoPerdido.setEstudiante(null);  // En caso de no encontrar el estudiante, se asigna null
+        }
+
+        // Buscar un empleado disponible al azar
+        List<Empleado> empleados = empleadoRepository.findAll();
+        String empleadoEmail = null;
+        if (!empleados.isEmpty()) {
+            // Seleccionar un empleado aleatorio
+            Random random = new Random();
+            Empleado empleado = empleados.get(random.nextInt(empleados.size()));
+            objetoPerdido.setEmpleado(empleado);  // Asignar empleado al objeto perdido
+            empleadoEmail = empleado.getEmail();  // Obtener el correo del empleado seleccionado
+        }
+
+        // Guardar el objeto perdido en la base de datos
         ObjetoPerdido savedObjetoPerdido = objetoPerdidoRepository.save(objetoPerdido);
 
-        String studentEmail = savedObjetoPerdido.getEmail();
+        // Publicar el evento para notificar solo al estudiante
+        eventPublisher.publishEvent(new ObjetoPerdidoCreatedEvent(savedObjetoPerdido, studentEmail));
 
-        // Obtener correos electrónicos de empleados
-        List<String> employeeEmails = empleadoRepository.findAllEmpleadosEmails();
+        // Solo si se asignó un empleado, publicar el evento para notificar al empleado
+        if (empleadoEmail != null) {
+            eventPublisher.publishEvent(new ObjetoPerdidoCreatedEmpleadoEvent(savedObjetoPerdido, empleadoEmail));
+        }
 
-        // Crear una lista de correos que incluye al estudiante y a los empleados
-        List<String> recipientEmails = new ArrayList<>(employeeEmails);
-        recipientEmails.add(studentEmail);
-
-        eventPublisher.publishEvent(new ObjetoPerdidoCreatedEvent(savedObjetoPerdido, recipientEmails));
-
+        // Mapear y devolver el DTO de respuesta
         return modelMapper.map(savedObjetoPerdido, ObjetoPerdidoResponseDto.class);
     }
+
 
     public ObjetoPerdidoResponseDto updateStatusObjetoPerdido(Long id, ObjetoPerdidoPatchRequestDto patchDto) {
         ObjetoPerdido objetoPerdido = objetoPerdidoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Objeto perdido no encontrado"));
 
-        objetoPerdido.setEstadoReporte(patchDto.getEstadoReporte());
-        objetoPerdido.setEstadoTarea(patchDto.getEstadoTarea());
+        if (!authorizationUtils.isAdminOrEmpleado(objetoPerdido.getEmpleado())) {
+            throw new UnauthorizeOperationException("El usuario no tiene permiso para modificar este recurso");
+        }
+
+        // Actualiza solo los campos que no son null en patchDto
+        if (patchDto.getEstadoReporte() != null) {
+            objetoPerdido.setEstadoReporte(patchDto.getEstadoReporte());
+        }
+        if (patchDto.getEstadoTarea() != null) {
+            objetoPerdido.setEstadoTarea(patchDto.getEstadoTarea());
+        }
+
         ObjetoPerdido updatedObjetoPerdido = objetoPerdidoRepository.save(objetoPerdido);
 
         String recipientEmail = updatedObjetoPerdido.getEmail();
@@ -98,6 +157,9 @@ public class ObjetoPerdidoService {
 
 
     public void deleteObjetoPerdido(Long id) {
+        ObjetoPerdido objetoPerdido = objetoPerdidoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Objeto Perdido no encontrado"));
+
         if (!authorizationUtils.isAdminOrResourceOwner(id))
             throw new UnauthorizeOperationException("El usuario no tiene permiso para eliminar este recurso");
         objetoPerdidoRepository.deleteById(id);
