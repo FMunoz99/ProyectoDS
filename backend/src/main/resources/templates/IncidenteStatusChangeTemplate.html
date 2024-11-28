@@ -1,46 +1,112 @@
 <!DOCTYPE html>
-<html lang="es">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Actualización del Estado del Incidente</title>
-    <link rel="stylesheet" href="../static/css/emailStyles.css">
+    <title>Actualización de Solicitud</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco con opacidad */
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            margin: auto;
+            border: 2px solid #457bb8; /* Borde azul */
+            position: relative;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header img {
+            max-width: 150px;
+            height: auto;
+        }
+        .highlight {
+            color: #274a71;
+            font-weight: bold;
+        }
+        .title {
+            font-size: 24px;
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .text {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .footer-text {
+            font-size: 14px;
+            color: #888;
+            margin: 5px 0;
+        }
+        .image-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .image-container img {
+            width: 35%;
+            max-width: 300px;
+            height: auto;
+            border-radius: 8px;
+        }
+    </style>
 </head>
 <body>
 
 <div class="container">
+    <!-- Header con logo -->
     <div class="header">
-        <img src="../static/img/logo2.png" alt="Logo de la aplicación">
+        <img src="https://preview.redd.it/5lzdqhgbc3d81.png?width=1080&crop=smart&auto=webp&s=ba3add550b768382e39f834649c97d8aee87fda9" alt="Logo de la aplicación">
     </div>
 
-    <h2 class="title">Actualización del Estado del Incidente</h2>
+    <!-- Título principal -->
+    <h1 class="title">Actualización del Estado de Incidente</h1>
+
+    <!-- Imagen representativa del estado del reporte -->
+    <div class="image-container">
+        <img th:src="${imageUrlReporte}" alt="Estado del Reporte">
+    </div>
+
+    <!-- Mensaje principal -->
+    <p class="text">
+        Estimado, <strong th:text="${NombreAlumno}">[NombreAlumno]</strong>:
+    </p>
 
     <p class="text">
-        Te notificamos que el estado de un incidente ha sido actualizado. Aquí están los detalles:
+        Se ha actualizado el estado del reporte de tu incidente:
     </p>
 
-    <div class="info-cards">
-        <div class="card">
-            <p class="card-label">ID del Incidente</p>
-            <p class="card-value" th:text="${ID_Incidente}">ID</p>
-        </div>
-        <div class="card">
-            <p class="card-label">Estado Actual</p>
-            <p class="card-value" th:text="${Estado_Reporte}">Estado</p>
-        </div>
-        <div class="card">
-            <p class="card-label">Estado Tarea</p>
-            <p class="card-value" th:text="${Estado_Tarea}">Estado</p>
-        </div>
-        <div class="card">
-            <p class="card-label">Descripción</p>
-            <p class="card-value" th:text="${Descripcion}">Descripcion</p>
-        </div>
+    <!-- Información del incidente -->
+    <p>
+        <strong>ID del Incidente:</strong> <span class="highlight" th:text="${IDObjetoPerdido}">[ID del Incidente]</span><br>
+        <strong>Descripción:</strong> <span class="highlight" th:text="${Descripcion}">[Descripción]</span><br>
+        <strong>Estado del Reporte:</strong> <span class="highlight" th:text="${EstadoReporte}">[Estado del Reporte]</span><br>
+        <strong>Estado de la Tarea:</strong> <span class="highlight" th:text="${EstadoTarea}">[Estado de la Tarea]</span>
+    </p>
+
+    <!-- Mensaje adicional -->
+    <p class="text">
+        Para más información, por favor revisa los detalles en la plataforma o contáctanos si tienes alguna pregunta.
+    </p>
+
+    <!-- Pie de página -->
+    <div class="footer">
+        <p class="footer-text">El equipo de <strong>Lost&Found</strong></p>
+        <p class="footer-text">&copy; 2024 Lost&Found. Todos los derechos reservados.</p>
     </div>
-
-    <p class="footer-text">
-        &copy; 2024 Lost&Found. Todos los derechos reservados.
-    </p>
 </div>
 
 </body>

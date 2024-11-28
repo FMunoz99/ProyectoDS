@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Actualización del Estado de Objeto Perdido</title>
+    <title>Actualización de Solicitud</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -81,7 +81,7 @@
 
     <!-- Mensaje principal -->
     <p class="text">
-        Estimado usuario:
+        Estimado, <strong th:text="${NombreAlumno}">[NombreAlumno]</strong>:
     </p>
 
     <p class="text">

@@ -29,7 +29,7 @@ public class EmpleadoCreatedEvent extends ApplicationEvent {
         properties.put("Mensaje", "Bienvenido a nuestro equipo");
 
         this.mail = Mail.builder()
-                .from("fernando.munoz.p@utec.edu.pe")
+                .from("Lost&Found")
                 .to(recipientEmail)
                 .htmlTemplate(new Mail.HtmlTemplate("BienvenidaTemplate", properties))
                 .subject("Bienvenido a la plataforma")

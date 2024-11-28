@@ -40,7 +40,7 @@ public class ObjetoPerdidoCreatedEmpleadoEvent extends ApplicationEvent {
                 .from("Lost&Found")
                 .to(recipientEmail) // Aquí se usa un solo String
                 .htmlTemplate(new Mail.HtmlTemplate("ObjetoPerdidoCreatedEmpleadoTemplate", properties))
-                .subject("Nuevo Objeto Perdido Asignado")
+                .subject("Nuevo Reporte de Objeto Perdido Asignado")
                 .build();
 
         this.mail = mail;

@@ -19,20 +19,29 @@ public class IncidenteCreatedEmpleadoEvent extends ApplicationEvent {
         super(incidente);
         this.incidente = incidente;
 
+        String nombreEmpleado = incidente.getEmpleado().getFirstName() + " " + incidente.getEmpleado().getLastName();
+        String idObjetoPerdido = incidente.getId().toString();
+        String pisoReporte = incidente.getPiso();
+        String locationReporte = incidente.getUbicacion();
+        String detallesReporte = incidente.getDetalle();
+        String nombreAlumno = incidente.getEstudiante().getFirstName() + " " + incidente.getEstudiante().getLastName();
+        String phoneNumber = incidente.getPhoneNumber();
+
         // Configuración del correo electrónico
         Map<String, Object> properties = new HashMap<>();
-        properties.put("ID del Incidente", incidente.getId());
-        properties.put("Piso", incidente.getPiso());
-        properties.put("Detalle", incidente.getDetalle());
-        properties.put("Ubicación", incidente.getUbicacion());
-        properties.put("Estado del Reporte", incidente.getEstadoReporte());
-        properties.put("Descripción", incidente.getDescription());
+        properties.put("NombreEmpleado", nombreEmpleado);
+        properties.put("IDObjetoPerdido", idObjetoPerdido);
+        properties.put("Piso", pisoReporte);
+        properties.put("Ubicacion", locationReporte);
+        properties.put("Detalle", detallesReporte);
+        properties.put("NombreAlumno",nombreAlumno);
+        properties.put("TelefonoContacto", phoneNumber);
 
         Mail mail = Mail.builder()
-                .from("fernando.munoz.p@utec.edu.pe")
+                .from("Lost&Found")
                 .to(recipientEmail) // Ahora usa un solo String
                 .htmlTemplate(new Mail.HtmlTemplate("IncidenteCreatedEmpleadoTemplate", properties))
-                .subject("Nuevo Incidente Creado")
+                .subject("Nuevo Reporte de Incidente Asignado")
                 .build();
 
         this.mail = mail;

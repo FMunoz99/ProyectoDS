@@ -24,7 +24,7 @@ public class EmpleadoUpdatedEvent extends ApplicationEvent {
         properties.put("updatedAt", empleado.getUpdatedAt().toString()); // Fecha de actualización
 
         this.mail = Mail.builder()
-                .from("fernando.munoz.p@utec.edu.pe")
+                .from("Lost&Found")
                 .to(recipientEmail)
                 .htmlTemplate(new Mail.HtmlTemplate("ActualizacionPerfilTemplate", properties))
                 .subject("Actualización de Datos de Empleado")

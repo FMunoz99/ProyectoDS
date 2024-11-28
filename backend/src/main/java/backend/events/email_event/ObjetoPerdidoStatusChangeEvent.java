@@ -26,6 +26,7 @@ public class ObjetoPerdidoStatusChangeEvent extends ApplicationEvent {
         // Configuración del correo electrónico
         Map<String, Object> properties = new HashMap<>();
         properties.put("IDObjetoPerdido", objetoPerdido.getId());
+        properties.put("NombreAlumno", objetoPerdido.getEstudiante().getFirstName() + " " + objetoPerdido.getEstudiante().getLastName());
         properties.put("EstadoReporte", objetoPerdido.getEstadoReporte());
         properties.put("EstadoTarea", objetoPerdido.getEstadoTarea());
         properties.put("Descripcion", objetoPerdido.getDescription());
@@ -35,7 +36,7 @@ public class ObjetoPerdidoStatusChangeEvent extends ApplicationEvent {
                 .from("Lost&Found")
                 .to(recipientEmail)
                 .htmlTemplate(new Mail.HtmlTemplate("ObjetoPerdidoStatusChangeTemplate", properties))
-                .subject("Cambio de Estado del Objeto Perdido")
+                .subject("Actualización de Estado del Objeto Perdido")
                 .build();
 
         this.mail = mail;
