@@ -30,14 +30,16 @@ public class ObjetoPerdido {
     @NotNull
     private String ubicacion;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
+    @Column(name = "estadoReporte", nullable = false)
     private EstadoReporte estadoReporte;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
+    @Column(name = "estadoTarea", nullable = false)
     private EstadoTarea estadoTarea;
 
+    @NotNull
+    @Size(max = 255)
     private String detalle;
 
     @NotNull

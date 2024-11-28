@@ -73,9 +73,17 @@ public class IncidenteService {
 
     public IncidenteResponseDto saveIncidente(IncidenteRequestDto requestDto) {
 
-        if (!authorizationUtils.isEstudiante()) {
-            throw new UnauthorizeOperationException("Solo los estudiantes pueden crear un reporte de incidente");
+        // Obtener el correo del usuario autenticado
+        String username = authorizationUtils.getCurrentUserEmail();
+        if (username == null)
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
+
+        // Buscar al estudiante que está realizando la solicitud usando el email del usuario autenticado
+        Optional<Estudiante> optionalEstudianteRegistrador = estudianteRepository.findByEmail(username);
+        if (optionalEstudianteRegistrador.isEmpty()) {
+            throw new ResourceNotFoundException("No se encontró un estudiante asociado al usuario autenticado");
         }
+        Estudiante estudianteRegistrador = optionalEstudianteRegistrador.get();
 
         // Mapeo del DTO a la entidad Incidente
         Incidente incidente = modelMapper.map(requestDto, Incidente.class);
@@ -91,17 +99,8 @@ public class IncidenteService {
         incidente.setEstadoTarea(EstadoTarea.NO_FINALIZADO);
         incidente.setFechaReporte(requestDto.getFechaReporte());
 
-        // Obtener el correo del estudiante
-        String studentEmail = incidente.getEmail();
-
-        // Buscar al estudiante en la base de datos usando su email
-        Optional<Estudiante> optionalEstudiante = estudianteRepository.findByEmail(studentEmail);
-        if (optionalEstudiante.isPresent()) {
-            Estudiante estudiante = optionalEstudiante.get();
-            incidente.setEstudiante(estudiante);
-        } else {
-            incidente.setEstudiante(null);
-        }
+        // Asignar el estudiante que registró el incidente
+        incidente.setEstudiante(estudianteRegistrador);
 
         // Buscar un empleado disponible al azar
         List<Empleado> empleados = empleadoRepository.findAll();
@@ -110,17 +109,17 @@ public class IncidenteService {
             // Seleccionar un empleado aleatorio
             Random random = new Random();
             Empleado empleado = empleados.get(random.nextInt(empleados.size()));
-            incidente.setEmpleado(empleado);
-            empleadoEmail = empleado.getEmail(); // Obtener el correo del empleado seleccionado
+            incidente.setEmpleado(empleado);  // Asignar empleado al incidente
+            empleadoEmail = empleado.getEmail();  // Obtener el correo del empleado seleccionado
         }
 
         // Guardar el incidente en la base de datos
         Incidente savedIncidente = incidenteRepository.save(incidente);
 
-        // Publicar el evento para notificar solo al estudiante
-        eventPublisher.publishEvent(new IncidenteCreatedEvent(savedIncidente, studentEmail));
+        // Publicar el evento para notificar solo al estudiante que lo registró
+        eventPublisher.publishEvent(new IncidenteCreatedEvent(savedIncidente, estudianteRegistrador.getEmail()));
 
-        // solo si se asignó un empleado, publicar el evento para notificar al empleado
+        // Solo si se asignó un empleado, publicar el evento para notificar al empleado
         if (empleadoEmail != null) {
             eventPublisher.publishEvent(new IncidenteCreatedEmpleadoEvent(savedIncidente, empleadoEmail));
         }
@@ -128,6 +127,7 @@ public class IncidenteService {
         // Mapear y devolver el DTO de respuesta
         return modelMapper.map(savedIncidente, IncidenteResponseDto.class);
     }
+
 
     public IncidenteResponseDto updateStatusIncidente(Long id, IncidentePatchRequestDto patchDto) {
         Incidente incidente = incidenteRepository.findById(id)

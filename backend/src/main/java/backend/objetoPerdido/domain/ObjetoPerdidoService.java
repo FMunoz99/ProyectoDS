@@ -130,8 +130,6 @@ public class ObjetoPerdidoService {
         return modelMapper.map(savedObjetoPerdido, ObjetoPerdidoResponseDto.class);
     }
 
-
-
     public ObjetoPerdidoResponseDto updateStatusObjetoPerdido(Long id, ObjetoPerdidoPatchRequestDto patchDto) {
         ObjetoPerdido objetoPerdido = objetoPerdidoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Objeto perdido no encontrado"));
