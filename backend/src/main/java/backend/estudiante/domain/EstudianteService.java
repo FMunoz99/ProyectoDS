@@ -1,5 +1,6 @@
 package backend.estudiante.domain;
 
+import backend.auth.exceptions.UserAlreadyExistException;
 import backend.auth.utils.AuthorizationUtils;
 import backend.estudiante.dto.EstudiantePatchRequestDto;
 import backend.estudiante.dto.EstudianteRequestDto;
@@ -10,6 +11,7 @@ import backend.estudiante.infrastructure.EstudianteRepository;
 import backend.events.email_event.EstudianteCreatedEvent;
 import backend.events.email_event.EstudianteUpdatedEvent;
 import backend.exceptions.ResourceNotFoundException;
+import backend.usuario.domain.Role;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -58,19 +60,38 @@ public class EstudianteService {
 
     public EstudianteResponseDto createEstudiante(EstudianteRequestDto dto) {
 
+        // Verificar si el usuario tiene el rol de administrador
         if (!authorizationUtils.isAdmin()) {
             throw new UnauthorizeOperationException("Solo los administradores pueden crear estudiantes");
         }
-        Estudiante estudiante = modelMapper.map(dto, Estudiante.class);
-        Estudiante savedEstudiante = estudianteRepository.save(estudiante);
-        EstudianteResponseDto responseDto = modelMapper.map(savedEstudiante, EstudianteResponseDto.class);
 
+        // Comprobación si el estudiante con el mismo email ya existe
+        if (estudianteRepository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new UserAlreadyExistException("Estudiante con email " + dto.getEmail() + " ya existe.");
+        }
+
+        // Convertir el EstudianteRequestDto a Estudiante
+        Estudiante estudiante = modelMapper.map(dto, Estudiante.class);
+
+        // Encriptar la contraseña (si es necesario) y asignar otros datos básicos
+        estudiante.setPassword(passwordEncoder.encode(dto.getPassword()));  // Asignamos la contraseña encriptada
+        estudiante.setRole(Role.ESTUDIANTE);  // Asignamos el rol de estudiante
+        estudiante.setPhoneNumber(dto.getPhoneNumber());  // Asignamos el número de teléfono
+        estudiante.setUpdatedAt(ZonedDateTime.now());  // Establecemos la fecha de actualización
+        estudiante.setCreatedAt(ZonedDateTime.now());  // Establecemos la fecha de creación
+
+        // Guardar el estudiante en la base de datos
+        Estudiante savedEstudiante = estudianteRepository.save(estudiante);
+
+        // Publicar el evento de creación del estudiante
         String recipientEmail = savedEstudiante.getEmail();
         EstudianteCreatedEvent event = new EstudianteCreatedEvent(savedEstudiante, recipientEmail);
         eventPublisher.publishEvent(event);
 
-        return responseDto;
+        // Convertir el estudiante guardado a DTO y retornarlo
+        return modelMapper.map(savedEstudiante, EstudianteResponseDto.class);
     }
+
 
     public EstudianteSelfResponseDto getEstudianteOwnInfo() {
 
