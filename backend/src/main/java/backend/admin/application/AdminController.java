@@ -36,17 +36,6 @@ public class AdminController {
         this.objetoPerdidoService = objetoPerdidoService;
     }
 
-    @GetMapping("/lista")
-    public ResponseEntity<List<AdminResponseDto>> getAllAdmins() {
-        List<AdminResponseDto> admins = adminService.getAllAdmins();
-        return ResponseEntity.ok(admins);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<AdminResponseDto> getAdminById(@PathVariable Long id) {
-        AdminResponseDto admin = adminService.getAdminById(id);
-        return admin != null ? ResponseEntity.ok(admin) : ResponseEntity.notFound().build();
-    }
 
     @GetMapping("/me")
     public ResponseEntity<AdminSelfResponseDto> getCurrentAdmin() {
@@ -63,11 +52,6 @@ public class AdminController {
     public ResponseEntity<AdminResponseDto> updateAdmin(@PathVariable Long id, @Valid @RequestBody AdminPatchRequestDto adminPatchRequestDto) {
         AdminResponseDto updatedAdmin = adminService.updateAdmin(id, adminPatchRequestDto);
         return updatedAdmin != null ? ResponseEntity.ok(updatedAdmin) : ResponseEntity.notFound().build();
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteAdmin(@PathVariable Long id) {
-        return adminService.deleteAdmin(id);
     }
 
 

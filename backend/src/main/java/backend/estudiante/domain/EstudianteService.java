@@ -73,6 +73,11 @@ public class EstudianteService {
     }
 
     public EstudianteSelfResponseDto getEstudianteOwnInfo() {
+
+        if (!authorizationUtils.isEstudiante()) {
+            throw new UnauthorizeOperationException("Solo el estudiante autenticado puede acceder a este recurso");
+        }
+
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
             throw new UnauthorizeOperationException("Usuarios anónimos no tienen permiso de acceder a este recurso");

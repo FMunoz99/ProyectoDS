@@ -16,4 +16,6 @@ public interface IncidenteRepository extends JpaRepository<Incidente, Long> {
     List<Incidente> findByEstadoTarea(EstadoTarea estadoTarea);
 
     List<Incidente> findByEstudianteId(Long estudianteId);
+
+    List<Incidente> findByEmpleadoEmail(String email);
 }

@@ -179,6 +179,11 @@ public class ObjetoPerdidoService {
 
     // Obtener objetos perdidos por estado
     public List<ObjetoPerdidoResponseDto> getObjetosPerdidosPorEstado(EstadoReporte estadoReporte) {
+
+        if (!authorizationUtils.isAdmin()) {
+            throw new ResourceNotFoundException("Solo los administradores pueden acceder a este recurso.");
+        }
+
         List<ObjetoPerdido> objetosPerdidos = objetoPerdidoRepository.findByEstadoReporte(estadoReporte);
         return objetosPerdidos.stream()
                 .map(objetoPerdido -> modelMapper.map(objetoPerdido, ObjetoPerdidoResponseDto.class))
@@ -187,6 +192,11 @@ public class ObjetoPerdidoService {
 
     // Obtener objetos perdidos por estado de tarea (FINALIZADO, NO_FINALIZADO)
     public List<ObjetoPerdidoResponseDto> getObjetosPerdidosPorEstadoTarea(EstadoTarea estadoTarea) {
+
+        if (!authorizationUtils.isAdmin()) {
+            throw new ResourceNotFoundException("Solo los administradores pueden acceder a este recurso.");
+        }
+
         List<ObjetoPerdido> objetosPerdidos = objetoPerdidoRepository.findByEstadoTarea(estadoTarea);
         return objetosPerdidos.stream()
                 .map(objetoPerdido -> modelMapper.map(objetoPerdido, ObjetoPerdidoResponseDto.class))
@@ -195,6 +205,11 @@ public class ObjetoPerdidoService {
 
     // Obtener objetos perdidos por ID de estudiante
     public List<ObjetoPerdidoResponseDto> getObjetosPerdidosPorEstudiante(Long estudianteId) {
+
+        if (!authorizationUtils.isAdmin()) {
+            throw new ResourceNotFoundException("Solo los administradores pueden acceder a este recurso.");
+        }
+
         // Obtener el EstudianteResponseDto desde el servicio
         EstudianteResponseDto estudianteDto = estudianteService.getEstudianteInfo(estudianteId);
 

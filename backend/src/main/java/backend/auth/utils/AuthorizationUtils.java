@@ -70,10 +70,10 @@ public class AuthorizationUtils {
     public boolean isEstudiante() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String username = userDetails.getUsername();
-        String role = userDetails.getAuthorities().toArray()[0].toString(); // Asumimos que hay un solo rol
 
-        return role.equals(Role.ESTUDIANTE.toString());  // Verifica si el rol es ESTUDIANTE
+        // Verifica si el usuario tiene el rol 'ROLE_ESTUDIANTE'
+        return userDetails.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ESTUDIANTE"));
     }
 
     public boolean isAdmin() {
@@ -83,6 +83,17 @@ public class AuthorizationUtils {
         // Verifica si el usuario tiene el rol 'ROLE_ADMIN'
         return userDetails.getAuthorities().stream()
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
+    }
+
+    // Verifica si el usuario autenticado tiene el rol de EMPLEADO
+    public boolean isEmpleado() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String username = userDetails.getUsername();
+        String role = userDetails.getAuthorities().toArray()[0].toString(); // Obtiene el primer rol asignado (asumimos que hay uno solo)
+
+        // Verifica si el rol del usuario es "ROLE_EMPLEADO"
+        return role.equals("ROLE_EMPLEADO");
     }
 
     public String getCurrentUserEmail() {

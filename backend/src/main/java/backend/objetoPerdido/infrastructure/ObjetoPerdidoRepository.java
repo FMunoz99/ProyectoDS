@@ -17,4 +17,6 @@ public interface ObjetoPerdidoRepository extends JpaRepository<ObjetoPerdido, Lo
 
     List<ObjetoPerdido> findByEstudianteId(Long estudianteId);
 
+    List<ObjetoPerdido> findByEmpleadoEmail(String email);
+
 }

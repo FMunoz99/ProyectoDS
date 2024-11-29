@@ -13,7 +13,14 @@ import backend.estudiante.exceptions.UnauthorizeOperationException;
 import backend.events.email_event.EmpleadoCreatedEvent;
 import backend.events.email_event.EmpleadoUpdatedEvent;
 import backend.exceptions.ResourceNotFoundException;
+import backend.incidente.domain.Incidente;
+import backend.incidente.dto.IncidenteResponseDto;
+import backend.incidente.infrastructure.IncidenteRepository;
+import backend.objetoPerdido.domain.ObjetoPerdido;
+import backend.objetoPerdido.dto.ObjetoPerdidoResponseDto;
+import backend.objetoPerdido.infrastructure.ObjetoPerdidoRepository;
 import backend.usuario.domain.Role;
+import backend.usuario.domain.UsuarioService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -27,6 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class EmpleadoService {
@@ -36,14 +44,22 @@ public class EmpleadoService {
     final private PasswordEncoder passwordEncoder;
     final private ModelMapper modelMapper = new ModelMapper();
     final private ApplicationEventPublisher eventPublisher;
+    final private UsuarioService usuarioService;
+    final private IncidenteRepository incidenteRepository;
+    final private ObjetoPerdidoRepository objetoPerdidoRepository;
 
     @Autowired
     public EmpleadoService(EmpleadoRepository empleadoRepository, AuthorizationUtils authorizationUtils,
-                           ApplicationEventPublisher eventPublisher, PasswordEncoder passwordEncoder) {
+                           ApplicationEventPublisher eventPublisher, PasswordEncoder passwordEncoder,
+                           UsuarioService usuarioService, IncidenteRepository incidenteRepository,
+                           ObjetoPerdidoRepository objetoPerdidoRepository) {
         this.empleadoRepository = empleadoRepository;
         this.authorizationUtils = authorizationUtils;
         this.eventPublisher = eventPublisher;
         this.passwordEncoder = passwordEncoder;
+        this.usuarioService = usuarioService;
+        this.incidenteRepository = incidenteRepository;
+        this.objetoPerdidoRepository = objetoPerdidoRepository;
     }
 
     public List<EmpleadoResponseDto> getAllEmpleados() {
@@ -188,6 +204,34 @@ public class EmpleadoService {
         return modelMapper.map(updatedEmpleado, EmpleadoResponseDto.class);
     }
 
+    // NUEVOS SERVICIOS
 
+    // Metodo para obtener los incidentes asignados al empleado autenticado
+    public List<IncidenteResponseDto> getIncidentesAsignados() {
 
+        if (!authorizationUtils.isEmpleado()) {
+            throw new ResourceNotFoundException("Solo los empleados pueden acceder a este recurso");
+        }
+
+        String email = usuarioService.getCurrentUserEmail();
+        List<Incidente> incidentes = incidenteRepository.findByEmpleadoEmail(email);
+
+        return incidentes.stream()
+                .map(incidente -> modelMapper.map(incidente, IncidenteResponseDto.class))
+                .collect(Collectors.toList());
+    }
+
+    // Metodo para obtener los objetos perdidos asignados al empleado autenticado
+    public List<ObjetoPerdidoResponseDto> getObjetosPerdidosAsignados() {
+        if (!authorizationUtils.isEmpleado()) {
+            throw new ResourceNotFoundException("Solo los empleados pueden acceder a este recurso");
+        }
+
+        String email = usuarioService.getCurrentUserEmail();
+        List<ObjetoPerdido> objetosPerdidos = objetoPerdidoRepository.findByEmpleadoEmail(email);
+
+        return objetosPerdidos.stream()
+                .map(objetoPerdido -> modelMapper.map(objetoPerdido, ObjetoPerdidoResponseDto.class))
+                .collect(Collectors.toList());
+    }
 }

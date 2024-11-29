@@ -179,6 +179,11 @@ public class IncidenteService {
 
     // Obtener incidentes por estado
     public List<IncidenteResponseDto> getIncidentesPorEstado(EstadoReporte estadoReporte) {
+
+        if (!authorizationUtils.isAdmin()) {
+            throw new ResourceNotFoundException("Solo los administradores pueden acceder a este recurso.");
+        }
+
         List<Incidente> incidentes = incidenteRepository.findByEstadoReporte(estadoReporte);
         return incidentes.stream()
                 .map(incidente -> modelMapper.map(incidente, IncidenteResponseDto.class))
@@ -187,6 +192,11 @@ public class IncidenteService {
 
     // Obtener incidentes por estado de tarea (FINALIZADO, NO_FINALIZADO)
     public List<IncidenteResponseDto> getIncidentesPorEstadoTarea(EstadoTarea estadoTarea) {
+
+        if (!authorizationUtils.isAdmin()) {
+            throw new ResourceNotFoundException("Solo los administradores pueden acceder a este recurso.");
+        }
+
         List<Incidente> incidentes = incidenteRepository.findByEstadoTarea(estadoTarea);
         return incidentes.stream()
                 .map(incidente -> modelMapper.map(incidente, IncidenteResponseDto.class))
@@ -195,6 +205,11 @@ public class IncidenteService {
 
     // Obtener incidentes por ID de estudiante
     public List<IncidenteResponseDto> getIncidentesPorEstudiante(Long estudianteId) {
+
+        if (!authorizationUtils.isAdmin()) {
+            throw new ResourceNotFoundException("Solo los administradores pueden acceder a este recurso.");
+        }
+
         // Obtener el EstudianteResponseDto desde el servicio
         EstudianteResponseDto estudianteDto = estudianteService.getEstudianteInfo(estudianteId);
 

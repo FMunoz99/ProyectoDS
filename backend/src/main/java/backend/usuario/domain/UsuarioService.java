@@ -56,4 +56,15 @@ public class UsuarioService {
         return estudianteRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Estudiante no encontrado"));
     }
+
+    public String getCurrentUserEmail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        try {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            return userDetails.getUsername();  // El email se usa como el nombre de usuario
+        } catch (ClassCastException e) {
+            return null;
+        }
+    }
+
 }

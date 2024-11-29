@@ -6,6 +6,8 @@ import backend.empleado.dto.EmpleadoRequestDto;
 import backend.empleado.dto.EmpleadoResponseDto;
 import backend.empleado.dto.EmpleadoSelfResponseDto;
 import backend.estudiante.dto.EstudianteResponseDto;
+import backend.incidente.dto.IncidenteResponseDto;
+import backend.objetoPerdido.dto.ObjetoPerdidoResponseDto;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -54,5 +56,19 @@ public class EmpleadoController {
     public ResponseEntity<EmpleadoResponseDto> updateEmpleadoInfo(@PathVariable Long id,
                                                                  @RequestBody EmpleadoPatchRequestDto empleadoInfo) {
         return ResponseEntity.ok().body(empleadoService.updateEmpleadoInfo(id, empleadoInfo));
+    }
+
+    // NUEVOS CONTROLADORES
+
+    @GetMapping("/me/incidentes")
+    public ResponseEntity<List<IncidenteResponseDto>> getIncidentesAsignados() {
+        List<IncidenteResponseDto> incidentes = empleadoService.getIncidentesAsignados();
+        return ResponseEntity.ok(incidentes);
+    }
+
+    @GetMapping("/me/objetos-perdidos")
+    public ResponseEntity<List<ObjetoPerdidoResponseDto>> getObjetosPerdidosAsignados() {
+        List<ObjetoPerdidoResponseDto> objetosPerdidos = empleadoService.getObjetosPerdidosAsignados();
+        return ResponseEntity.ok(objetosPerdidos);
     }
 }
