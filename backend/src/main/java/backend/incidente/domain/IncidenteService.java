@@ -4,6 +4,8 @@ import backend.auth.utils.AuthorizationUtils;
 import backend.empleado.domain.Empleado;
 import backend.empleado.infrastructure.EmpleadoRepository;
 import backend.estudiante.domain.Estudiante;
+import backend.estudiante.domain.EstudianteService;
+import backend.estudiante.dto.EstudianteResponseDto;
 import backend.estudiante.exceptions.UnauthorizeOperationException;
 import backend.estudiante.infrastructure.EstudianteRepository;
 import backend.events.email_event.IncidenteCreatedEmpleadoEvent;
@@ -37,13 +39,14 @@ public class IncidenteService {
     private final UsuarioService usuarioService;
     private final EmpleadoRepository empleadoRepository;
     private final EstudianteRepository estudianteRepository;
+    private final EstudianteService estudianteService;
 
     @Autowired
     public IncidenteService(IncidenteRepository incidenteRepository,
                             ApplicationEventPublisher publisher,
                             ModelMapper modelMapper, UsuarioService usuarioService ,
                             AuthorizationUtils authorizationUtils, EmpleadoRepository empleadoRepository,
-                            EstudianteRepository estudianteRepository) {
+                            EstudianteRepository estudianteRepository, EstudianteService estudianteService) {
         this.incidenteRepository = incidenteRepository;
         this.eventPublisher = publisher;
         this.modelMapper = modelMapper;
@@ -51,6 +54,7 @@ public class IncidenteService {
         this.usuarioService = usuarioService;
         this.empleadoRepository = empleadoRepository;
         this.estudianteRepository = estudianteRepository;
+        this.estudianteService = estudianteService;
     }
 
     public List<IncidenteResponseDto> findAllIncidentes() {
@@ -170,4 +174,37 @@ public class IncidenteService {
                 .map(incidente -> modelMapper.map(incidente, IncidenteResponseDto.class))
                 .collect(Collectors.toList());
     }
+
+    // NUEVOS MÉTODOS
+
+    // Obtener incidentes por estado
+    public List<IncidenteResponseDto> getIncidentesPorEstado(EstadoReporte estadoReporte) {
+        List<Incidente> incidentes = incidenteRepository.findByEstadoReporte(estadoReporte);
+        return incidentes.stream()
+                .map(incidente -> modelMapper.map(incidente, IncidenteResponseDto.class))
+                .collect(Collectors.toList());
+    }
+
+    // Obtener incidentes por estado de tarea (FINALIZADO, NO_FINALIZADO)
+    public List<IncidenteResponseDto> getIncidentesPorEstadoTarea(EstadoTarea estadoTarea) {
+        List<Incidente> incidentes = incidenteRepository.findByEstadoTarea(estadoTarea);
+        return incidentes.stream()
+                .map(incidente -> modelMapper.map(incidente, IncidenteResponseDto.class))
+                .collect(Collectors.toList());
+    }
+
+    // Obtener incidentes por ID de estudiante
+    public List<IncidenteResponseDto> getIncidentesPorEstudiante(Long estudianteId) {
+        // Obtener el EstudianteResponseDto desde el servicio
+        EstudianteResponseDto estudianteDto = estudianteService.getEstudianteInfo(estudianteId);
+
+        // Usar el ID del EstudianteResponseDto para buscar los incidentes relacionados con el estudiante
+        List<Incidente> incidentes = incidenteRepository.findByEstudianteId(estudianteDto.getId());
+
+        // Mapear los incidentes a DTO
+        return incidentes.stream()
+                .map(incidente -> modelMapper.map(incidente, IncidenteResponseDto.class))
+                .collect(Collectors.toList());
+    }
+
 }

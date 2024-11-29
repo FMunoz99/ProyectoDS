@@ -5,6 +5,12 @@ import backend.admin.dto.AdminPatchRequestDto;
 import backend.admin.dto.AdminRequestDto;
 import backend.admin.dto.AdminResponseDto;
 import backend.admin.dto.AdminSelfResponseDto;
+import backend.incidente.domain.EstadoReporte;
+import backend.incidente.domain.EstadoTarea;
+import backend.incidente.domain.IncidenteService;
+import backend.incidente.dto.IncidenteResponseDto;
+import backend.objetoPerdido.domain.ObjetoPerdidoService;
+import backend.objetoPerdido.dto.ObjetoPerdidoResponseDto;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,10 +25,15 @@ import java.util.List;
 public class AdminController {
 
     final private AdminService adminService;
+    final private IncidenteService incidenteService;
+    final private ObjetoPerdidoService objetoPerdidoService;
 
     @Autowired
-    public AdminController(AdminService adminService) {
+    public AdminController(AdminService adminService, IncidenteService incidenteService,
+                           ObjetoPerdidoService objetoPerdidoService) {
         this.adminService = adminService;
+        this.incidenteService = incidenteService;
+        this.objetoPerdidoService = objetoPerdidoService;
     }
 
     @GetMapping("/lista")
@@ -58,4 +69,58 @@ public class AdminController {
     public ResponseEntity<String> deleteAdmin(@PathVariable Long id) {
         return adminService.deleteAdmin(id);
     }
+
+
+    // nuevos controladores
+
+    // Endpoint para obtener reportes de incidentes por estado
+    @GetMapping("/reportes/incidentes/aceptados")
+    public ResponseEntity<List<IncidenteResponseDto>> getIncidentesAceptados() {
+        List<IncidenteResponseDto> incidentes = incidenteService.getIncidentesPorEstado(EstadoReporte.ACEPTADO);
+        return ResponseEntity.ok(incidentes);
+    }
+
+    @GetMapping("/reportes/objetos-perdidos/aceptados")
+    public ResponseEntity<List<ObjetoPerdidoResponseDto>> getObjetosPerdidosAceptados() {
+        List<ObjetoPerdidoResponseDto> objetos = objetoPerdidoService.getObjetosPerdidosPorEstado(EstadoReporte.ACEPTADO);
+        return ResponseEntity.ok(objetos);
+    }
+
+    @GetMapping("/reportes/incidentes/finalizados")
+    public ResponseEntity<List<IncidenteResponseDto>> getIncidentesFinalizados() {
+        List<IncidenteResponseDto> incidentes = incidenteService.getIncidentesPorEstadoTarea(EstadoTarea.FINALIZADO);
+        return ResponseEntity.ok(incidentes);
+    }
+
+    @GetMapping("/reportes/objetos-perdidos/finalizados")
+    public ResponseEntity<List<ObjetoPerdidoResponseDto>> getObjetosPerdidosFinalizados() {
+        List<ObjetoPerdidoResponseDto> objetos = objetoPerdidoService.getObjetosPerdidosPorEstadoTarea(EstadoTarea.FINALIZADO);
+        return ResponseEntity.ok(objetos);
+    }
+
+    @GetMapping("/reportes/incidentes/no-finalizados")
+    public ResponseEntity<List<IncidenteResponseDto>> getIncidentesNoFinalizados() {
+        List<IncidenteResponseDto> incidentes = incidenteService.getIncidentesPorEstadoTarea(EstadoTarea.NO_FINALIZADO);
+        return ResponseEntity.ok(incidentes);
+    }
+
+    @GetMapping("/reportes/objetos-perdidos/no-finalizados")
+    public ResponseEntity<List<ObjetoPerdidoResponseDto>> getObjetosPerdidosNoFinalizados() {
+        List<ObjetoPerdidoResponseDto> objetos = objetoPerdidoService.getObjetosPerdidosPorEstadoTarea(EstadoTarea.NO_FINALIZADO);
+        return ResponseEntity.ok(objetos);
+    }
+
+    // Endpoint para obtener reportes por ID de estudiante
+    @GetMapping("/reportes/estudiante/{id}/incidentes")
+    public ResponseEntity<List<IncidenteResponseDto>> getIncidentesPorEstudiante(@PathVariable Long id) {
+        List<IncidenteResponseDto> incidentes = incidenteService.getIncidentesPorEstudiante(id);
+        return ResponseEntity.ok(incidentes);
+    }
+
+    @GetMapping("/reportes/estudiante/{id}/objetos-perdidos")
+    public ResponseEntity<List<ObjetoPerdidoResponseDto>> getObjetosPerdidosPorEstudiante(@PathVariable Long id) {
+        List<ObjetoPerdidoResponseDto> objetos = objetoPerdidoService.getObjetosPerdidosPorEstudiante(id);
+        return ResponseEntity.ok(objetos);
+    }
+
 }

@@ -23,4 +23,6 @@ public class EmpleadoRequestDto {
     @NotBlank(message = "El número de teléfono no puede estar vacío")
     @Size(min = 10, max = 15)
     private String phoneNumber;
+
+    private String password;
 }

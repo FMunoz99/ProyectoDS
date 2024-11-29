@@ -4,6 +4,8 @@ import backend.auth.utils.AuthorizationUtils;
 import backend.empleado.domain.Empleado;
 import backend.empleado.infrastructure.EmpleadoRepository;
 import backend.estudiante.domain.Estudiante;
+import backend.estudiante.domain.EstudianteService;
+import backend.estudiante.dto.EstudianteResponseDto;
 import backend.estudiante.exceptions.UnauthorizeOperationException;
 import backend.estudiante.infrastructure.EstudianteRepository;
 import backend.events.email_event.ObjetoPerdidoCreatedEmpleadoEvent;
@@ -41,12 +43,13 @@ public class ObjetoPerdidoService {
     private final UsuarioService usuarioService;
     private final EmpleadoRepository empleadoRepository;
     private final EstudianteRepository estudianteRepository;
+    private final EstudianteService estudianteService;
 
     @Autowired
     public ObjetoPerdidoService(ObjetoPerdidoRepository objetoPerdidoRepository,
                                 ApplicationEventPublisher publisher,
                                 ModelMapper modelMapper, UsuarioService usuarioService,
-                                AuthorizationUtils authorizationUtils,
+                                AuthorizationUtils authorizationUtils, EstudianteService estudianteService ,
                                 EmpleadoRepository empleadoRepository, EstudianteRepository estudianteRepository) {
         this.objetoPerdidoRepository = objetoPerdidoRepository;
         this.eventPublisher = publisher;
@@ -55,6 +58,7 @@ public class ObjetoPerdidoService {
         this.usuarioService = usuarioService;
         this.empleadoRepository = empleadoRepository;
         this.estudianteRepository = estudianteRepository;
+        this.estudianteService = estudianteService;
     }
 
     public List<ObjetoPerdidoResponseDto> findAllObjetosPerdidos() {
@@ -170,4 +174,37 @@ public class ObjetoPerdidoService {
                 .map(objetoPerdido -> modelMapper.map(objetoPerdido, ObjetoPerdidoResponseDto.class))
                 .collect(Collectors.toList());
     }
+
+    // NUEVOS MÉTODOS
+
+    // Obtener objetos perdidos por estado
+    public List<ObjetoPerdidoResponseDto> getObjetosPerdidosPorEstado(EstadoReporte estadoReporte) {
+        List<ObjetoPerdido> objetosPerdidos = objetoPerdidoRepository.findByEstadoReporte(estadoReporte);
+        return objetosPerdidos.stream()
+                .map(objetoPerdido -> modelMapper.map(objetoPerdido, ObjetoPerdidoResponseDto.class))
+                .collect(Collectors.toList());
+    }
+
+    // Obtener objetos perdidos por estado de tarea (FINALIZADO, NO_FINALIZADO)
+    public List<ObjetoPerdidoResponseDto> getObjetosPerdidosPorEstadoTarea(EstadoTarea estadoTarea) {
+        List<ObjetoPerdido> objetosPerdidos = objetoPerdidoRepository.findByEstadoTarea(estadoTarea);
+        return objetosPerdidos.stream()
+                .map(objetoPerdido -> modelMapper.map(objetoPerdido, ObjetoPerdidoResponseDto.class))
+                .collect(Collectors.toList());
+    }
+
+    // Obtener objetos perdidos por ID de estudiante
+    public List<ObjetoPerdidoResponseDto> getObjetosPerdidosPorEstudiante(Long estudianteId) {
+        // Obtener el EstudianteResponseDto desde el servicio
+        EstudianteResponseDto estudianteDto = estudianteService.getEstudianteInfo(estudianteId);
+
+        // Usar el ID del EstudianteResponseDto para buscar los objetos perdidos relacionados con el estudiante
+        List<ObjetoPerdido> objetosPerdidos = objetoPerdidoRepository.findByEstudianteId(estudianteDto.getId());
+
+        // Mapear los objetos perdidos a DTOs
+        return objetosPerdidos.stream()
+                .map(objetoPerdido -> modelMapper.map(objetoPerdido, ObjetoPerdidoResponseDto.class))
+                .collect(Collectors.toList());
+    }
+
 }

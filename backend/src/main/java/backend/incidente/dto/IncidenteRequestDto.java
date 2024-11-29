@@ -2,6 +2,8 @@ package backend.incidente.dto;
 
 import backend.incidente.domain.EstadoReporte;
 import backend.incidente.domain.EstadoTarea;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -34,6 +36,9 @@ public class IncidenteRequestDto {
     @NotNull
     private LocalDate fechaReporte;
 
+    @Enumerated(EnumType.STRING)
     private EstadoReporte estadoReporte;
+
+    @Enumerated(EnumType.STRING)
     private EstadoTarea estadoTarea;
 }

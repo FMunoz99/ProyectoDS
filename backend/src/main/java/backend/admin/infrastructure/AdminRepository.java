@@ -12,7 +12,4 @@ import java.util.List;
 @Transactional
 @Repository
 public interface AdminRepository extends BaseUsuarioRepository<Admin> {
-    @Query("SELECT a FROM Admin a WHERE a.role = 0")
-    List<Admin> findByRole(Role role);
-
 }

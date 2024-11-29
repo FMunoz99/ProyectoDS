@@ -1,5 +1,6 @@
 package backend.empleado.domain;
 
+import backend.auth.exceptions.UserAlreadyExistException;
 import backend.auth.utils.AuthorizationUtils;
 import backend.empleado.dto.EmpleadoPatchRequestDto;
 import backend.empleado.dto.EmpleadoRequestDto;
@@ -12,6 +13,7 @@ import backend.estudiante.exceptions.UnauthorizeOperationException;
 import backend.events.email_event.EmpleadoCreatedEvent;
 import backend.events.email_event.EmpleadoUpdatedEvent;
 import backend.exceptions.ResourceNotFoundException;
+import backend.usuario.domain.Role;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -21,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,18 +82,33 @@ public class EmpleadoService {
             throw new UnauthorizeOperationException("Solo los administradores pueden crear empleados");
         }
 
+        // Comprobación si el empleado con el mismo email ya existe
+        if (empleadoRepository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new UserAlreadyExistException("Empleado con email " + dto.getEmail() + " ya existe.");
+        }
+
+        // Convertir el EmpleadoRequestDto a Empleado
         Empleado empleado = modelMapper.map(dto, Empleado.class);
 
+        // Encriptar la contraseña y asignar otros datos básicos
+        empleado.setPassword(passwordEncoder.encode(dto.getPassword()));
+        empleado.setRole(Role.EMPLEADO);  // Asignamos el rol de empleado
+        empleado.setPhoneNumber(dto.getPhoneNumber());  // Asignamos el número de teléfono
+        empleado.setUpdatedAt(ZonedDateTime.now());
+        empleado.setCreatedAt(ZonedDateTime.now());
+
+        // Guardar el empleado en la base de datos
         Empleado savedEmpleado = empleadoRepository.save(empleado);
 
-        EmpleadoResponseDto responseDto = modelMapper.map(savedEmpleado, EmpleadoResponseDto.class);
-
+        // Publicar el evento de creación del empleado
         String recipientEmail = savedEmpleado.getEmail();
         EmpleadoCreatedEvent event = new EmpleadoCreatedEvent(savedEmpleado, recipientEmail);
         eventPublisher.publishEvent(event);
 
-        return responseDto;
+        // Convertir el empleado guardado a DTO y retornarlo
+        return modelMapper.map(savedEmpleado, EmpleadoResponseDto.class);
     }
+
 
     public EmpleadoSelfResponseDto getEmpleadoOwnInfo() {
         String username = authorizationUtils.getCurrentUserEmail();
