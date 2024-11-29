@@ -157,11 +157,14 @@ public class IncidenteService {
 
 
     public void deleteIncidente(Long id) {
-        Incidente incidente = incidenteRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Incidente no encontrado"));
+        // Verificar si el incidente existe
+        if (!incidenteRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Incidente no encontrado");
+        }
 
-        if (!authorizationUtils.isAdminOrEmpleado(incidente.getEmpleado())) {
-            throw new UnauthorizeOperationException("El usuario no tiene permiso para eliminar este recurso");
+        // Verificar si el usuario tiene el rol de administrador
+        if (!authorizationUtils.isAdmin()) {
+            throw new UnauthorizeOperationException("Solo los administradores pueden eliminar este recurso");
         }
 
         incidenteRepository.deleteById(id);

@@ -159,11 +159,16 @@ public class ObjetoPerdidoService {
 
 
     public void deleteObjetoPerdido(Long id) {
-        ObjetoPerdido objetoPerdido = objetoPerdidoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Objeto Perdido no encontrado"));
+        // Verificar si el incidente existe
+        if (!objetoPerdidoRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Incidente no encontrado");
+        }
 
-        if (!authorizationUtils.isAdminOrResourceOwner(id))
-            throw new UnauthorizeOperationException("El usuario no tiene permiso para eliminar este recurso");
+        // Verificar si el usuario tiene el rol de administrador
+        if (!authorizationUtils.isAdmin()) {
+            throw new UnauthorizeOperationException("Solo los administradores pueden eliminar este recurso");
+        }
+
         objetoPerdidoRepository.deleteById(id);
     }
 
