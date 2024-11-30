@@ -109,6 +109,12 @@ public class EstudianteService {
     }
 
     public EstudianteResponseDto getEstudianteInfo(Long id) {
+
+        // Verificar que el usuario tiene permisos para eliminar
+        if (!authorizationUtils.isAdmin()) {
+            throw new UnauthorizeOperationException("El usuario no tiene permiso para acceder a este recurso");
+        }
+
         Estudiante estudiante = estudianteRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Estudiante no encontrado"));
         return modelMapper.map(estudiante, EstudianteResponseDto.class);
