@@ -83,8 +83,9 @@ public class ObjetoPerdidoService {
     public ObjetoPerdidoResponseDto saveObjetoPerdido(ObjetoPerdidoRequestDto requestDto) {
 
         String username = authorizationUtils.getCurrentUserEmail();
-        if (username == null)
+        if (username == null) {
             throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
+        }
 
         // Buscar al estudiante que está realizando la solicitud usando el email del usuario autenticado
         Optional<Estudiante> optionalEstudianteRegistrador = estudianteRepository.findByEmail(username);
@@ -105,7 +106,13 @@ public class ObjetoPerdidoService {
         objetoPerdido.setDescription(requestDto.getDescription());
         objetoPerdido.setEstadoReporte(EstadoReporte.PENDIENTE);
         objetoPerdido.setEstadoTarea(EstadoTarea.NO_FINALIZADO);
-        objetoPerdido.setFechaReporte(requestDto.getFechaReporte());
+
+        // Establecer la fecha de reporte automáticamente si no está presente
+        if (requestDto.getFechaReporte() == null) {
+            objetoPerdido.setFechaReporte(LocalDate.now());
+        } else {
+            objetoPerdido.setFechaReporte(requestDto.getFechaReporte());
+        }
 
         // Asignar el estudiante que registró el objeto perdido
         objetoPerdido.setEstudiante(estudianteRegistrador);
@@ -114,7 +121,6 @@ public class ObjetoPerdidoService {
         List<Empleado> empleados = empleadoRepository.findAll();
         String empleadoEmail = null;
         if (!empleados.isEmpty()) {
-            // Seleccionar un empleado aleatorio
             Random random = new Random();
             Empleado empleado = empleados.get(random.nextInt(empleados.size()));
             objetoPerdido.setEmpleado(empleado);  // Asignar empleado al objeto perdido
@@ -122,7 +128,7 @@ public class ObjetoPerdidoService {
         }
 
         // Incrementar el contador
-        String fechaReporte = requestDto.getFechaReporte().toString();
+        String fechaReporte = objetoPerdido.getFechaReporte().toString();
         reportCounter.incrementarObjetosPerdidos(fechaReporte);
 
         // Guardar el objeto perdido en la base de datos

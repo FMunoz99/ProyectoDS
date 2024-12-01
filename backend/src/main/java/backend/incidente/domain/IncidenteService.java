@@ -103,7 +103,13 @@ public class IncidenteService {
         incidente.setDescription(requestDto.getDescription());
         incidente.setEstadoReporte(EstadoReporte.PENDIENTE);
         incidente.setEstadoTarea(EstadoTarea.NO_FINALIZADO);
-        incidente.setFechaReporte(requestDto.getFechaReporte());
+
+        // Setear la fecha de reporte automáticamente si no está presente
+        if (requestDto.getFechaReporte() == null) {
+            incidente.setFechaReporte(LocalDate.now());
+        } else {
+            incidente.setFechaReporte(requestDto.getFechaReporte());
+        }
 
         // Asignar el estudiante que registró el incidente
         incidente.setEstudiante(estudianteRegistrador);
@@ -112,7 +118,6 @@ public class IncidenteService {
         List<Empleado> empleados = empleadoRepository.findAll();
         String empleadoEmail = null;
         if (!empleados.isEmpty()) {
-            // Seleccionar un empleado aleatorio
             Random random = new Random();
             Empleado empleado = empleados.get(random.nextInt(empleados.size()));
             incidente.setEmpleado(empleado);  // Asignar empleado al incidente
@@ -120,7 +125,7 @@ public class IncidenteService {
         }
 
         // Incrementar el contador
-        String fechaReporte = requestDto.getFechaReporte().toString();
+        String fechaReporte = incidente.getFechaReporte().toString();
         reportCounter.incrementarIncidentes(fechaReporte);
 
         // Guardar el incidente en la base de datos
@@ -137,7 +142,6 @@ public class IncidenteService {
         // Mapear y devolver el DTO de respuesta
         return modelMapper.map(savedIncidente, IncidenteResponseDto.class);
     }
-
 
     public IncidenteResponseDto updateStatusIncidente(Long id, IncidentePatchRequestDto patchDto) {
         Incidente incidente = incidenteRepository.findById(id)

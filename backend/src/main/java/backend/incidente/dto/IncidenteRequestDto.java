@@ -33,7 +33,6 @@ public class IncidenteRequestDto {
     @Size(max = 255)
     private String description;
 
-    @NotNull
     private LocalDate fechaReporte;
 
     @Enumerated(EnumType.STRING)
