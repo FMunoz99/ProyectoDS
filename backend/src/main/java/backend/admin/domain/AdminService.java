@@ -22,7 +22,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -51,13 +53,15 @@ public class AdminService {
 
         // Verificar si el usuario tiene el rol de administrador
         if (!authorizationUtils.isAdmin()) {
-            throw new UnauthorizeOperationException("Solo los administradores pueden crear administradores");
+            throw new UnauthorizeOperationException("Solo los administradores pueden acceder a este recurso.");
         }
 
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null) {
             throw new UnauthorizeOperationException("Usuarios anónimos no tienen permiso de acceder a este recurso");
         }
+        System.out.println("Email obtenido: " + username);
+
 
         Admin admin = adminRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Administrador no encontrado"));
@@ -98,23 +102,48 @@ public class AdminService {
     }
 
     public AdminResponseDto updateAdmin(Long id, AdminPatchRequestDto adminPatchRequestDto) {
+        // Validación de permisos
+        if (!authorizationUtils.isAdmin()) {
+            throw new UnauthorizeOperationException("El usuario no tiene permiso para modificar este recurso");
+        }
+
+        // Buscar administrador
         Admin admin = adminRepository
                 .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Administrador no encontrado"));
 
-        if (adminPatchRequestDto.getFirstName() != null) {
+        // Map para registrar los campos actualizados
+        Map<String, String> updatedFields = new HashMap<>();
+
+        // Actualizar campos
+        if (adminPatchRequestDto.getFirstName() != null && !adminPatchRequestDto.getFirstName().equals(admin.getFirstName())) {
+            updatedFields.put("Nombre", adminPatchRequestDto.getFirstName());
             admin.setFirstName(adminPatchRequestDto.getFirstName());
         }
-        if (adminPatchRequestDto.getLastName() != null) {
+        if (adminPatchRequestDto.getLastName() != null && !adminPatchRequestDto.getLastName().equals(admin.getLastName())) {
+            updatedFields.put("Apellido", adminPatchRequestDto.getLastName());
             admin.setLastName(adminPatchRequestDto.getLastName());
         }
-        if (adminPatchRequestDto.getPhoneNumber() != null) {
+        if (adminPatchRequestDto.getPhoneNumber() != null && !adminPatchRequestDto.getPhoneNumber().equals(admin.getPhoneNumber())) {
+            updatedFields.put("Teléfono", adminPatchRequestDto.getPhoneNumber());
             admin.setPhoneNumber(adminPatchRequestDto.getPhoneNumber());
         }
+        if (adminPatchRequestDto.getEmail() != null && !adminPatchRequestDto.getEmail().equals(admin.getEmail())) {
+            updatedFields.put("Email", adminPatchRequestDto.getEmail());
+            admin.setEmail(adminPatchRequestDto.getEmail());
+        }
+        if (adminPatchRequestDto.getPassword() != null && !adminPatchRequestDto.getPassword().equals(admin.getPassword())) {
+            updatedFields.put("Contraseña", "Actualizada");
+            admin.setPassword(passwordEncoder.encode(adminPatchRequestDto.getPassword()));
+        }
 
+        // Actualizar la fecha de modificación
+        admin.setUpdatedAt(ZonedDateTime.now());
+
+        // Guardar cambios en la base de datos
         Admin updatedAdmin = adminRepository.save(admin);
 
+        // Mapear y retornar el DTO de respuesta
         return modelMapper.map(updatedAdmin, AdminResponseDto.class);
     }
-
 }

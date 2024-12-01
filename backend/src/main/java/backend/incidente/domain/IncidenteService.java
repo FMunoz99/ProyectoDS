@@ -1,5 +1,6 @@
 package backend.incidente.domain;
 
+import backend.admin.component.ReportCounter;
 import backend.auth.utils.AuthorizationUtils;
 import backend.empleado.domain.Empleado;
 import backend.empleado.infrastructure.EmpleadoRepository;
@@ -40,11 +41,11 @@ public class IncidenteService {
     private final EmpleadoRepository empleadoRepository;
     private final EstudianteRepository estudianteRepository;
     private final EstudianteService estudianteService;
+    private final ReportCounter reportCounter;
 
     @Autowired
-    public IncidenteService(IncidenteRepository incidenteRepository,
-                            ApplicationEventPublisher publisher,
-                            ModelMapper modelMapper, UsuarioService usuarioService ,
+    public IncidenteService(IncidenteRepository incidenteRepository, ApplicationEventPublisher publisher,
+                            ModelMapper modelMapper, UsuarioService usuarioService, ReportCounter reportCounter,
                             AuthorizationUtils authorizationUtils, EmpleadoRepository empleadoRepository,
                             EstudianteRepository estudianteRepository, EstudianteService estudianteService) {
         this.incidenteRepository = incidenteRepository;
@@ -55,6 +56,7 @@ public class IncidenteService {
         this.empleadoRepository = empleadoRepository;
         this.estudianteRepository = estudianteRepository;
         this.estudianteService = estudianteService;
+        this.reportCounter = reportCounter;
     }
 
     public List<IncidenteResponseDto> findAllIncidentes() {
@@ -116,6 +118,10 @@ public class IncidenteService {
             incidente.setEmpleado(empleado);  // Asignar empleado al incidente
             empleadoEmail = empleado.getEmail();  // Obtener el correo del empleado seleccionado
         }
+
+        // Incrementar el contador
+        String fechaReporte = requestDto.getFechaReporte().toString();
+        reportCounter.incrementarIncidentes(fechaReporte);
 
         // Guardar el incidente en la base de datos
         Incidente savedIncidente = incidenteRepository.save(incidente);

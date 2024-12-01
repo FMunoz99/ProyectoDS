@@ -1,5 +1,6 @@
 package backend.admin.application;
 
+import backend.admin.component.ReportCounter;
 import backend.admin.domain.AdminService;
 import backend.admin.dto.AdminPatchRequestDto;
 import backend.admin.dto.AdminRequestDto;
@@ -18,7 +19,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin")
@@ -27,13 +30,15 @@ public class AdminController {
     final private AdminService adminService;
     final private IncidenteService incidenteService;
     final private ObjetoPerdidoService objetoPerdidoService;
+    final private ReportCounter reportCounter;
 
     @Autowired
     public AdminController(AdminService adminService, IncidenteService incidenteService,
-                           ObjetoPerdidoService objetoPerdidoService) {
+                           ObjetoPerdidoService objetoPerdidoService, ReportCounter reportCounter) {
         this.adminService = adminService;
         this.incidenteService = incidenteService;
         this.objetoPerdidoService = objetoPerdidoService;
+        this.reportCounter = reportCounter;
     }
 
 
@@ -105,6 +110,15 @@ public class AdminController {
     public ResponseEntity<List<ObjetoPerdidoResponseDto>> getObjetosPerdidosPorEstudiante(@PathVariable Long id) {
         List<ObjetoPerdidoResponseDto> objetos = objetoPerdidoService.getObjetosPerdidosPorEstudiante(id);
         return ResponseEntity.ok(objetos);
+    }
+
+
+    @GetMapping("/dashboard/reportes-general")
+    public ResponseEntity<Map<String, Object>> getReportes() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("incidentesPorDia", reportCounter.getIncidentesPorDia());
+        response.put("objetosPerdidosPorDia", reportCounter.getObjetosPerdidosPorDia());
+        return ResponseEntity.ok(response);
     }
 
 }

@@ -1,5 +1,6 @@
 package backend.objetoPerdido.domain;
 
+import backend.admin.component.ReportCounter;
 import backend.auth.utils.AuthorizationUtils;
 import backend.empleado.domain.Empleado;
 import backend.empleado.infrastructure.EmpleadoRepository;
@@ -44,11 +45,11 @@ public class ObjetoPerdidoService {
     private final EmpleadoRepository empleadoRepository;
     private final EstudianteRepository estudianteRepository;
     private final EstudianteService estudianteService;
+    private final ReportCounter reportCounter;
 
     @Autowired
-    public ObjetoPerdidoService(ObjetoPerdidoRepository objetoPerdidoRepository,
-                                ApplicationEventPublisher publisher,
-                                ModelMapper modelMapper, UsuarioService usuarioService,
+    public ObjetoPerdidoService(ObjetoPerdidoRepository objetoPerdidoRepository, ApplicationEventPublisher publisher,
+                                ModelMapper modelMapper, UsuarioService usuarioService, ReportCounter reportCounter,
                                 AuthorizationUtils authorizationUtils, EstudianteService estudianteService ,
                                 EmpleadoRepository empleadoRepository, EstudianteRepository estudianteRepository) {
         this.objetoPerdidoRepository = objetoPerdidoRepository;
@@ -59,6 +60,7 @@ public class ObjetoPerdidoService {
         this.empleadoRepository = empleadoRepository;
         this.estudianteRepository = estudianteRepository;
         this.estudianteService = estudianteService;
+        this.reportCounter = reportCounter;
     }
 
     public List<ObjetoPerdidoResponseDto> findAllObjetosPerdidos() {
@@ -118,6 +120,10 @@ public class ObjetoPerdidoService {
             objetoPerdido.setEmpleado(empleado);  // Asignar empleado al objeto perdido
             empleadoEmail = empleado.getEmail();  // Obtener el correo del empleado seleccionado
         }
+
+        // Incrementar el contador
+        String fechaReporte = requestDto.getFechaReporte().toString();
+        reportCounter.incrementarObjetosPerdidos(fechaReporte);
 
         // Guardar el objeto perdido en la base de datos
         ObjetoPerdido savedObjetoPerdido = objetoPerdidoRepository.save(objetoPerdido);
