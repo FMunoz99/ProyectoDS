@@ -5,6 +5,8 @@ import backend.incidente.domain.EstadoTarea;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Data
 public class ObjetoPerdidoResponseDto {
 
@@ -23,4 +25,6 @@ public class ObjetoPerdidoResponseDto {
 
     private Long estudianteId;
     private Long empleadoId;
+
+    private LocalDate fechaReporte;
 }

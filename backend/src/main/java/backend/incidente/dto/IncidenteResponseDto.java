@@ -6,6 +6,8 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Data
 public class IncidenteResponseDto {
 
@@ -28,4 +30,6 @@ public class IncidenteResponseDto {
 
     private Long estudianteId;
     private Long empleadoId;
+
+    private LocalDate fechaReporte;
 }
