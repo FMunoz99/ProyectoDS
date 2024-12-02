@@ -65,34 +65,45 @@ public class EmpleadoService {
     }
 
     public List<EmpleadoResponseDto> getAllEmpleados() {
-
-        // Verificación del rol de usuario
+        // Verificar si el usuario tiene permisos de administrador
         if (!authorizationUtils.isAdmin()) {
             throw new UnauthorizeOperationException("Solo los administradores pueden ver la lista de empleados");
         }
 
         List<Empleado> empleados = empleadoRepository.findAll();
-        return empleados.stream()
-                .map(empleado -> modelMapper.map(empleado, EmpleadoResponseDto.class))
-                .toList();
+
+        return empleados.stream().map(empleado -> {
+            EmpleadoResponseDto empleadoDto = modelMapper.map(empleado, EmpleadoResponseDto.class);
+
+            // Generar URL pre-firmada para la foto de perfil, si existe
+            if (empleado.getFotoPerfilUrl() != null) {
+                empleadoDto.setFotoPerfilUrl(storageService.generatePresignedUrl(empleado.getFotoPerfilUrl()));
+            }
+
+            return empleadoDto;
+        }).toList();
     }
 
-    public EmpleadoResponseDto getEmpleadoInfo (Long id) {
-        Empleado empleado = empleadoRepository
-                .findById(id)
+
+    public EmpleadoResponseDto getEmpleadoInfo(Long id) {
+        // Verificar si el usuario tiene permisos de administrador o empleado
+        if (!authorizationUtils.isAdminOrEmpleado()) {
+            throw new UnauthorizeOperationException("El usuario no tiene permiso para acceder a este recurso");
+        }
+
+        Empleado empleado = empleadoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Empleado no encontrado"));
 
-        EmpleadoResponseDto response = new EmpleadoResponseDto();
+        EmpleadoResponseDto empleadoDto = modelMapper.map(empleado, EmpleadoResponseDto.class);
 
-        response.setId(empleado.getId());
-        response.setFirstName(empleado.getFirstName());
-        response.setLastName(empleado.getLastName());
-        response.setEmail(empleado.getEmail());
-        response.setPhoneNumber(empleado.getPhoneNumber());
-        response.setHorarioDeTrabajo(empleado.getHorarioDeTrabajo());
+        // Generar URL pre-firmada para la foto de perfil, si existe
+        if (empleado.getFotoPerfilUrl() != null) {
+            empleadoDto.setFotoPerfilUrl(storageService.generatePresignedUrl(empleado.getFotoPerfilUrl()));
+        }
 
-        return response;
+        return empleadoDto;
     }
+
 
     public EmpleadoResponseDto createEmpleado(EmpleadoRequestDto dto) {
         // Verificar si el usuario tiene el rol de administrador
@@ -129,14 +140,31 @@ public class EmpleadoService {
 
 
     public EmpleadoSelfResponseDto getEmpleadoOwnInfo() {
-        String username = authorizationUtils.getCurrentUserEmail();
-        if (username == null)
-            throw new UnauthorizeOperationException("Usuarios anónimos no tienen permiso de acceder a este recurso");
+        // Verificar si el usuario autenticado tiene el rol de empleado
+        if (!authorizationUtils.isEmpleado()) {
+            throw new UnauthorizeOperationException("Solo el empleado autenticado puede acceder a este recurso");
+        }
 
+        // Obtener el email del usuario autenticado
+        String username = authorizationUtils.getCurrentUserEmail();
         Empleado empleado = empleadoRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Empleado no encontrado"));
-        return modelMapper.map(empleado, EmpleadoSelfResponseDto.class);
+
+        // Mapear a DTO
+        EmpleadoSelfResponseDto empleadoDto = modelMapper.map(empleado, EmpleadoSelfResponseDto.class);
+
+        // Generar URL pre-firmada para la foto de perfil, si existe
+        if (empleado.getFotoPerfilUrl() != null && !empleado.getFotoPerfilUrl().isEmpty()) {
+            String fotoPerfilKey = empleado.getFotoPerfilUrl();
+            if (fotoPerfilKey.startsWith("https://")) {
+                fotoPerfilKey = empleado.getFotoPerfilUrl().replace("https://ds-proy-bucket.s3.amazonaws.com/", "");
+            }
+            empleadoDto.setFotoPerfilUrl(storageService.generatePresignedUrl(fotoPerfilKey));
+        }
+
+        return empleadoDto;
     }
+
 
 
     public ResponseEntity<String> deleteEmpleado(Long id) {
