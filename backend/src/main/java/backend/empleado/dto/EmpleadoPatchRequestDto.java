@@ -12,5 +12,6 @@ public class EmpleadoPatchRequestDto {
     private String phoneNumber;
     private String email;
     private String password;
+    private String fotoPerfilUrl;
     private Map<String, String> horarioDeTrabajo;
 }

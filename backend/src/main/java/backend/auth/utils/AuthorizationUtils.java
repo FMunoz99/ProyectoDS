@@ -24,12 +24,30 @@ public class AuthorizationUtils {
     public boolean isAdminOrResourceOwner(Long id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String username = userDetails.getUsername();
-        String role = userDetails.getAuthorities().toArray()[0].toString();
-        Usuario estudiante = usuarioService.findByEmail(username, role);
 
-        return estudiante.getId().equals(id) || estudiante.getRole().equals(Role.ADMIN);
+        // Verificar si el usuario tiene el rol 'ROLE_ADMIN'
+        boolean isAdmin = userDetails.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
+
+        // Si es administrador, devolver true directamente
+        if (isAdmin) {
+            return true;
+        }
+
+        // Obtener el rol del usuario autenticado
+        String role = userDetails.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("El usuario no tiene un rol asignado"));
+
+        // Verificar si el usuario es el dueño del recurso
+        String username = userDetails.getUsername();
+        Usuario usuario = usuarioService.findByEmail(username, role);
+
+        return usuario != null && usuario.getId().equals(id);
     }
+
+
 
     public boolean isAdminOrResourceOwner(Estudiante estudiante, Empleado empleado) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

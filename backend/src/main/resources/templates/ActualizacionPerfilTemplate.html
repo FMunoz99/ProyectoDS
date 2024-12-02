@@ -85,6 +85,20 @@
             height: auto;
             border-radius: 8px;
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        table th {
+            background-color: #007bff;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -116,7 +130,27 @@
     <ul>
         <li th:each="entry : ${updatedFields}">
             <strong th:text="${entry.key}">[Campo]</strong>:
-            <span class="highlight" th:text="${entry.key == 'password' ? 'Contraseña actualizada' : entry.value}">[Valor]</span>
+            <span th:if="${entry.key == 'horarioDeTrabajo'}">
+                <!-- Mostrar tabla si el campo es 'Horario de Trabajo' -->
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Día</th>
+                            <th>Horario</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="horario : ${entry.value}">
+                            <td th:text="${horario.key}">[Día]</td>
+                            <td th:text="${horario.value}">[Horario]</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </span>
+            <span th:if="${entry.key != 'horarioDeTrabajo'}"
+                  th:text="${entry.key == 'password' ? 'Contraseña actualizada' : entry.value}">
+                [Valor]
+            </span>
         </li>
     </ul>
 

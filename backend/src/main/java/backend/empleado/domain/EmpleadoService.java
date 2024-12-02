@@ -2,13 +2,12 @@ package backend.empleado.domain;
 
 import backend.auth.exceptions.UserAlreadyExistException;
 import backend.auth.utils.AuthorizationUtils;
+import backend.aws_s3.StorageService;
 import backend.empleado.dto.EmpleadoPatchRequestDto;
 import backend.empleado.dto.EmpleadoRequestDto;
 import backend.empleado.dto.EmpleadoResponseDto;
 import backend.empleado.dto.EmpleadoSelfResponseDto;
 import backend.empleado.infrastructure.EmpleadoRepository;
-import backend.estudiante.domain.Estudiante;
-import backend.estudiante.dto.EstudianteResponseDto;
 import backend.estudiante.exceptions.UnauthorizeOperationException;
 import backend.events.email_event.EmpleadoCreatedEvent;
 import backend.events.email_event.EmpleadoUpdatedEvent;
@@ -28,9 +27,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,12 +47,13 @@ public class EmpleadoService {
     final private UsuarioService usuarioService;
     final private IncidenteRepository incidenteRepository;
     final private ObjetoPerdidoRepository objetoPerdidoRepository;
+    final private StorageService storageService;
 
     @Autowired
     public EmpleadoService(EmpleadoRepository empleadoRepository, AuthorizationUtils authorizationUtils,
                            ApplicationEventPublisher eventPublisher, PasswordEncoder passwordEncoder,
                            UsuarioService usuarioService, IncidenteRepository incidenteRepository,
-                           ObjetoPerdidoRepository objetoPerdidoRepository) {
+                           ObjetoPerdidoRepository objetoPerdidoRepository, StorageService storageService) {
         this.empleadoRepository = empleadoRepository;
         this.authorizationUtils = authorizationUtils;
         this.eventPublisher = eventPublisher;
@@ -60,6 +61,7 @@ public class EmpleadoService {
         this.usuarioService = usuarioService;
         this.incidenteRepository = incidenteRepository;
         this.objetoPerdidoRepository = objetoPerdidoRepository;
+        this.storageService = storageService;
     }
 
     public List<EmpleadoResponseDto> getAllEmpleados() {
@@ -154,8 +156,8 @@ public class EmpleadoService {
         return ResponseEntity.ok("Empleado con ID " + id + " eliminado con éxito");
     }
 
-    public EmpleadoResponseDto updateEmpleadoInfo(Long id, EmpleadoPatchRequestDto empleadoInfo) {
-        if (!authorizationUtils.isAdminOrResourceOwner(id)) {
+    public EmpleadoResponseDto updateEmpleadoInfo(Long id, EmpleadoPatchRequestDto empleadoInfo, MultipartFile fotoPerfil) throws IOException {
+        if (!authorizationUtils.isAdmin()) {
             throw new UnauthorizeOperationException("El usuario no tiene permiso para modificar este recurso");
         }
 
@@ -164,45 +166,73 @@ public class EmpleadoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Empleado no encontrado"));
 
         // Map para registrar los campos actualizados
-        Map<String, String> updatedFields = new HashMap<>();
+        Map<String, Object> updatedFields = new HashMap<>();
 
         if (empleadoInfo.getFirstName() != null && !empleadoInfo.getFirstName().equals(empleado.getFirstName())) {
             updatedFields.put("Nombre", empleadoInfo.getFirstName());
             empleado.setFirstName(empleadoInfo.getFirstName());
         }
+
         if (empleadoInfo.getLastName() != null && !empleadoInfo.getLastName().equals(empleado.getLastName())) {
             updatedFields.put("Apellido", empleadoInfo.getLastName());
             empleado.setLastName(empleadoInfo.getLastName());
         }
+
         if (empleadoInfo.getPhoneNumber() != null && !empleadoInfo.getPhoneNumber().equals(empleado.getPhoneNumber())) {
             updatedFields.put("Teléfono", empleadoInfo.getPhoneNumber());
             empleado.setPhoneNumber(empleadoInfo.getPhoneNumber());
         }
+
         if (empleadoInfo.getEmail() != null && !empleadoInfo.getEmail().equals(empleado.getEmail())) {
             updatedFields.put("Email", empleadoInfo.getEmail());
             empleado.setEmail(empleadoInfo.getEmail());
         }
+
         if (empleadoInfo.getHorarioDeTrabajo() != null && !empleadoInfo.getHorarioDeTrabajo().equals(empleado.getHorarioDeTrabajo())) {
-            updatedFields.put("Horario de Trabajo", empleadoInfo.getHorarioDeTrabajo().toString());
-            empleado.setHorarioDeTrabajo(empleadoInfo.getHorarioDeTrabajo());
+            Map<String, String> horarioDeTrabajo = empleadoInfo.getHorarioDeTrabajo();
+            // Convertir el horario a una cadena legible
+            String horarioDeTrabajoString = horarioDeTrabajo.entrySet().stream()
+                    .map(e -> e.getKey() + ": " + e.getValue())
+                    .collect(Collectors.joining(", "));
+            updatedFields.put("Horario de Trabajo", horarioDeTrabajoString);
+            empleado.setHorarioDeTrabajo(horarioDeTrabajo);
         }
 
-        if (empleadoInfo.getPassword() != null && !empleadoInfo.getPassword().equals(empleado.getPassword())) {
-            updatedFields.put("Contraseña", "Actualizada");
-            empleado.setPassword(passwordEncoder.encode(empleadoInfo.getPassword()));
+        if (empleadoInfo.getPassword() != null) {
+            // Validar si la nueva contraseña es diferente antes de actualizar
+            if (!passwordEncoder.matches(empleadoInfo.getPassword(), empleado.getPassword())) {
+                updatedFields.put("Contraseña", "Actualizada");
+                empleado.setPassword(passwordEncoder.encode(empleadoInfo.getPassword()));
+            }
         }
 
-        // Actualizar la fecha de modificación
-        empleado.setUpdatedAt(ZonedDateTime.now());
+        // Validar y actualizar la foto de perfil si es diferente
+        if (fotoPerfil != null && !fotoPerfil.isEmpty()) {
+            String newFotoUrl = "empleados/" + empleado.getEmail();
+            if (!newFotoUrl.equals(empleado.getFotoPerfilUrl())) {
+                String fotoUrl = storageService.uploadFile(fotoPerfil, newFotoUrl);
+                updatedFields.put("Foto de Perfil", "Actualizada");
+                empleado.setFotoPerfilUrl(fotoUrl);
+            }
+        }
 
-        Empleado updatedEmpleado = empleadoRepository.save(empleado);
+        // Actualizar la fecha de modificación solo si hay cambios
+        if (!updatedFields.isEmpty()) {
+            empleado.setUpdatedAt(ZonedDateTime.now());
+            Empleado updatedEmpleado = empleadoRepository.save(empleado);
 
-        String recipientEmail = updatedEmpleado.getEmail();
-        EmpleadoUpdatedEvent event = new EmpleadoUpdatedEvent(updatedEmpleado, updatedFields, recipientEmail);
-        eventPublisher.publishEvent(event);
+            // Enviar evento
+            String recipientEmail = updatedEmpleado.getEmail();
+            EmpleadoUpdatedEvent event = new EmpleadoUpdatedEvent(updatedEmpleado, updatedFields, recipientEmail);
+            eventPublisher.publishEvent(event);
 
-        return modelMapper.map(updatedEmpleado, EmpleadoResponseDto.class);
+            return modelMapper.map(updatedEmpleado, EmpleadoResponseDto.class);
+        }
+
+        // Retornar el empleado sin cambios si no hubo actualizaciones
+        return modelMapper.map(empleado, EmpleadoResponseDto.class);
     }
+
 
     // NUEVOS SERVICIOS
 

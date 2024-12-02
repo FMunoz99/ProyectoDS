@@ -51,16 +51,22 @@ public class EstudianteService {
     }
 
     public List<EstudianteResponseDto> getAllEstudiantes() {
-
-        // Verificación del rol de usuario
         if (!authorizationUtils.isAdminOrEmpleado()) {
             throw new UnauthorizeOperationException("Solo los administradores o empleados pueden ver la lista de estudiantes");
         }
 
         List<Estudiante> estudiantes = estudianteRepository.findAll();
-        return estudiantes.stream()
-                .map(estudiante -> modelMapper.map(estudiante, EstudianteResponseDto.class))
-                .toList();
+
+        return estudiantes.stream().map(estudiante -> {
+            EstudianteResponseDto estudianteDto = modelMapper.map(estudiante, EstudianteResponseDto.class);
+
+            // Generar URL pre-firmada para la foto de perfil, si existe
+            if (estudiante.getFotoPerfilUrl() != null) {
+                estudianteDto.setFotoPerfilUrl(storageService.generatePresignedUrl(estudiante.getFotoPerfilUrl()));
+            }
+
+            return estudianteDto;
+        }).toList();
     }
 
     public EstudianteResponseDto createEstudiante(EstudianteRequestDto dto) {
@@ -99,31 +105,52 @@ public class EstudianteService {
 
 
     public EstudianteSelfResponseDto getEstudianteOwnInfo() {
-
+        // Verificar si el usuario autenticado tiene el rol de estudiante
         if (!authorizationUtils.isEstudiante()) {
             throw new UnauthorizeOperationException("Solo el estudiante autenticado puede acceder a este recurso");
         }
 
+        // Obtener el email del usuario autenticado
         String username = authorizationUtils.getCurrentUserEmail();
-        if (username == null)
-            throw new UnauthorizeOperationException("Usuarios anónimos no tienen permiso de acceder a este recurso");
-
         Estudiante estudiante = estudianteRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Estudiante no encontrado"));
-        return modelMapper.map(estudiante, EstudianteSelfResponseDto.class);
+
+        // Mapear a DTO
+        EstudianteSelfResponseDto estudianteDto = modelMapper.map(estudiante, EstudianteSelfResponseDto.class);
+
+        // Generar URL pre-firmada para la foto de perfil, si la URL no está vacía
+        if (estudiante.getFotoPerfilUrl() != null && !estudiante.getFotoPerfilUrl().isEmpty()) {
+            // Extraer la clave del objeto si es una URL completa
+            String fotoPerfilKey = estudiante.getFotoPerfilUrl();
+            if (fotoPerfilKey.startsWith("https://")) {
+                fotoPerfilKey = estudiante.getFotoPerfilUrl().replace("https://ds-proy-bucket.s3.amazonaws.com/", "");
+            }
+            estudianteDto.setFotoPerfilUrl(storageService.generatePresignedUrl(fotoPerfilKey));
+        }
+
+        return estudianteDto;
     }
 
-    public EstudianteResponseDto getEstudianteInfo(Long id) {
 
-        // Verificar que el usuario tiene permisos para eliminar
+
+    public EstudianteResponseDto getEstudianteInfo(Long id) {
         if (!authorizationUtils.isAdmin()) {
             throw new UnauthorizeOperationException("El usuario no tiene permiso para acceder a este recurso");
         }
 
-        Estudiante estudiante = estudianteRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Estudiante no encontrado"));
-        return modelMapper.map(estudiante, EstudianteResponseDto.class);
+        Estudiante estudiante = estudianteRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Estudiante no encontrado"));
+
+        EstudianteResponseDto estudianteDto = modelMapper.map(estudiante, EstudianteResponseDto.class);
+
+        // Generar URL pre-firmada para la foto de perfil, si existe
+        if (estudiante.getFotoPerfilUrl() != null) {
+            estudianteDto.setFotoPerfilUrl(storageService.generatePresignedUrl(estudiante.getFotoPerfilUrl()));
+        }
+
+        return estudianteDto;
     }
+
 
     public ResponseEntity<String> deleteEstudiante(Long id) {
         // Verificar que el usuario tiene permisos para eliminar
@@ -172,27 +199,37 @@ public class EstudianteService {
             estudiante.setEmail(patchEstudianteDto.getEmail());
         }
 
-        if (patchEstudianteDto.getPassword() != null && !patchEstudianteDto.getPassword().equals(estudiante.getPassword())) {
-            updatedFields.put("Contraseña", "Actualizada");
-            estudiante.setPassword(passwordEncoder.encode(patchEstudianteDto.getPassword()));
+        if (patchEstudianteDto.getPassword() != null) {
+            // Validar si la nueva contraseña es diferente antes de actualizar
+            if (!passwordEncoder.matches(patchEstudianteDto.getPassword(), estudiante.getPassword())) {
+                updatedFields.put("Contraseña", "Actualizada");
+                estudiante.setPassword(passwordEncoder.encode(patchEstudianteDto.getPassword()));
+            }
         }
 
         // Subir y actualizar la foto de perfil si se proporciona
         if (fotoPerfil != null && !fotoPerfil.isEmpty()) {
             String fotoUrl = storageService.uploadFile(fotoPerfil, "estudiantes/" + estudiante.getEmail());
+            updatedFields.put("Foto de Perfil", "Actualizada");
             estudiante.setFotoPerfilUrl(fotoUrl);
         }
 
-        // Actualizar la fecha de modificación
-        estudiante.setUpdatedAt(ZonedDateTime.now());
+        // Actualizar la fecha de modificación solo si hay cambios
+        if (!updatedFields.isEmpty()) {
+            estudiante.setUpdatedAt(ZonedDateTime.now());
+            Estudiante updatedEstudiante = estudianteRepository.save(estudiante);
 
-        Estudiante updatedEstudiante = estudianteRepository.save(estudiante);
+            // Enviar evento
+            String recipientEmail = updatedEstudiante.getEmail();
+            EstudianteUpdatedEvent event = new EstudianteUpdatedEvent(updatedEstudiante, updatedFields, recipientEmail);
+            eventPublisher.publishEvent(event);
 
-        String recipientEmail = updatedEstudiante.getEmail();
-        EstudianteUpdatedEvent event = new EstudianteUpdatedEvent(updatedEstudiante, updatedFields, recipientEmail);
-        eventPublisher.publishEvent(event);
+            return modelMapper.map(updatedEstudiante, EstudianteResponseDto.class);
+        }
 
-        return modelMapper.map(updatedEstudiante, EstudianteResponseDto.class);
+        // Retornar el estudiante sin cambios si no hubo actualizaciones
+        return modelMapper.map(estudiante, EstudianteResponseDto.class);
     }
+
 
 }

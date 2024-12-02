@@ -11,5 +11,7 @@ public class EmpleadoSelfResponseDto {
     private String lastName;
     private String email;
     private String phoneNumber;
+
+    private String fotoPerfilUrl;
     private Map<String, String> horarioDeTrabajo;
 }

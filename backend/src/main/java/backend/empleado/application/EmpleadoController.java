@@ -8,12 +8,16 @@ import backend.empleado.dto.EmpleadoSelfResponseDto;
 import backend.estudiante.dto.EstudianteResponseDto;
 import backend.incidente.dto.IncidenteResponseDto;
 import backend.objetoPerdido.dto.ObjetoPerdidoResponseDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 @RestController
@@ -53,10 +57,20 @@ public class EmpleadoController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<EmpleadoResponseDto> updateEmpleadoInfo(@PathVariable Long id,
-                                                                 @RequestBody EmpleadoPatchRequestDto empleadoInfo) {
-        return ResponseEntity.ok().body(empleadoService.updateEmpleadoInfo(id, empleadoInfo));
+    public ResponseEntity<EmpleadoResponseDto> updateEmpleadoInfo(
+            @PathVariable Long id,
+            @RequestParam("empleado") String empleadoInfoJson,
+            @RequestParam(value = "fotoPerfil", required = false) MultipartFile fotoPerfil) throws IOException {
+
+        // Deserializa manualmente el JSON
+        ObjectMapper objectMapper = new ObjectMapper();
+        EmpleadoPatchRequestDto empleadoInfo = objectMapper.readValue(empleadoInfoJson, EmpleadoPatchRequestDto.class);
+
+        EmpleadoResponseDto updatedEmpleado = empleadoService.updateEmpleadoInfo(id, empleadoInfo, fotoPerfil);
+        return ResponseEntity.ok(updatedEmpleado);
     }
+
+
 
     // NUEVOS CONTROLADORES
 

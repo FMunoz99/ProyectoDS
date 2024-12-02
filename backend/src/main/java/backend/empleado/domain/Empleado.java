@@ -29,4 +29,5 @@ public class Empleado extends Usuario {
     @OneToMany(mappedBy = "empleado", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ObjetoPerdido> objetoPerdidos;
 
+    private String fotoPerfilUrl;
 }

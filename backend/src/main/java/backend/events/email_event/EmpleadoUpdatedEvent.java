@@ -14,7 +14,7 @@ public class EmpleadoUpdatedEvent extends ApplicationEvent {
     private final Mail mail;
     private final Empleado empleado;
 
-    public EmpleadoUpdatedEvent(Empleado empleado, Map<String, String> updatedFields, String recipientEmail) {
+    public EmpleadoUpdatedEvent(Empleado empleado, Map<String, Object> updatedFields, String recipientEmail) {
         super(empleado);
         this.empleado = empleado;
 
