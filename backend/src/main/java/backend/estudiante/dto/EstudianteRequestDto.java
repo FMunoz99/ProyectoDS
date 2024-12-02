@@ -25,4 +25,6 @@ public class EstudianteRequestDto {
     private String phoneNumber;
 
     private String password;
+
+    private String fotoPerfilUrl;
 }

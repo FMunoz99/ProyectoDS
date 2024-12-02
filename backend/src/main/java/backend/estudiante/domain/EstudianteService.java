@@ -2,6 +2,7 @@ package backend.estudiante.domain;
 
 import backend.auth.exceptions.UserAlreadyExistException;
 import backend.auth.utils.AuthorizationUtils;
+import backend.aws_s3.StorageService;
 import backend.estudiante.dto.EstudiantePatchRequestDto;
 import backend.estudiante.dto.EstudianteRequestDto;
 import backend.estudiante.dto.EstudianteResponseDto;
@@ -19,7 +20,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -33,16 +36,18 @@ public class EstudianteService {
     private final AuthorizationUtils authorizationUtils;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
+    private final StorageService storageService;
 
     @Autowired
     public EstudianteService(EstudianteRepository estudianteRepository, ModelMapper modelMapper,
                              AuthorizationUtils authorizationUtils, ApplicationEventPublisher eventPublisher,
-                             PasswordEncoder passwordEncoder) {
+                             PasswordEncoder passwordEncoder, StorageService storageService) {
         this.estudianteRepository = estudianteRepository;
         this.modelMapper = modelMapper;
         this.passwordEncoder = passwordEncoder;
         this.authorizationUtils = authorizationUtils;
         this.eventPublisher = eventPublisher;
+        this.storageService = storageService;
     }
 
     public List<EstudianteResponseDto> getAllEstudiantes() {
@@ -138,7 +143,7 @@ public class EstudianteService {
         return ResponseEntity.ok("Estudiante con ID " + id + " eliminado con éxito");
     }
 
-    public EstudianteResponseDto updateEstudiante(EstudiantePatchRequestDto patchEstudianteDto) {
+    public EstudianteResponseDto updateEstudiante(EstudiantePatchRequestDto patchEstudianteDto, MultipartFile fotoPerfil) throws IOException {
         String username = authorizationUtils.getCurrentUserEmail();
         Estudiante estudiante = estudianteRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Estudiante no encontrado"));
@@ -170,6 +175,12 @@ public class EstudianteService {
         if (patchEstudianteDto.getPassword() != null && !patchEstudianteDto.getPassword().equals(estudiante.getPassword())) {
             updatedFields.put("Contraseña", "Actualizada");
             estudiante.setPassword(passwordEncoder.encode(patchEstudianteDto.getPassword()));
+        }
+
+        // Subir y actualizar la foto de perfil si se proporciona
+        if (fotoPerfil != null && !fotoPerfil.isEmpty()) {
+            String fotoUrl = storageService.uploadFile(fotoPerfil, "estudiantes/" + estudiante.getEmail());
+            estudiante.setFotoPerfilUrl(fotoUrl);
         }
 
         // Actualizar la fecha de modificación
