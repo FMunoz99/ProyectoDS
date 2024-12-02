@@ -23,9 +23,5 @@ public class Noticias {
     @Column(nullable = false)
     private LocalDateTime fechaPublicacion;
 
-    @ManyToOne
-    @JoinColumn(name = "admin_id", nullable = false)
-    private Admin admin;
-
     private LocalDateTime fechaActualizacion;
 }

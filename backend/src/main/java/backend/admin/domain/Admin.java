@@ -16,6 +16,4 @@ import java.util.List;
 @NoArgsConstructor
 public class Admin extends Usuario {
 
-    @OneToMany(mappedBy = "admin")
-    private List<Noticias> noticias;
 }
