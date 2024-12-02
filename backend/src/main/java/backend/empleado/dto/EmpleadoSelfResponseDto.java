@@ -7,6 +7,7 @@ import java.util.Map;
 @Data
 public class EmpleadoSelfResponseDto {
 
+    private Long id;
     private String firstName;
     private String lastName;
     private String email;

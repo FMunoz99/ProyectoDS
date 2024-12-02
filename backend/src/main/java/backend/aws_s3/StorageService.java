@@ -50,7 +50,8 @@ public class StorageService {
 
         // Verificar si el objeto existe en S3
         if (!s3Client.doesObjectExist(bucketName, processedKey)) {
-            throw new RuntimeException("Imagen no encontrada en S3");
+            System.out.println("Imagen no encontrada en S3");
+            return null;
         }
 
         // Establecer la fecha de expiración para la URL pre-firmada

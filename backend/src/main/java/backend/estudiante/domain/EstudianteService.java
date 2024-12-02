@@ -125,11 +125,14 @@ public class EstudianteService {
             if (fotoPerfilKey.startsWith("https://")) {
                 fotoPerfilKey = estudiante.getFotoPerfilUrl().replace("https://ds-proy-bucket.s3.amazonaws.com/", "");
             }
-            estudianteDto.setFotoPerfilUrl(storageService.generatePresignedUrl(fotoPerfilKey));
+            // Intentar generar la URL pre-firmada
+            String presignedUrl = storageService.generatePresignedUrl(fotoPerfilKey);
+            estudianteDto.setFotoPerfilUrl(presignedUrl);
         }
 
         return estudianteDto;
     }
+
 
 
 
