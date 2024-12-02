@@ -12,4 +12,7 @@ public class NoticiasResponseDto {
     private String contenido;
     private LocalDateTime fechaPublicacion;
     private LocalDateTime fechaActualizacion;
+
+    private Long adminId;
+    private String adminNombre;
 }

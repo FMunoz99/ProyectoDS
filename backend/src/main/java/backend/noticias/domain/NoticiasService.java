@@ -49,11 +49,22 @@ public class NoticiasService {
             throw new UnauthorizeOperationException("Solo los administradores pueden acceder a este recurso.");
         }
 
-        List<Noticias> noticias = noticiasRepository.findAll();
-        return noticias.stream()
-                .map(noticia -> modelMapper.map(noticia, NoticiasResponseDto.class))
+        // Obtener todas las noticias y mapearlas al DTO, incluyendo los datos del administrador
+        return noticiasRepository.findAll().stream()
+                .map(noticia -> {
+                    NoticiasResponseDto dto = modelMapper.map(noticia, NoticiasResponseDto.class);
+
+                    // Añadir información del administrador si existe
+                    if (noticia.getAdmin() != null) {
+                        dto.setAdminId(noticia.getAdmin().getId());
+                        dto.setAdminNombre(noticia.getAdmin().getFirstName() + " " + noticia.getAdmin().getLastName());
+                    }
+
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
+
 
     public NoticiasResponseDto getNoticiaById(Long id) {
         // Verificar si el usuario tiene rol de admin
@@ -63,26 +74,43 @@ public class NoticiasService {
 
         Noticias noticia = noticiasRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Noticia con id " + id + " no encontrada"));
-        return modelMapper.map(noticia, NoticiasResponseDto.class);
-    }
 
-    public NoticiasResponseDto createNoticia(NoticiasRequestDto requestDto) {
-
-        // Verificar si el usuario tiene rol de admin
-        if (!authorizationUtils.isAdmin()) {
-            throw new UnauthorizeOperationException("Solo los administradores pueden acceder a este recurso.");
+        // Mapear la entidad al DTO y agregar los datos del administrador
+        NoticiasResponseDto dto = modelMapper.map(noticia, NoticiasResponseDto.class);
+        if (noticia.getAdmin() != null) {
+            dto.setAdminId(noticia.getAdmin().getId());
+            dto.setAdminNombre(noticia.getAdmin().getFirstName() + " " + noticia.getAdmin().getLastName());
         }
 
+        return dto;
+    }
+
+
+    public NoticiasResponseDto createNoticia(NoticiasRequestDto requestDto) {
+        // Obtener el email del administrador autenticado
+        String email = usuarioService.getCurrentUserEmail();
+
+        // Buscar al administrador por email
+        Admin admin = adminRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Administrador no encontrado para el email: " + email));
+
         // Crear la noticia
-        Noticias noticia = modelMapper.map(requestDto, Noticias.class);
+        Noticias noticia = new Noticias();
         noticia.setTitulo(requestDto.getTitulo());
         noticia.setContenido(requestDto.getContenido());
         noticia.setFechaPublicacion(LocalDateTime.now());
+        noticia.setAdmin(admin); // Asociar al administrador
 
+        // Guardar la noticia
         Noticias savedNoticia = noticiasRepository.save(noticia);
-        return modelMapper.map(savedNoticia, NoticiasResponseDto.class);
-    }
 
+        // Mapear la entidad a un DTO y agregar la información del administrador
+        NoticiasResponseDto responseDto = modelMapper.map(savedNoticia, NoticiasResponseDto.class);
+        responseDto.setAdminId(admin.getId());
+        responseDto.setAdminNombre(admin.getFirstName() + " " + admin.getLastName());
+
+        return responseDto;
+    }
 
     public NoticiasResponseDto updateNoticia(Long id, NoticiasPatchRequestDto patchDto) {
         // Verificar si el usuario tiene rol de admin
@@ -90,9 +118,11 @@ public class NoticiasService {
             throw new UnauthorizeOperationException("Solo los administradores pueden editar noticias.");
         }
 
+        // Buscar la noticia por ID
         Noticias noticia = noticiasRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Noticia con id " + id + " no encontrada"));
 
+        // Actualizar los campos modificados
         if (patchDto.getTitulo() != null) {
             noticia.setTitulo(patchDto.getTitulo());
         }
@@ -101,7 +131,20 @@ public class NoticiasService {
         }
         noticia.setFechaActualizacion(LocalDateTime.now());
 
+        // Guardar la noticia actualizada
         Noticias updatedNoticia = noticiasRepository.save(noticia);
-        return modelMapper.map(updatedNoticia, NoticiasResponseDto.class);
+
+        // Mapear la entidad a un DTO y agregar la información del administrador
+        NoticiasResponseDto responseDto = modelMapper.map(updatedNoticia, NoticiasResponseDto.class);
+
+        // Añadir los datos del administrador si existen
+        if (updatedNoticia.getAdmin() != null) {
+            Admin admin = updatedNoticia.getAdmin();
+            responseDto.setAdminId(admin.getId());
+            responseDto.setAdminNombre(admin.getFirstName() + " " + admin.getLastName());
+        }
+
+        return responseDto;
     }
+
 }

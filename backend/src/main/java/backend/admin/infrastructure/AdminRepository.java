@@ -13,5 +13,7 @@ import java.util.Optional;
 @Transactional
 @Repository
 public interface AdminRepository extends BaseUsuarioRepository<Admin> {
+
+    @Query("SELECT a FROM Admin a WHERE a.email = :email")
     Optional<Admin> findByEmail(String email);
 }

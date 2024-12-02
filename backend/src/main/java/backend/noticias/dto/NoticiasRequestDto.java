@@ -19,6 +19,5 @@ public class NoticiasRequestDto {
 
     private LocalDateTime fechaPublicacion;
 
-    @NotNull(message = "El admin_id es obligatorio")
     private Long adminId;
 }

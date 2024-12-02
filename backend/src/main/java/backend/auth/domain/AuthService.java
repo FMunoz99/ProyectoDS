@@ -1,5 +1,6 @@
 package backend.auth.domain;
 
+import backend.admin.domain.Admin;
 import backend.auth.dto.AuthResponseDto;
 import backend.auth.dto.LoginRequestDto;
 import backend.auth.dto.RegisterRequestDto;
@@ -65,7 +66,7 @@ public class AuthService {
 
         if (registerRequestDto.getIsAdmin() != null && registerRequestDto.getIsAdmin()) {
             // Crear perfil de administrador
-            Usuario admin = new Usuario();
+            Admin admin = new Admin(); // Cambiar a Admin en lugar de Usuario
             admin.setCreatedAt(ZonedDateTime.now());
             admin.setRole(Role.ADMIN);
             admin.setFirstName(registerRequestDto.getFirstName());
@@ -75,7 +76,7 @@ public class AuthService {
             admin.setPhoneNumber(registerRequestDto.getPhone());
             admin.setUpdatedAt(ZonedDateTime.now());
 
-            usuarioRepository.save(admin);
+            usuarioRepository.save(admin); // Esto creará un registro en users y admin
             response.setToken(jwtService.generateToken(admin));
             return response;
         } else if (registerRequestDto.getIsEmpleado()) {
@@ -116,5 +117,6 @@ public class AuthService {
             return response;
         }
     }
+
 
 }

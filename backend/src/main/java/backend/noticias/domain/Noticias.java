@@ -24,4 +24,8 @@ public class Noticias {
     private LocalDateTime fechaPublicacion;
 
     private LocalDateTime fechaActualizacion;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "admin_id", nullable = false, unique = false)
+    private Admin admin;
 }
