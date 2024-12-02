@@ -26,5 +26,7 @@ public class ObjetoPerdidoResponseDto {
     private Long estudianteId;
     private Long empleadoId;
 
+    private String fotoObjetoPerdidoUrl;
+
     private LocalDate fechaReporte;
 }

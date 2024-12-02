@@ -266,7 +266,6 @@ public class EmpleadoService {
 
     // Metodo para obtener los incidentes asignados al empleado autenticado
     public List<IncidenteResponseDto> getIncidentesAsignados() {
-
         if (!authorizationUtils.isEmpleado()) {
             throw new ResourceNotFoundException("Solo los empleados pueden acceder a este recurso");
         }
@@ -275,8 +274,14 @@ public class EmpleadoService {
         List<Incidente> incidentes = incidenteRepository.findByEmpleadoEmail(email);
 
         return incidentes.stream()
-                .map(incidente -> modelMapper.map(incidente, IncidenteResponseDto.class))
-                .collect(Collectors.toList());
+                .map(incidente -> {
+                    IncidenteResponseDto dto = modelMapper.map(incidente, IncidenteResponseDto.class);
+                    if (incidente.getFotoIncidenteUrl() != null && !incidente.getFotoIncidenteUrl().isEmpty()) {
+                        dto.setFotoIncidenteUrl(storageService.generatePresignedUrl(incidente.getFotoIncidenteUrl()));
+                    }
+                    return dto;
+                })
+                .toList();
     }
 
     // Metodo para obtener los objetos perdidos asignados al empleado autenticado
@@ -289,7 +294,14 @@ public class EmpleadoService {
         List<ObjetoPerdido> objetosPerdidos = objetoPerdidoRepository.findByEmpleadoEmail(email);
 
         return objetosPerdidos.stream()
-                .map(objetoPerdido -> modelMapper.map(objetoPerdido, ObjetoPerdidoResponseDto.class))
-                .collect(Collectors.toList());
+                .map(objetoPerdido -> {
+                    ObjetoPerdidoResponseDto dto = modelMapper.map(objetoPerdido, ObjetoPerdidoResponseDto.class);
+                    if (objetoPerdido.getFotoObjetoPerdidoUrl() != null && !objetoPerdido.getFotoObjetoPerdidoUrl().isEmpty()) {
+                        dto.setFotoObjetoPerdidoUrl(storageService.generatePresignedUrl(objetoPerdido.getFotoObjetoPerdidoUrl()));
+                    }
+                    return dto;
+                })
+                .toList();
     }
+
 }

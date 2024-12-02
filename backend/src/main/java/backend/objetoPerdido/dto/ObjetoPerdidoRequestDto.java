@@ -31,6 +31,8 @@ public class ObjetoPerdidoRequestDto {
     @Size(max = 255)
     private String description;
 
+    private String fotoObjetoPerdidoUrl;
+
     private LocalDate fechaReporte;
 
     private EstadoReporte estadoReporte;

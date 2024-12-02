@@ -277,5 +277,5 @@ public class IncidenteService {
                 })
                 .collect(Collectors.toList());
     }
-    
+
 }

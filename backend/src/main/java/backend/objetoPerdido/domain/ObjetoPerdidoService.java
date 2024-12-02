@@ -2,6 +2,7 @@ package backend.objetoPerdido.domain;
 
 import backend.admin.component.ReportCounter;
 import backend.auth.utils.AuthorizationUtils;
+import backend.aws_s3.StorageService;
 import backend.empleado.domain.Empleado;
 import backend.empleado.infrastructure.EmpleadoRepository;
 import backend.estudiante.domain.Estudiante;
@@ -26,7 +27,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,12 +49,14 @@ public class ObjetoPerdidoService {
     private final EstudianteRepository estudianteRepository;
     private final EstudianteService estudianteService;
     private final ReportCounter reportCounter;
+    private final StorageService storageService;
 
     @Autowired
     public ObjetoPerdidoService(ObjetoPerdidoRepository objetoPerdidoRepository, ApplicationEventPublisher publisher,
                                 ModelMapper modelMapper, UsuarioService usuarioService, ReportCounter reportCounter,
                                 AuthorizationUtils authorizationUtils, EstudianteService estudianteService ,
-                                EmpleadoRepository empleadoRepository, EstudianteRepository estudianteRepository) {
+                                EmpleadoRepository empleadoRepository, EstudianteRepository estudianteRepository,
+                                StorageService storageService) {
         this.objetoPerdidoRepository = objetoPerdidoRepository;
         this.eventPublisher = publisher;
         this.modelMapper = modelMapper;
@@ -61,26 +66,37 @@ public class ObjetoPerdidoService {
         this.estudianteRepository = estudianteRepository;
         this.estudianteService = estudianteService;
         this.reportCounter = reportCounter;
+        this.storageService = storageService;
     }
 
     public List<ObjetoPerdidoResponseDto> findAllObjetosPerdidos() {
-
         // Verificar si el usuario autenticado es un administrador o un empleado
         if (!authorizationUtils.isAdminOrEmpleado()) {
             throw new UnauthorizeOperationException("Solo los administradores y empleados pueden ver todos los reportes de objetos perdidos");
         }
         return objetoPerdidoRepository.findAll().stream()
-                .map(objetoPerdido -> modelMapper.map(objetoPerdido, ObjetoPerdidoResponseDto.class))
+                .map(objetoPerdido -> {
+                    ObjetoPerdidoResponseDto dto = modelMapper.map(objetoPerdido, ObjetoPerdidoResponseDto.class);
+                    if (objetoPerdido.getFotoObjetoPerdidoUrl() != null && !objetoPerdido.getFotoObjetoPerdidoUrl().isEmpty()) {
+                        dto.setFotoObjetoPerdidoUrl(storageService.generatePresignedUrl(objetoPerdido.getFotoObjetoPerdidoUrl()));
+                    }
+                    return dto;
+                })
                 .toList();
     }
 
     public ObjetoPerdidoResponseDto findObjetoPerdidoById(Long id) {
-        return objetoPerdidoRepository.findById(id)
-                .map(objetoPerdido -> modelMapper.map(objetoPerdido, ObjetoPerdidoResponseDto.class))
-                .orElseThrow(() -> new ResourceNotFoundException("Objeto perdido no encontrado"));
+        ObjetoPerdido objetoPerdido = objetoPerdidoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Objeto perdido con id "+ id + " no encontrado"));
+
+        ObjetoPerdidoResponseDto dto = modelMapper.map(objetoPerdido, ObjetoPerdidoResponseDto.class);
+        if (objetoPerdido.getFotoObjetoPerdidoUrl() != null && !objetoPerdido.getFotoObjetoPerdidoUrl().isEmpty()) {
+            dto.setFotoObjetoPerdidoUrl(storageService.generatePresignedUrl(objetoPerdido.getFotoObjetoPerdidoUrl()));
+        }
+        return dto;
     }
 
-    public ObjetoPerdidoResponseDto saveObjetoPerdido(ObjetoPerdidoRequestDto requestDto) {
+    public ObjetoPerdidoResponseDto saveObjetoPerdido(ObjetoPerdidoRequestDto requestDto, MultipartFile fotoObjetoPerdido) throws IOException {
 
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null) {
@@ -97,7 +113,7 @@ public class ObjetoPerdidoService {
         // Mapeo del DTO a la entidad ObjetoPerdido
         ObjetoPerdido objetoPerdido = modelMapper.map(requestDto, ObjetoPerdido.class);
 
-        // Seteo de otros campos
+        // Configuración de otros campos
         objetoPerdido.setPiso(requestDto.getPiso());
         objetoPerdido.setDetalle(requestDto.getDetalle());
         objetoPerdido.setUbicacion(requestDto.getUbicacion());
@@ -107,7 +123,7 @@ public class ObjetoPerdidoService {
         objetoPerdido.setEstadoReporte(EstadoReporte.PENDIENTE);
         objetoPerdido.setEstadoTarea(EstadoTarea.NO_FINALIZADO);
 
-        // Establecer la fecha de reporte automáticamente si no está presente
+        // Configurar la fecha de reporte automáticamente si no está presente
         if (requestDto.getFechaReporte() == null) {
             objetoPerdido.setFechaReporte(LocalDate.now());
         } else {
@@ -116,6 +132,12 @@ public class ObjetoPerdidoService {
 
         // Asignar el estudiante que registró el objeto perdido
         objetoPerdido.setEstudiante(estudianteRegistrador);
+
+        // Manejo de la imagen si se proporciona
+        if (fotoObjetoPerdido != null && !fotoObjetoPerdido.isEmpty()) {
+            String imagenUrl = storageService.uploadFile(fotoObjetoPerdido, "objetos_perdidos/" + estudianteRegistrador.getEmail());
+            objetoPerdido.setFotoObjetoPerdidoUrl(imagenUrl); // Supongamos que el campo `fotoObjetoUrl` existe en la entidad `ObjetoPerdido`
+        }
 
         // Buscar un empleado disponible al azar
         List<Empleado> empleados = empleadoRepository.findAll();
@@ -148,7 +170,7 @@ public class ObjetoPerdidoService {
 
     public ObjetoPerdidoResponseDto updateStatusObjetoPerdido(Long id, ObjetoPerdidoPatchRequestDto patchDto) {
         ObjetoPerdido objetoPerdido = objetoPerdidoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Objeto perdido no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Objeto perdido con id " + id + " no encontrado"));
 
         if (!authorizationUtils.isAdminOrEmpleado(objetoPerdido.getEmpleado())) {
             throw new UnauthorizeOperationException("El usuario no tiene permiso para modificar este recurso");
@@ -173,7 +195,7 @@ public class ObjetoPerdidoService {
     public void deleteObjetoPerdido(Long id) {
         // Verificar si el incidente existe
         if (!objetoPerdidoRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Incidente no encontrado");
+            throw new ResourceNotFoundException("Objeto perdido con id " + id + " no encontrado");
         }
 
         // Verificar si el usuario tiene el rol de administrador
@@ -187,8 +209,15 @@ public class ObjetoPerdidoService {
     public List<ObjetoPerdidoResponseDto> getObjetosPerdidosByEstudiante() {
         Estudiante estudiante = usuarioService.getAuthenticatedEstudiante();
         List<ObjetoPerdido> objetosPerdidos = objetoPerdidoRepository.findByEstudiante(estudiante);
+
         return objetosPerdidos.stream()
-                .map(objetoPerdido -> modelMapper.map(objetoPerdido, ObjetoPerdidoResponseDto.class))
+                .map(objetoPerdido -> {
+                    ObjetoPerdidoResponseDto dto = modelMapper.map(objetoPerdido, ObjetoPerdidoResponseDto.class);
+                    if (objetoPerdido.getFotoObjetoPerdidoUrl() != null && !objetoPerdido.getFotoObjetoPerdidoUrl().isEmpty()) {
+                        dto.setFotoObjetoPerdidoUrl(storageService.generatePresignedUrl(objetoPerdido.getFotoObjetoPerdidoUrl()));
+                    }
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -196,47 +225,56 @@ public class ObjetoPerdidoService {
 
     // Obtener objetos perdidos por estado
     public List<ObjetoPerdidoResponseDto> getObjetosPerdidosPorEstado(EstadoReporte estadoReporte) {
-
-        //if (!authorizationUtils.isAdmin()) {
-        //    throw new ResourceNotFoundException("Solo los administradores pueden acceder a este recurso.");
-        //}
-
         List<ObjetoPerdido> objetosPerdidos = objetoPerdidoRepository.findByEstadoReporte(estadoReporte);
+
         return objetosPerdidos.stream()
-                .map(objetoPerdido -> modelMapper.map(objetoPerdido, ObjetoPerdidoResponseDto.class))
+                .map(objetoPerdido -> {
+                    ObjetoPerdidoResponseDto dto = modelMapper.map(objetoPerdido, ObjetoPerdidoResponseDto.class);
+                    if (objetoPerdido.getFotoObjetoPerdidoUrl() != null && !objetoPerdido.getFotoObjetoPerdidoUrl().isEmpty()) {
+                        dto.setFotoObjetoPerdidoUrl(storageService.generatePresignedUrl(objetoPerdido.getFotoObjetoPerdidoUrl()));
+                    }
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
     // Obtener objetos perdidos por estado de tarea (FINALIZADO, NO_FINALIZADO)
     public List<ObjetoPerdidoResponseDto> getObjetosPerdidosPorEstadoTarea(EstadoTarea estadoTarea) {
-
         if (!authorizationUtils.isAdmin()) {
             throw new ResourceNotFoundException("Solo los administradores pueden acceder a este recurso.");
         }
 
         List<ObjetoPerdido> objetosPerdidos = objetoPerdidoRepository.findByEstadoTarea(estadoTarea);
+
         return objetosPerdidos.stream()
-                .map(objetoPerdido -> modelMapper.map(objetoPerdido, ObjetoPerdidoResponseDto.class))
+                .map(objetoPerdido -> {
+                    ObjetoPerdidoResponseDto dto = modelMapper.map(objetoPerdido, ObjetoPerdidoResponseDto.class);
+                    if (objetoPerdido.getFotoObjetoPerdidoUrl() != null && !objetoPerdido.getFotoObjetoPerdidoUrl().isEmpty()) {
+                        dto.setFotoObjetoPerdidoUrl(storageService.generatePresignedUrl(objetoPerdido.getFotoObjetoPerdidoUrl()));
+                    }
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
     // Obtener objetos perdidos por ID de estudiante
     public List<ObjetoPerdidoResponseDto> getObjetosPerdidosPorEstudiante(Long estudianteId) {
-
         if (!authorizationUtils.isAdmin()) {
             throw new ResourceNotFoundException("Solo los administradores pueden acceder a este recurso.");
         }
 
-        // Obtener el EstudianteResponseDto desde el servicio
         EstudianteResponseDto estudianteDto = estudianteService.getEstudianteInfo(estudianteId);
 
-        // Usar el ID del EstudianteResponseDto para buscar los objetos perdidos relacionados con el estudiante
         List<ObjetoPerdido> objetosPerdidos = objetoPerdidoRepository.findByEstudianteId(estudianteDto.getId());
 
-        // Mapear los objetos perdidos a DTOs
         return objetosPerdidos.stream()
-                .map(objetoPerdido -> modelMapper.map(objetoPerdido, ObjetoPerdidoResponseDto.class))
+                .map(objetoPerdido -> {
+                    ObjetoPerdidoResponseDto dto = modelMapper.map(objetoPerdido, ObjetoPerdidoResponseDto.class);
+                    if (objetoPerdido.getFotoObjetoPerdidoUrl() != null && !objetoPerdido.getFotoObjetoPerdidoUrl().isEmpty()) {
+                        dto.setFotoObjetoPerdidoUrl(storageService.generatePresignedUrl(objetoPerdido.getFotoObjetoPerdidoUrl()));
+                    }
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
-
 }

@@ -54,6 +54,8 @@ public class ObjetoPerdido {
 
     private LocalDate fechaReporte;
 
+    private String fotoObjetoPerdidoUrl;
+
     @ManyToOne
     private Estudiante estudiante;
 
