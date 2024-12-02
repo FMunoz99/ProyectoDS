@@ -46,13 +46,15 @@ public class StorageService {
         String processedKey = objectKey.replace("%40", "@");
         System.out.println("Processed Object Key: " + processedKey);
 
+        System.out.println("Processed Key: " + processedKey);
+
         // Verificar si el objeto existe en S3
         if (!s3Client.doesObjectExist(bucketName, processedKey)) {
             throw new RuntimeException("Imagen no encontrada en S3");
         }
 
         // Establecer la fecha de expiración para la URL pre-firmada
-        Date expiration = new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24);
+        Date expiration = new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 2);
 
         // Crear la solicitud para generar la URL pre-firmada
         GeneratePresignedUrlRequest generatePresignedUrlRequest =
