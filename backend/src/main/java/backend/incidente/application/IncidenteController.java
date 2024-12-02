@@ -5,11 +5,14 @@ import backend.incidente.domain.IncidenteService;
 import backend.incidente.dto.IncidentePatchRequestDto;
 import backend.incidente.dto.IncidenteRequestDto;
 import backend.incidente.dto.IncidenteResponseDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -36,8 +39,15 @@ public class IncidenteController {
     }
 
     @PostMapping
-    public ResponseEntity<IncidenteResponseDto> createIncidente(@RequestBody IncidenteRequestDto requestDto) {
-        IncidenteResponseDto savedIncidente = incidenteService.saveIncidente(requestDto);
+    public ResponseEntity<IncidenteResponseDto> createIncidente(
+            @RequestParam("incidente") String incidenteJson,
+            @RequestParam(value = "fotoIncidente", required = false) MultipartFile fotoIncidente) throws IOException {
+
+        // Deserializa manualmente el JSON
+        ObjectMapper objectMapper = new ObjectMapper();
+        IncidenteRequestDto requestDto = objectMapper.readValue(incidenteJson, IncidenteRequestDto.class);
+
+        IncidenteResponseDto savedIncidente = incidenteService.saveIncidente(requestDto, fotoIncidente);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedIncidente);
     }
 

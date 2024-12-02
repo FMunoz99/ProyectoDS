@@ -35,6 +35,8 @@ public class IncidenteRequestDto {
 
     private LocalDate fechaReporte;
 
+    private String fotoIncidenteUrl;
+
     @Enumerated(EnumType.STRING)
     private EstadoReporte estadoReporte;
 

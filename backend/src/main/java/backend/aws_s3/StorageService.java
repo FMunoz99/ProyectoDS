@@ -45,6 +45,7 @@ public class StorageService {
         // Reemplazar %40 por @
         String processedKey = objectKey.replace("%40", "@")
                 .replace("%20", " ");
+
         System.out.println("Processed Object Key: " + processedKey);
 
         System.out.println("Processed Key: " + processedKey);

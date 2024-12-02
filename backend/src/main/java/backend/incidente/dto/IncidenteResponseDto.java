@@ -32,4 +32,6 @@ public class IncidenteResponseDto {
     private Long empleadoId;
 
     private LocalDate fechaReporte;
+
+    private String fotoIncidenteUrl;
 }

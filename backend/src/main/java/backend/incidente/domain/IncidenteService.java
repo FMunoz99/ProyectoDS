@@ -2,6 +2,7 @@ package backend.incidente.domain;
 
 import backend.admin.component.ReportCounter;
 import backend.auth.utils.AuthorizationUtils;
+import backend.aws_s3.StorageService;
 import backend.empleado.domain.Empleado;
 import backend.empleado.infrastructure.EmpleadoRepository;
 import backend.estudiante.domain.Estudiante;
@@ -22,7 +23,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,12 +45,14 @@ public class IncidenteService {
     private final EstudianteRepository estudianteRepository;
     private final EstudianteService estudianteService;
     private final ReportCounter reportCounter;
+    private final StorageService storageService;
 
     @Autowired
     public IncidenteService(IncidenteRepository incidenteRepository, ApplicationEventPublisher publisher,
                             ModelMapper modelMapper, UsuarioService usuarioService, ReportCounter reportCounter,
                             AuthorizationUtils authorizationUtils, EmpleadoRepository empleadoRepository,
-                            EstudianteRepository estudianteRepository, EstudianteService estudianteService) {
+                            EstudianteRepository estudianteRepository, EstudianteService estudianteService,
+                            StorageService storageService) {
         this.incidenteRepository = incidenteRepository;
         this.eventPublisher = publisher;
         this.modelMapper = modelMapper;
@@ -57,27 +62,37 @@ public class IncidenteService {
         this.estudianteRepository = estudianteRepository;
         this.estudianteService = estudianteService;
         this.reportCounter = reportCounter;
+        this.storageService = storageService;
     }
 
     public List<IncidenteResponseDto> findAllIncidentes() {
-        // Verificar si el usuario autenticado es un administrador o un empleado
         if (!authorizationUtils.isAdminOrEmpleado()) {
             throw new UnauthorizeOperationException("Solo los administradores y empleados pueden ver todos los reportes de incidentes");
         }
 
-        // Obtener todos los incidentes y mapearlos a DTO
         return incidenteRepository.findAll().stream()
-                .map(incidente -> modelMapper.map(incidente, IncidenteResponseDto.class))
+                .map(incidente -> {
+                    IncidenteResponseDto dto = modelMapper.map(incidente, IncidenteResponseDto.class);
+                    if (incidente.getFotoIncidenteUrl() != null && !incidente.getFotoIncidenteUrl().isEmpty()) {
+                        dto.setFotoIncidenteUrl(storageService.generatePresignedUrl(incidente.getFotoIncidenteUrl()));
+                    }
+                    return dto;
+                })
                 .toList();
     }
 
     public IncidenteResponseDto findIncidenteById(Long id) {
-        return incidenteRepository.findById(id)
-                .map(incidente -> modelMapper.map(incidente, IncidenteResponseDto.class))
+        Incidente incidente = incidenteRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Incidente no encontrado"));
+
+        IncidenteResponseDto dto = modelMapper.map(incidente, IncidenteResponseDto.class);
+        if (incidente.getFotoIncidenteUrl() != null && !incidente.getFotoIncidenteUrl().isEmpty()) {
+            dto.setFotoIncidenteUrl(storageService.generatePresignedUrl(incidente.getFotoIncidenteUrl()));
+        }
+        return dto;
     }
 
-    public IncidenteResponseDto saveIncidente(IncidenteRequestDto requestDto) {
+    public IncidenteResponseDto saveIncidente(IncidenteRequestDto requestDto, MultipartFile fotoIncidente) throws IOException {
 
         // Obtener el correo del usuario autenticado
         String username = authorizationUtils.getCurrentUserEmail();
@@ -113,6 +128,12 @@ public class IncidenteService {
 
         // Asignar el estudiante que registró el incidente
         incidente.setEstudiante(estudianteRegistrador);
+
+        // Manejo de la imagen si se proporciona
+        if (fotoIncidente != null && !fotoIncidente.isEmpty()) {
+            String imagenUrl = storageService.uploadFile(fotoIncidente, "incidentes/" + estudianteRegistrador.getEmail());
+            incidente.setFotoIncidenteUrl(imagenUrl); // Supongamos que el campo `imagenUrl` existe en la entidad `Incidente`
+        }
 
         // Buscar un empleado disponible al azar
         List<Empleado> empleados = empleadoRepository.findAll();
@@ -183,56 +204,78 @@ public class IncidenteService {
     public List<IncidenteResponseDto> getIncidentesByEstudiante() {
         Estudiante estudiante = usuarioService.getAuthenticatedEstudiante();
         List<Incidente> incidentes = incidenteRepository.findByEstudiante(estudiante);
+
         return incidentes.stream()
-                .map(incidente -> modelMapper.map(incidente, IncidenteResponseDto.class))
+                .map(incidente -> {
+                    IncidenteResponseDto dto = modelMapper.map(incidente, IncidenteResponseDto.class);
+                    if (incidente.getFotoIncidenteUrl() != null && !incidente.getFotoIncidenteUrl().isEmpty()) {
+                        dto.setFotoIncidenteUrl(storageService.generatePresignedUrl(incidente.getFotoIncidenteUrl()));
+                    }
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
+
 
     // NUEVOS MÉTODOS
 
     // Obtener incidentes por estado
     public List<IncidenteResponseDto> getIncidentesPorEstado(EstadoReporte estadoReporte) {
-
         if (!authorizationUtils.isAdmin()) {
             throw new ResourceNotFoundException("Solo los administradores pueden acceder a este recurso.");
         }
 
         List<Incidente> incidentes = incidenteRepository.findByEstadoReporte(estadoReporte);
+
         return incidentes.stream()
-                .map(incidente -> modelMapper.map(incidente, IncidenteResponseDto.class))
+                .map(incidente -> {
+                    IncidenteResponseDto dto = modelMapper.map(incidente, IncidenteResponseDto.class);
+                    if (incidente.getFotoIncidenteUrl() != null && !incidente.getFotoIncidenteUrl().isEmpty()) {
+                        dto.setFotoIncidenteUrl(storageService.generatePresignedUrl(incidente.getFotoIncidenteUrl()));
+                    }
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
     // Obtener incidentes por estado de tarea (FINALIZADO, NO_FINALIZADO)
     public List<IncidenteResponseDto> getIncidentesPorEstadoTarea(EstadoTarea estadoTarea) {
-
         if (!authorizationUtils.isAdmin()) {
             throw new ResourceNotFoundException("Solo los administradores pueden acceder a este recurso.");
         }
 
         List<Incidente> incidentes = incidenteRepository.findByEstadoTarea(estadoTarea);
+
         return incidentes.stream()
-                .map(incidente -> modelMapper.map(incidente, IncidenteResponseDto.class))
+                .map(incidente -> {
+                    IncidenteResponseDto dto = modelMapper.map(incidente, IncidenteResponseDto.class);
+                    if (incidente.getFotoIncidenteUrl() != null && !incidente.getFotoIncidenteUrl().isEmpty()) {
+                        dto.setFotoIncidenteUrl(storageService.generatePresignedUrl(incidente.getFotoIncidenteUrl()));
+                    }
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
     // Obtener incidentes por ID de estudiante
     public List<IncidenteResponseDto> getIncidentesPorEstudiante(Long estudianteId) {
-
         if (!authorizationUtils.isAdmin()) {
             throw new ResourceNotFoundException("Solo los administradores pueden acceder a este recurso.");
         }
 
-        // Obtener el EstudianteResponseDto desde el servicio
         EstudianteResponseDto estudianteDto = estudianteService.getEstudianteInfo(estudianteId);
 
-        // Usar el ID del EstudianteResponseDto para buscar los incidentes relacionados con el estudiante
         List<Incidente> incidentes = incidenteRepository.findByEstudianteId(estudianteDto.getId());
 
-        // Mapear los incidentes a DTO
         return incidentes.stream()
-                .map(incidente -> modelMapper.map(incidente, IncidenteResponseDto.class))
+                .map(incidente -> {
+                    IncidenteResponseDto dto = modelMapper.map(incidente, IncidenteResponseDto.class);
+                    if (incidente.getFotoIncidenteUrl() != null && !incidente.getFotoIncidenteUrl().isEmpty()) {
+                        dto.setFotoIncidenteUrl(storageService.generatePresignedUrl(incidente.getFotoIncidenteUrl()));
+                    }
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
-
+    
 }

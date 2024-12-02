@@ -56,6 +56,8 @@ public class Incidente {
     @ManyToOne
     private Empleado empleado;
 
+    private String fotoIncidenteUrl;
+
     @PrePersist
     public void prePersist() {
         if (this.fechaReporte == null) {
