@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -20,10 +21,12 @@ import java.util.List;
 public class IncidenteController {
 
     final private IncidenteService incidenteService;
+    final private ObjectMapper objectMapper;
 
     @Autowired
-    public IncidenteController(IncidenteService incidenteService) {
+    public IncidenteController(IncidenteService incidenteService, ObjectMapper objectMapper) {
         this.incidenteService = incidenteService;
+        this.objectMapper = objectMapper;
     }
 
     @GetMapping
@@ -43,13 +46,20 @@ public class IncidenteController {
             @RequestParam("incidente") String incidenteJson,
             @RequestParam(value = "fotoIncidente", required = false) MultipartFile fotoIncidente) throws IOException {
 
-        // Deserializa manualmente el JSON
-        ObjectMapper objectMapper = new ObjectMapper();
+        // Usa el ObjectMapper configurado por Spring
         IncidenteRequestDto requestDto = objectMapper.readValue(incidenteJson, IncidenteRequestDto.class);
 
-        IncidenteResponseDto savedIncidente = incidenteService.saveIncidente(requestDto, fotoIncidente);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedIncidente);
+        // Manejo de fecha predeterminada
+        if (requestDto.getFechaReporte() == null) {
+            requestDto.setFechaReporte(LocalDate.now());
+        }
+
+        // Llama al servicio para procesar el DTO
+        IncidenteResponseDto responseDto = incidenteService.saveIncidente(requestDto, fotoIncidente);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
+
 
     @PatchMapping("/{id}/estado")
     public ResponseEntity<IncidenteResponseDto> updateIncidenteStatus(

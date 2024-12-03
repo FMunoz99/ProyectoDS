@@ -96,8 +96,9 @@ public class IncidenteService {
 
         // Obtener el correo del usuario autenticado
         String username = authorizationUtils.getCurrentUserEmail();
-        if (username == null)
+        if (username == null) {
             throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
+        }
 
         // Buscar al estudiante que está realizando la solicitud usando el email del usuario autenticado
         Optional<Estudiante> optionalEstudianteRegistrador = estudianteRepository.findByEmail(username);
@@ -109,21 +110,13 @@ public class IncidenteService {
         // Mapeo del DTO a la entidad Incidente
         Incidente incidente = modelMapper.map(requestDto, Incidente.class);
 
-        // Seteo de otros campos
-        incidente.setPiso(requestDto.getPiso());
-        incidente.setDetalle(requestDto.getDetalle());
-        incidente.setUbicacion(requestDto.getUbicacion());
-        incidente.setEmail(requestDto.getEmail());
-        incidente.setPhoneNumber(requestDto.getPhoneNumber());
-        incidente.setDescription(requestDto.getDescription());
+        // Configuración de campos adicionales que no están en el DTO
         incidente.setEstadoReporte(EstadoReporte.PENDIENTE);
         incidente.setEstadoTarea(EstadoTarea.NO_FINALIZADO);
 
-        // Setear la fecha de reporte automáticamente si no está presente
+        // Configurar la fecha de reporte automáticamente si no está presente
         if (requestDto.getFechaReporte() == null) {
             incidente.setFechaReporte(LocalDate.now());
-        } else {
-            incidente.setFechaReporte(requestDto.getFechaReporte());
         }
 
         // Asignar el estudiante que registró el incidente
@@ -132,7 +125,7 @@ public class IncidenteService {
         // Manejo de la imagen si se proporciona
         if (fotoIncidente != null && !fotoIncidente.isEmpty()) {
             String imagenUrl = storageService.uploadFile(fotoIncidente, "incidentes/" + estudianteRegistrador.getEmail());
-            incidente.setFotoIncidenteUrl(imagenUrl); // Supongamos que el campo `imagenUrl` existe en la entidad `Incidente`
+            incidente.setFotoIncidenteUrl(imagenUrl);
         }
 
         // Buscar un empleado disponible al azar
@@ -141,8 +134,8 @@ public class IncidenteService {
         if (!empleados.isEmpty()) {
             Random random = new Random();
             Empleado empleado = empleados.get(random.nextInt(empleados.size()));
-            incidente.setEmpleado(empleado);  // Asignar empleado al incidente
-            empleadoEmail = empleado.getEmail();  // Obtener el correo del empleado seleccionado
+            incidente.setEmpleado(empleado);
+            empleadoEmail = empleado.getEmail();
         }
 
         // Incrementar el contador
