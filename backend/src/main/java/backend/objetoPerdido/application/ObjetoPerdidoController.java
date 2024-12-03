@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -22,10 +23,12 @@ import java.util.List;
 public class ObjetoPerdidoController {
 
     private final ObjetoPerdidoService objetoPerdidoService;
+    private final ObjectMapper objectMapper;
 
     @Autowired
-    public ObjetoPerdidoController(ObjetoPerdidoService objetoPerdidoService) {
+    public ObjetoPerdidoController(ObjetoPerdidoService objetoPerdidoService, ObjectMapper objectMapper) {
         this.objetoPerdidoService = objetoPerdidoService;
+        this.objectMapper = objectMapper;
     }
 
     @GetMapping
@@ -44,13 +47,20 @@ public class ObjetoPerdidoController {
             @RequestParam("objetoPerdido") String objetoPerdidoJson,
             @RequestParam(value = "fotoObjetoPerdido", required = false) MultipartFile fotoObjetoPerdido) throws IOException {
 
-        // Deserializa manualmente el JSON
-        ObjectMapper objectMapper = new ObjectMapper();
+        // Usa el ObjectMapper configurado por Spring
         ObjetoPerdidoRequestDto requestDto = objectMapper.readValue(objetoPerdidoJson, ObjetoPerdidoRequestDto.class);
 
+        // Manejo de fecha predeterminada
+        if (requestDto.getFechaReporte() == null) {
+            requestDto.setFechaReporte(LocalDate.now());
+        }
+
+        // Llama al servicio para procesar el DTO
         ObjetoPerdidoResponseDto responseDto = objetoPerdidoService.saveObjetoPerdido(requestDto, fotoObjetoPerdido);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
+
 
 
     @PatchMapping("/{id}/estado")
