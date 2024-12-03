@@ -2,6 +2,7 @@ package backend.objetoPerdido.dto;
 
 import backend.incidente.domain.EstadoReporte;
 import backend.incidente.domain.EstadoTarea;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -33,6 +34,7 @@ public class ObjetoPerdidoRequestDto {
 
     private String fotoObjetoPerdidoUrl;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate fechaReporte;
 
     private EstadoReporte estadoReporte;
