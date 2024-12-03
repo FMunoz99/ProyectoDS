@@ -1,4 +1,4 @@
-# ProyectoDS
+# Lost&Found
 Repositorio para el proyecto del curso Diseño de Software.
 
 Prof: Jaime Farfán
