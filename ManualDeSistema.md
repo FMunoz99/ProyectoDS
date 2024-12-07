@@ -78,8 +78,7 @@
       ```bash
       idea .\backend\
       ```
-   - Abre el terminal
-   - Ejecutar el comando: docker run --name dsLostAndFound -e POSTGRES_PASSWORD=postgres -p 5555:5432 -d postgres
+   - Abre el terminal y ejecutar el comando: docker run --name dsLostAndFound -e POSTGRES_PASSWORD=postgres -p 5555:5432 -d postgres
    - Abrir Docker Desktop y ejecutar el nuevo contenedor creado
    - Crear un archivo .env.local al mismo nivel del directorio /src
    - Abrir el editor de configuraciones  
@@ -90,18 +89,20 @@
      ![Seleccionar Environment variables](./images/environment_variables.png)
    - Para las variables de entorno, ingresar la ruta del archivo dentro del directorio y para las líneas de comando, seleccionar la opción JAR
      ![Configurar variables de entorno](./images/config_environment.png)  
-   - Configurar el archivo `application.properties` (/src/main/resources/) para conectar la base de datos PostgreSQL.
+   - Configurar el archivo `application.properties` (/src/main/resources/) seleccionando el ícono de base de datos que aparece en la línea 4 para conectar la base de datos PostgreSQL.
      ![Configurar el archivo properties](./images/properties.png)
+   - Ingresar la contraseña `postgres` para verificar la conexión a la base de datos.
      ![Verificar la conexión con la base de datos PostgreSQL](./images/test_connection.png)
    - Iniciar el servidor con `Shift + F10`.
 
 3. **Instalar dependencias del frontend**:
+   - Iniciar Visual Studio Code
    ```bash
-   cd frontend
+   cd Frontend
    npm install
    ```
 
-4. **Ejecutar el frontend**:
+5. **Ejecutar el frontend**:
    ```bash
    npm run dev
    ```
@@ -115,10 +116,11 @@
 - **Página de Bienvenida:** Permite a los usuarios iniciar sesión o registrarse en la plataforma.
 - **Página Principal:** Muestra una lista de objetos reportados como perdidos y encontrados, además de opciones para crear nuevos reportes.
 - **Detalles del Reporte:** Presenta información detallada sobre un objeto perdido o encontrado.
-- **Panel de Administración:** Herramientas para gestionar reportes y enviar notificaciones a los usuarios.
+- **Panel de Empleado:** Herramientas de control y visualización de reportes para la actualización del estado de los reportes.
+- **Panel de Administración:** Herramientas como un dashboard para monitorear la cantidad de reportes por día que se realizan.
 
 ### **Interacción**
-- **Botones:** Crear reporte, marcar como recuperado, notificar al propietario.
+- **Botones:** Crear reporte, marcar como `FINALIZADO`, notificar al propietario mediante correos electrónicos.
 - **Formularios:** Registro de incidentes y descripción de objetos.
 - **Menús:** Navegación entre reportes, usuarios y configuraciones.
 
@@ -130,13 +132,13 @@
    - Los estudiantes pueden crear reportes con detalles del objeto perdido, como descripción, lugar y fecha del incidente.
 
 2. **Gestión de Reportes:**
-   - Los administradores pueden filtrar y organizar los reportes en categorías (objetos encontrados, objetos no reclamados, etc.).
+   - Los administradores pueden filtrar y organizar los reportes en categorías (reportes `ACEPTADOS`, `NO ACEPTADOS`, `FINALIZADOS` y `NO FINALIZADOS`).
 
 3. **Notificaciones:**
-   - Los usuarios reciben actualizaciones por correo o notificaciones push sobre el estado de su reporte.
+   - Los usuarios reciben actualizaciones por correo sobre el estado de su reporte.
 
 4. **Coordinación de Devoluciones:**
-   - Sistema para agendar entregas de objetos encontrados entre estudiantes y administradores.
+   - Se agenda la devolución de un objeto perdido mediante los datos de contacto que brinda el estudiante al momento de rellenar el formulario.
 
 ---
 
@@ -157,8 +159,8 @@
 ## **7. Seguridad**
 
 1. **Autenticación y Autorización:**
-   - Uso de JWT para sesiones seguras.
-   - Roles específicos (administrador, usuario).
+   - Uso de JWT Web Token para sesiones seguras (hasheo de contraseñas con HMAC 256).
+   - Roles específicos (administrador, empleado y estudiante).
 
 2. **Buenas Prácticas:**
    - Contraseñas seguras y actualizadas.
@@ -167,9 +169,9 @@
 ---
 
 ## **8. Glosario**
-- **Reporte:** Información detallada sobre un objeto perdido o encontrado.
+- **Reporte:** Información detallada sobre un objeto perdido o incidente.
 - **Administrador:** Usuario encargado de gestionar la base de datos de reportes.
-- **Notificaciones Push:** Mensajes enviados al dispositivo del usuario para actualizar sobre el estado del reporte.
+- **Notificaciones por eventos asíncronos:** Mensajes enviados al correo del usuario para actualizar sobre el estado del reporte.
 
 ---
 
