@@ -37,8 +37,17 @@ Optimizar la interacción entre estudiantes y administradores, proporcionando ac
 Crear un entorno más ordenado y confiable dentro de la institución al minimizar la pérdida de objetos y promover la responsabilidad compartida.
 
 ### **Alcance**
-- **Incluye**: Detección de vehículos, administración de cámaras IP y usuarios.
-- **No incluye**: Reportes de incidentes, rastreo en tiempo real, identificación de conductores, acciones legales post-rastreo, y hardware fuera de compatibilidad.
+1. **Incluye:**
+ - Registro de reportes: Permite a los estudiantes ingresar información sobre incidentes y objetos perdidos, como descripción, lugar y fecha.
+ - Base de datos centralizada: Organiza los reportes para facilitar la búsqueda y el seguimiento por parte de los administradores.
+ - Notificaciones y actualizaciones: Envía información a los estudiantes sobre el estado de sus reportes y objetos encontrados.
+ - Coordinación de entregas: Facilita la logística para devolver objetos encontrados a sus propietarios legítimos.
+ - Interfaz accesible: Brinda una plataforma intuitiva para su uso tanto por estudiantes como por administradores.
+2. **No incluye:**
+ - Seguimiento físico de objetos: No realiza rastreo en tiempo real de los objetos extraviados fuera del sistema.
+ - Resolución automática: No garantiza la recuperación de todos los objetos reportados, ya que depende de que sean encontrados y entregados.
+ - Soporte fuera de la institución: Solo cubre incidentes y objetos perdidos dentro de las instalaciones o áreas definidas por la institución.
+ - Gestión de objetos de terceros: No se responsabiliza por objetos que no sean propiedad de estudiantes, como los pertenecientes a visitantes o personal externo.
 
 ---
 
@@ -49,22 +58,17 @@ Crear un entorno más ordenado y confiable dentro de la institución al minimiza
   - Procesador: Intel i5 o superior.
   - RAM: 16 GB.
   - Almacenamiento: 100 GB SSD.
-- **Servidor de Visión por Computadora**:
-  - GPU: NVIDIA GTX 1060 o superior (recomendado).
-- **Cámaras IP**:
-  - Compatibilidad con RTSP.
-  - Resolución mínima: 720p.
+  - Conexión estable a internet con al menos 100 Mbps de velocidad de carga/descarga.
+  - GPU: NVIDIA GTX 1650 o superior (recomendado).
 - **Dispositivos Cliente**:
   - Navegador moderno (Chrome, Firefox, Edge) en PC, laptop o smartphone.
 
 ### **Software**
 - **Backend**: Java 11+, Spring Boot.
 - **Frontend**: React.js, Node.js 14+.
-- **Visión por Computadora**: Python 3.8+, Flask, OpenCV, YOLOv8.
-  - **Nota**: No se recomienda usar la última versión de Python, ya que algunas dependencias podrían no ser compatibles. Es preferible utilizar versiones anteriores a Python 3.13.1
 - **Base de Datos**: PostgreSQL.
-- **Herramientas Adicionales**: Docker, GitHub.
-- **IDE Utilizado**: IntelliJ IDEA (para el desarrollo del backend con Spring Boot).
+- **Herramientas Adicionales**: Docker Desktop, Git y GitHub, Postman.
+- **IDE Utilizado**: IntelliJ IDEA (para el desarrollo del backend con el framework Spring Boot).
 
 ---
 
@@ -74,41 +78,28 @@ Crear un entorno más ordenado y confiable dentro de la institución al minimiza
 
 1. **Clonar el repositorio**:
    ```bash
-   git clone https://github.com/PieroAguinaga/proyectoDS.git
-   cd proyectoDS
+   git clone https://github.com/FMunoz99/ProyectoDS.git
    ```
 
-2. **Instalar dependencias del computer vision**:
-   ```bash
-   cd yoloDETECTIOON
-   pip install -r requirements.txt
-   ```
-
-3. **Ejecutar la aplicacion de computer vision**:
-   ```bash
-   python /app.py
-   ```
-
-4. **Crear y ejecutar un contenedor de docker**:
-   ```bash
-   docker run --name postgres-db -e POSTGRES_PASSWORD=postgres -p 5555:5432 -d postgres
-   ```
-
-5. **Ejecutar el backend**:
-   1. Abre el proyecto en IntelliJ IDEA.
+2. **Ejecutar el backend**:
+   a. Abre el proyecto en IntelliJ IDEA.
       ```bash
       idea .\backend\
       ```
-   2. Navega a la clase principal de la aplicación en el directorio `backend` anotada con `@BackendApplication`.
-   3. Presiona **Mayús + F10** para iniciar el servidor.
+   b. Abre el terminal del IDE
+   c. Ejecutar el comando: docker run --name dsLostAndFound -e POSTGRES_PASSWORD=postgres -p 5555:5432 -d postgres
+   d. Abrir Docker Desktop y ejecutar el nuevo contenedor creado
+   e. Crear un archivo .env.local al mismo nivel del directorio /src
+   f. Navega a la clase principal de la aplicación en el directorio `backend` anotada con `@BackendApplication`.
+   g. Presiona **Mayús + F10** para iniciar el servidor.
 
-6. **Instalar dependencias del frontend**:
+5. **Instalar dependencias del frontend**:
    ```bash
-   cd FRONT
+   cd Frontend
    npm install
    ```
    
-7. **Ejecutar el frontend**:
+6. **Ejecutar el frontend**:
    ```bash
    npm run dev
    ```
@@ -181,6 +172,6 @@ Crear un entorno más ordenado y confiable dentro de la institución al minimiza
   - fernando.munoz.p@utec.edu.pe
   - oscar.ramirez.e@utec.edu.pe
   - cesar.tinco@utec.edu.pe
-- **Repositorio GitHub**: [proyectoDS](https://github.com/FMunoz99/ProyectoDS.git)
+- **Repositorio GitHub**: [ProyectoDS](https://github.com/FMunoz99/ProyectoDS.git)
 
 
