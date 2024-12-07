@@ -84,6 +84,7 @@
      ![Abrir Docker Desktop](./images/contenedor.png)
      
    - Crear un archivo `.env.local` al mismo nivel del directorio /src
+     <br>
      ![Crear un archivo env](./images/archivo_env.png)
      
    - Abrir el editor de configuraciones  
