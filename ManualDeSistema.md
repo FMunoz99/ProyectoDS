@@ -22,7 +22,7 @@
 2. [Requisitos del Sistema](#2-requisitos-del-sistema)
 3. [Diagrama de Arquitectura del Sistema](#3-diagrama-de-arquitectura-del-sistema)
 4. [Instalación](#4-instalación)
-5. [Despliegue en AWS](#5-despliegue)
+5. [Despliegue con los servicios de AWS](#5-despliegue-con-los-servicios-de-AWS)
 6. [Interfaz de Usuario](#6-interfaz-de-usuario)
 7. [Funcionalidades del Sistema](#7-funcionalidades-del-sistema)
 8. [Mantenimiento](#8-mantenimiento)
@@ -215,7 +215,7 @@ Este diseño permite a **Lost&Found** ser un sistema robusto, flexible y prepara
 
 ---
 
-## **5. Despliegue del proyecto con los servicios de AWS**
+## **5. Despliegue con los servicios de AWS**
 
 ### Paso 1: Añadir Dockerfile al Proyecto de Spring Boot con Java 21
 
