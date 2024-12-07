@@ -228,7 +228,7 @@ El backend del sistema se despliega utilizando los siguientes servicios de AWS:
 - **Amazon EC2 (Elastic Compute Cloud):** Proporciona la infraestructura subyacente para los servicios de ECS.
 - **Amazon S3 (Simple Storage Service):** Almacena archivos como fotos de perfil y reportes de usuarios.
 
-#### Paso 1: Añadir Dockerfile al Proyecto de Spring Boot con Java 21
+### Paso 1: Añadir Dockerfile al Proyecto de Spring Boot con Java 21
 
 Primero, crearemos un archivo `Dockerfile` para nuestro proyecto de Spring Boot:
 
@@ -240,7 +240,7 @@ EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
 ```
 
-##### Construcción del Proyecto
+#### Construcción del Proyecto
 
 A continuación, necesitamos construir el proyecto de Spring Boot para generar el archivo JAR. Ejecutamos el siguiente comando en la terminal de IntelliJ IDEA o en la terminal de tu sistema operativo:
 
@@ -263,7 +263,7 @@ target
 └── backend-0.0.1-SNAPSHOT.jar.original
 ```
 
-#### Paso 2: Abrir la Cloud Shell de AWS
+### Paso 2: Abrir la Cloud Shell de AWS
 
 Para desplegar nuestra aplicación en ECS, necesitamos acceder a la consola de AWS. Podemos hacerlo a través de la Cloud Shell de AWS, que nos permite ejecutar comandos de AWS directamente en el navegador.
 
@@ -297,7 +297,7 @@ app
 │   └── backend-0.0.1-SNAPSHOT.jar
 ```
 
-#### Paso 3: Crear un Repositorio en ECR
+### Paso 3: Crear un Repositorio en ECR
 
 Amazon ECR (Elastic Container Registry) es el servicio equivalente de AWS a Docker Hub, permitiéndonos almacenar, administrar y desplegar nuestras imágenes de contenedores de manera eficiente.
 
@@ -307,7 +307,7 @@ Amazon ECR (Elastic Container Registry) es el servicio equivalente de AWS a Dock
 
 ![ECR AWS CREATION](./media/3.gif)
 
-#### Paso 4: Construir y Subir la Imagen al Repositorio de ECR
+### Paso 4: Construir y Subir la Imagen al Repositorio de ECR
 
 1. **Autenticar Docker con ECR**: Primero, necesitamos autenticar Docker con nuestro repositorio de ECR. Copiamos el URI del repositorio de ECR que acabamos de crear y ejecutamos el siguiente comando desde la Cloud Shell de AWS:
 
@@ -351,7 +351,7 @@ docker push <account_id>.dkr.ecr.us-east-1.amazonaws.com/dsoftware-app:latest
 
 Nuestra imagen de Docker se ha subido al repositorio de ECR. Podemos verificarlo en la consola de AWS o directamente en la consola de ECR.
 
-#### Paso 5: Crear Grupos de Seguridad para ECS y RDS
+### Paso 5: Crear Grupos de Seguridad para ECS y RDS
 
 Para permitir que ECS se comunique con RDS, necesitamos crear un grupo de seguridad para cada uno. Sigamos estos pasos:
 
@@ -485,6 +485,323 @@ El frontend se despliega utilizando **AWS Amplify**, que simplifica la configura
 
 
 ### **5.3. Almacenamiento de Archivos en S3**
+
+### 5.3.1. Creación de un Bucket S3
+
+1. Acceder a la Consola de AWS:
+   - Primero, inicia sesión en tu cuenta de AWS y navega hasta el servicio S3 desde el panel principal.
+   - Haz clic en "Create bucket" para iniciar el proceso de creación.
+
+2. Nombre del Bucket:
+   - Asigna un nombre único a tu bucket. Este nombre debe ser globalmente único en AWS, lo que significa que ningún otro usuario de AWS en el mundo puede tener un bucket con el mismo nombre.
+   - Ejemplo: mis-archivos-proyecto-utec.
+
+      ![new bucket](../media/s3/s3-create-bucket%20(2).gif) 
+
+3. Opciones de Configuración: 
+   - Dejar las configuraciones por defecto y hacer clic en "Create bucket".
+
+4. Obtener las credenciales de acceso:
+   - Para interactuar con S3 desde nuestra aplicación, necesitamos obtener las credenciales de acceso. Estas credenciales consisten en un Access Key ID y un Secret Access Key que se utilizan para autenticar las solicitudes a S3. Además es necesario un session token que cambia cada cierto tiempo. Todas estas credenciales se pueden obtener en la sección AWS Details de la consola de AWS academy
+      
+      ![new bucket](../media/s3/S3-credentials.gif)
+
+###  ¿Cómo Funciona la Gestión de Fotos de Perfil con S3 y Spring Boot?
+
+Una vez hayas obtenido las credenciales en tu sesión de AWS Academy, puedes empezar a implementar el backend del demo. En este demo, hemos implementado una API en Spring Boot que permite a los usuarios cargar, obtener y eliminar su foto de perfil, almacenándola de manera segura en Amazon S3. A continuación, te explico paso a paso cómo funciona cada parte del código, desde la subida de archivos hasta la generación de URLs pre-firmadas para acceder a las fotos de perfil. 
+
+### 1. Configuración de S3 en Spring Boot
+
+Primero, configuramos la conexión a S3 en nuestra aplicación utilizando las credenciales de AWS y la región correspondiente. Esto se hace en la clase `StorageConfig`:
+
+```java
+@Configuration
+public class StorageConfig {
+    @Value("${cloud.aws.credentials.accessKey}")
+    private String accessKey;
+
+    @Value("${cloud.aws.credentials.secretKey}")
+    private String secretKey;
+
+    @Value("${cloud.aws.credentials.sessionToken}")
+    private String accesSessionToken;
+
+    @Value("${cloud.aws.region.static}")
+    private String region;
+
+    @Bean
+    public AmazonS3 getAmazonS3Client() {
+        final var basicSessionCredentials = new BasicSessionCredentials(accessKey, secretKey, accesSessionToken);
+
+        return AmazonS3ClientBuilder
+                .standard()
+                .withRegion(String.valueOf(RegionUtils.getRegion(region)))
+                .withCredentials(new AWSStaticCredentialsProvider(basicSessionCredentials))
+                .build();
+    }
+}
+```
+
+En este fragmento de código:
+- **Credenciales Seguras**: Las credenciales de AWS (`accessKey`, `secretKey`, `sessionToken`) se inyectan desde el archivo `application.properties`, manteniéndolas seguras y fáciles de modificar.
+- **Cliente de S3**: Creamos un `AmazonS3` que es utilizado para interactuar con el servicio de almacenamiento S3.
+
+### 2. Subiendo una Foto de Perfil
+
+El siguiente paso es permitir que los usuarios suban su foto de perfil. Esto se maneja en el controlador `MediaController`:
+
+```java
+@PostMapping("/profile-pic")
+public ResponseEntity<?> uploadProfilePic(@RequestBody MultipartFile file, Principal principal) throws Exception {
+    String username = principal.getName();
+
+    String objectKey = "profile-pics/" + username;
+    String fileKey = storageService.uploadFile(file, objectKey);
+
+    UserAccount user = userService.findByEmail(username);
+    user.setProfilePictureKey(fileKey);
+    userService.save(user);
+
+    return ResponseEntity.ok("Profile picture uploaded successfully");
+}
+```
+
+**Explicación:**
+- **Seguridad**: Utilizamos `Principal` para obtener el nombre del usuario autenticado. Esto asegura que cada usuario solo pueda modificar su propia foto de perfil.
+- **Key Unica en S3**: El `objectKey` para almacenar el archivo en S3 se basa en el nombre de usuario, asegurando que cada usuario tenga su propio espacio en S3.
+- **Almacenamiento Seguro**: La foto se sube a S3 a través del `StorageService`. El key del objeto se guarda en la base de datos para referencia futura.
+
+### 3. Servicio de Almacenamiento: Subida de Archivos a S3
+
+El servicio `StorageService` maneja la interacción directa con S3, incluyendo la subida de archivos:
+
+```java
+public String uploadFile(MultipartFile file, String objectKey) throws Exception {
+    if (file.isEmpty() || file.getSize() > 5242880)
+        throw new IllegalArgumentException("Invalid file size");
+
+    if (objectKey.startsWith("/") || !objectKey.contains("."))
+        throw new IllegalArgumentException("Invalid object key");
+
+    ObjectMetadata metadata = new ObjectMetadata();
+    metadata.setContentType(file.getContentType());
+    metadata.setContentLength(file.getSize());
+
+    if (s3Client.doesObjectExist(bucketName, objectKey))
+        deleteFile(objectKey);
+
+    try (InputStream inputStream = file.getInputStream()) {
+        s3Client.putObject(new PutObjectRequest(bucketName, objectKey, inputStream, metadata));
+        return objectKey;
+    } catch (IOException e) {
+        throw new Exception("Failed to upload file to S3", e);
+    }
+}
+```
+
+**Puntos Clave:**
+- **Validación de Archivos**: Se valida el tamaño del archivo y el formato del `objectKey` antes de proceder, evitando errores y asegurando que los archivos subidos cumplan con los requisitos.
+- **Metadata del Archivo**: Se añaden metadatos como el tipo de contenido y la longitud del archivo, lo que es importante para un manejo correcto en S3.
+- **Eliminación de Archivos Duplicados**: Si ya existe un archivo con el mismo `objectKey`, se elimina antes de subir el nuevo archivo, asegurando que no haya conflictos.
+
+### 4. Generación de una URL Pre-firmada
+
+####  ¿Qué es una URL Pre-firmada (Presigned URL)?
+
+Una **URL pre-firmada** (Presigned URL) es una URL que proporciona acceso temporal y seguro a un objeto almacenado en Amazon S3, sin necesidad de que el usuario tenga credenciales directas de AWS. La URL pre-firmada está "firmada" con credenciales de AWS y tiene una duración limitada, después de la cual expira y deja de ser válida.
+
+##### ¿Cómo funciona una Presigned URL?
+
+Cuando generas una URL pre-firmada:
+
+1. **Se firma la URL** con tus credenciales de AWS, lo que asegura que solo quienes tengan la URL puedan acceder al archivo.
+2. **Se especifica un tiempo de expiración**: Definir el tiempo de validez garantiza que el acceso sea temporal, aumentando la seguridad.
+3. **Se establece el permiso**: Puedes definir si la URL permite operaciones de lectura, escritura o ambas.
+
+Por ejemplo, en el contexto de una aplicación web donde los usuarios pueden subir y ver fotos de perfil, una URL pre-firmada te permite:
+
+- **Subir una imagen** de forma directa y segura al bucket S3.
+- **Obtener la URL temporal** para que el usuario pueda visualizar su imagen de perfil sin exponer el archivo públicamente.
+
+Ahora para obtener la foto de perfil, generamos una URL pre-firmada que permite el acceso temporal al archivo almacenado en S3:
+
+```java
+@GetMapping("/profile-pic")
+public ResponseEntity<String> getProfilePic(Principal principal) {
+    UserAccount user = userService.findByEmail(principal.getName());
+
+    if (user.getProfilePictureKey() == null)
+        return ResponseEntity.notFound().build();
+
+    String presignedUrl = storageService.generatePresignedUrl(user.getProfilePictureKey());
+    return ResponseEntity.ok(presignedUrl);
+}
+```
+
+```java
+public String generatePresignedUrl(String objectKey) {
+    if (!s3Client.doesObjectExist(bucketName, objectKey))
+        throw new RuntimeException("File not found in S3");
+
+    Date expiration = new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 2);
+    GeneratePresignedUrlRequest generatePresignedUrlRequest =
+            new GeneratePresignedUrlRequest(bucketName, objectKey)
+                    .withExpiration(expiration);
+
+    URL url = s3Client.generatePresignedUrl(generatePresignedUrlRequest);
+    return url.toString();
+}
+```
+
+**Detalles Importantes:**
+- **Acceso Seguro**: Las URLs pre-firmadas permiten que solo usuarios autenticados puedan acceder a sus fotos de perfil. La URL es válida solo por un tiempo limitado (en este caso, 2 horas).
+- **Generación Dinámica**: La URL se genera al momento de la solicitud, lo que añade una capa adicional de seguridad.
+
+## Envio de Archivos a S3 desde React
+
+Nuestra API ya es capaz de procesar y almacenar archivos en S3. Ahora, necesitamos una forma de enviar archivos desde el frontend. En este caso, utilizaremos React (typescript) para construir un formulario de carga de archivos y enviarlos a nuestro backend.
+
+### 1. Creación de un Formulario de Carga de Archivos
+
+Primero, creamos un formulario simple en React que permite a los usuarios seleccionar y cargar un archivo. Pero primero debes de saber que es un form-data.
+
+## ¿Qué es FormData y para qué se utiliza en el Frontend?
+
+**FormData** es una interfaz proporcionada por JavaScript que te permite construir un conjunto de pares clave/valor, representando campos de un formulario, que pueden ser enviados fácilmente utilizando métodos como `fetch` o `XMLHttpRequest`. Este objeto es particularmente útil cuando necesitas subir archivos junto con otros datos a un servidor.
+
+### ¿Para qué sirve FormData?
+
+FormData es extremadamente útil en aplicaciones web donde los usuarios interactúan con formularios que contienen campos de texto y archivos. Algunas situaciones comunes donde se utiliza FormData son:
+
+1. **Subida de archivos**: Facilita la transmisión de archivos (como imágenes, documentos, etc.) desde el navegador al servidor, permitiendo al usuario adjuntar archivos a un formulario y enviarlos con otros datos.
+  
+2. **Envío de datos complejos**: Cuando un formulario contiene múltiples campos de diferentes tipos (texto, selectores, casillas de verificación, etc.), FormData puede manejar todo ese contenido y enviarlo de una sola vez al servidor.
+
+3. **Interacciones asincrónicas**: FormData es ideal para aplicaciones modernas que requieren enviar datos al servidor sin recargar la página, mejorando la experiencia del usuario.
+
+### ¿Cómo funciona FormData?
+
+El uso de FormData en el frontend es sencillo y se hace en tres pasos principales:
+
+1. **Creación del objeto FormData**: Puedes crear un objeto FormData vacío o inicializarlo con un formulario HTML existente.
+   
+   ```javascript
+   const formData = new FormData(); // Objeto vacío
+   // O inicializar con un formulario HTML
+   const formData = new FormData(document.querySelector('form'));
+   ```
+
+2. **Añadir campos y archivos**: Puedes agregar datos al objeto FormData usando el método `.append()`. Este método permite agregar tanto campos de texto como archivos.
+
+   ```javascript
+   formData.append('username', 'john_doe');
+   formData.append('profilePic', fileInput.files[0]); // 'fileInput' es un <input type="file">
+   ```
+
+3. **Enviar el FormData al servidor**: Finalmente, el objeto FormData se envía al servidor utilizando `fetch` o `XMLHttpRequest`.
+
+   ```javascript
+   fetch('/upload', {
+       method: 'POST',
+       body: formData,
+   })
+   .then(response => response.json())
+   .then(data => console.log(data))
+   .catch(error => console.error('Error:', error));
+   ```
+
+Ahora sí, con esta información en mente, podemos proceder a crear el formulario de carga de archivos en React:
+
+```tsx
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const FileUpload = () => {
+    const [file, setFile] = useState<File | null>(null);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFile = e.target.files?.[0];
+        if (selectedFile) setFile(selectedFile);
+    };
+
+    const handleUpload = async () => {
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            await axios.post('http://localhost:8080/api/profile-pic', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            alert('File uploaded successfully');
+        } catch (error) {
+            alert('Failed to upload file');
+        }
+    };
+
+    return (
+        <div>
+            <input type="file" onChange={handleFileChange} />
+            <button onClick={handleUpload}>Upload</button>
+        </div>
+    );
+};
+
+export default FileUpload;
+```
+
+**Explicación:**
+- **Estado Local**: Utilizamos el estado local de React para almacenar el archivo seleccionado por el usuario.
+- **Manejo de Eventos**: Los eventos `onChange` y `onClick` se utilizan para capturar la selección del archivo y la carga del archivo, respectivamente.
+- **Envío de Archivos**: Al hacer clic en el botón "Upload", el archivo se envía al backend a través de una solicitud POST.
+- **Manejo de Errores**: Se muestra una alerta en caso de que la carga del archivo falle.
+- **Nota**: Asegúrate de que la URL de la API en `axios.post` coincida con la URL de tu backend.
+
+### 2. Visualización de la Foto de Perfil
+
+Finalmente, necesitamos una forma de mostrar la foto de perfil del usuario. Para ello, generamos una URL pre-firmada en el frontend y la utilizamos para cargar la imagen:
+
+```tsx
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+const ProfilePic = () => {
+    const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchProfilePic = async () => {
+            try {
+                const response = await axios.get('http://localhost:8080/api/profile-pic');
+                setProfilePicUrl(response.data);
+            } catch (error) {
+                console.error('Failed to fetch profile picture');
+            }
+        };
+
+        fetchProfilePic();
+    }, []);
+
+    return (
+        <div>
+            {profilePicUrl ? (
+                <img src={profilePicUrl} alt="Profile Pic" style={{ width: 200, height: 200 }} />
+            ) : (
+                <p>No profile picture found</p>
+            )}
+        </div>
+    );
+};
+
+export default ProfilePic;
+```
+
+**Explicación:**
+- **Efecto de Lado del Cliente**: Utilizamos un efecto de lado del cliente para cargar la foto de perfil del usuario al renderizar el componente.
+- **Solicitud GET**: Realizamos una solicitud GET a la API para obtener la URL pre-firmada de la foto de perfil.
+- **Visualización de la Imagen**: Si la URL es válida, mostramos la imagen en el componente. De lo contrario, mostramos un mensaje de error.
 
 ---
 
