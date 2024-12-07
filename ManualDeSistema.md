@@ -243,7 +243,7 @@ Este diseño permite a **Lost&Found** ser un sistema robusto, flexible y prepara
 
 ## **8. Seguridad**
 
-### **1. Autenticación y Autorización:**
+1. **Autenticación y Autorización:**
 - Uso de **Spring Security** como framework principal para la gestión de autenticación y autorización.
 - **JSON Web Tokens (JWT):**
   - Se utilizan para garantizar sesiones seguras.
@@ -253,7 +253,7 @@ Este diseño permite a **Lost&Found** ser un sistema robusto, flexible y prepara
   - **Empleado:** Gestión de reportes, actualizaciones y coordinación.
   - **Estudiante:** Registro de reportes y consulta de estados.
 
-### **2. Buenas Prácticas:**
+2. **Buenas Prácticas:**
 - Uso de **contraseñas seguras**, almacenadas con algoritmos de hash.
 - Todas las conexiones entre cliente y servidor están protegidas mediante **HTTPS**.
 - Implementación de políticas de seguridad en endpoints para garantizar que solo los roles autorizados puedan acceder a los recursos específicos.
