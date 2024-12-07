@@ -219,6 +219,8 @@ Este diseño permite a **Lost&Found** ser un sistema robusto, flexible y prepara
 
 En esta sección se detalla cómo desplegar el sistema **Lost&Found** utilizando diversos servicios de AWS, asegurando una integración eficiente y escalable. Este despliegue comprende tanto el backend como el frontend, utilizando herramientas como ECS, RDS, ECR, EC2, S3 y Amplify.
 
+![Amazon Web Services](./images/amazon_web_services.jpeg)
+
 ### **5.1. Despliegue del Backend**
 
 El backend del sistema se despliega utilizando los siguientes servicios de AWS:
