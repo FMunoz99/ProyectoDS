@@ -82,7 +82,8 @@ El sistema **Lost&Found** está compuesto por los siguientes elementos principal
   - **PostgreSQL**, que almacena información estructurada sobre:
     - Usuarios.
     - Reportes de objetos perdidos.
-    - Historial de notificaciones.
+    - Reportes de incidentes.
+    - Historial de cada usuario (estudiante o empleado).
 
 - **Adaptadores de Entrada:**
   - **Controladores REST:** Permiten recibir las solicitudes de los usuarios desde el frontend.
@@ -131,9 +132,7 @@ El sistema sigue el diseño de **arquitectura hexagonal**, organizándose en tre
 - **Escalabilidad:**
   - Es fácil extender el sistema añadiendo nuevos adaptadores o integraciones sin modificar la lógica central.
 
-
 Este diseño permite a **Lost&Found** ser un sistema robusto, flexible y preparado para escalar a medida que crecen las necesidades de la aplicación.
-
 
 ---
 
@@ -241,15 +240,80 @@ Este diseño permite a **Lost&Found** ser un sistema robusto, flexible y prepara
 
 ---
 
+
 ## **8. Seguridad**
 
-1. **Autenticación y Autorización:**
-   - Uso de JWT Web Token para sesiones seguras (hasheo de contraseñas con HMAC 256).
-   - Roles específicos (administrador, empleado y estudiante).
+### **1. Autenticación y Autorización:**
+- Uso de **Spring Security** como framework principal para la gestión de autenticación y autorización.
+- **JSON Web Tokens (JWT):**
+  - Se utilizan para garantizar sesiones seguras.
+  - El token incluye información codificada sobre el usuario, como su rol, y es firmado con HMAC 256 para garantizar su integridad.
+- **Roles específicos:**
+  - **Administrador:** Acceso completo al sistema, gestión de reportes y usuarios.
+  - **Empleado:** Gestión de reportes, actualizaciones y coordinación.
+  - **Estudiante:** Registro de reportes y consulta de estados.
 
-2. **Buenas Prácticas:**
-   - Contraseñas seguras y actualizadas.
-   - HTTPS para todas las conexiones.
+### **2. Buenas Prácticas:**
+- Uso de **contraseñas seguras**, almacenadas con algoritmos de hash.
+- Todas las conexiones entre cliente y servidor están protegidas mediante **HTTPS**.
+- Implementación de políticas de seguridad en endpoints para garantizar que solo los roles autorizados puedan acceder a los recursos específicos.
+
+### **Uso de Spring Security**
+
+**Spring Security** permite implementar mecanismos de seguridad de manera estructurada. Su integración incluye:
+
+1. **Filtro de Autenticación:**
+   - Valida los tokens JWT enviados por el cliente en cada solicitud.
+   - Si el token es válido, extrae la información del usuario y la asigna al contexto de seguridad.
+   
+2. **Control de Acceso por Roles:**
+   - Se define qué roles tienen permiso para acceder a los endpoints específicos.
+   - Ejemplo:
+     ```java
+     @PreAuthorize("hasRole('ADMIN')")
+     public ResponseEntity<?> manageReports() {
+         return ResponseEntity.ok("Acceso permitido solo a administradores");
+     }
+     ```
+
+3. **Configuración Centralizada:**
+   - Las políticas de seguridad, como rutas públicas o protegidas, se configuran en una clase específica:
+     ```java
+     @Configuration
+     public class SecurityConfig extends WebSecurityConfigurerAdapter {
+         @Override
+         protected void configure(HttpSecurity http) throws Exception {
+             http
+                 .csrf().disable()
+                 .authorizeRequests()
+                 .antMatchers("/public/**").permitAll()
+                 .antMatchers("/admin/**").hasRole("ADMIN")
+                 .anyRequest().authenticated()
+                 .and()
+                 .addFilter(new JwtAuthenticationFilter(authenticationManager()));
+         }
+     }
+     ```
+
+### **Diagrama de Funcionamiento**
+
+A continuación, se presenta un diagrama que describe cómo funciona la autenticación con Spring Security y JWT:
+
+![Funcionamiento de Seguridad con Spring Security](./images/spring_security_flow.jpeg)
+
+---
+
+### **Flujo de Trabajo de Seguridad:**
+1. El usuario envía sus credenciales al endpoint de autenticación.
+2. Spring Security valida las credenciales:
+   - Si son correctas, se genera un JWT y se envía al cliente.
+3. El cliente incluye el JWT en el encabezado de todas las solicitudes posteriores.
+4. Spring Security intercepta las solicitudes:
+   - Valida el JWT y extrae la información del usuario.
+   - Verifica si el usuario tiene los permisos necesarios para acceder al recurso solicitado.
+5. Si todo es válido, se permite el acceso; de lo contrario, se devuelve un error 403 (Forbidden).
+
+Con esta configuración, el sistema garantiza una seguridad robusta y adaptable, protegiendo los datos y recursos del sistema **Lost&Found**.
 
 ---
 
