@@ -150,7 +150,11 @@ Este diseño permite a **Lost&Found** ser un sistema robusto, flexible y prepara
       ```bash
       idea .\backend\
       ```
-   - Abre el terminal y ejecutar el comando: docker run --name dsLostAndFound -e POSTGRES_PASSWORD=postgres -p 5555:5432 -d postgres
+   - Abre el terminal y ejecutar el comando:
+     <br>
+     ```bash
+     docker run --name dsLostAndFound -e POSTGRES_PASSWORD=postgres -p 5555:5432 -d postgres
+     ```
      
    - Abrir Docker Desktop y ejecutar el nuevo contenedor creado
      ![Abrir Docker Desktop](./images/contenedor.png)
@@ -244,14 +248,14 @@ Este diseño permite a **Lost&Found** ser un sistema robusto, flexible y prepara
 ## **8. Seguridad**
 
 1. **Autenticación y Autorización:**
-- Uso de **Spring Security** como framework principal para la gestión de autenticación y autorización.
-- **JSON Web Tokens (JWT):**
-  - Se utilizan para garantizar sesiones seguras.
-  - El token incluye información codificada sobre el usuario, como su rol, y es firmado con HMAC 256 para garantizar su integridad.
-- **Roles específicos:**
-  - **Administrador:** Acceso completo al sistema, gestión de reportes y usuarios.
-  - **Empleado:** Gestión de reportes, actualizaciones y coordinación.
-  - **Estudiante:** Registro de reportes y consulta de estados.
+   - Uso de **Spring Security** como framework principal para la gestión de autenticación y autorización.
+   - **JSON Web Tokens (JWT):**
+      - Se utilizan para garantizar sesiones seguras.
+      - El token incluye información codificada sobre el usuario, como su rol, y es firmado con HMAC 256 para garantizar su integridad.
+   - **Roles específicos:**
+      - **Administrador:** Acceso completo al sistema, gestión de reportes y usuarios.
+      - **Empleado:** Gestión de reportes, actualizaciones y coordinación.
+      - **Estudiante:** Registro de reportes y consulta de estados.
 
 2. **Buenas Prácticas:**
 - Uso de **contraseñas seguras**, almacenadas con algoritmos de hash.
