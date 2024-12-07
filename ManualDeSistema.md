@@ -255,7 +255,7 @@ target
 
 Para desplegar nuestra aplicación en ECS, necesitamos acceder a la consola de AWS. Podemos hacerlo a través de la Cloud Shell de AWS, que nos permite ejecutar comandos de AWS directamente en el navegador.
 
-![AWS Cloud Shell](../media/05/1.gif)
+![AWS Cloud Shell](./media/1.gif)
 
 Vamos a crear una carpeta llamada `app` en la Cloud Shell y subir nuestro archivo `backend-0.0.1-SNAPSHOT.jar` junto con el `Dockerfile` a esta carpeta.
 
@@ -293,7 +293,7 @@ Amazon ECR (Elastic Container Registry) es el servicio equivalente de AWS a Dock
 2. **Buscar ECR**: Usa la barra de búsqueda en la parte superior para encontrar el servicio ECR.
 3. **Crear Repositorio**: Una vez en la página de ECR, sigue las instrucciones para crear un nuevo repositorio y dale el nombre que prefieras.
 
-![ECR AWS CREATION](../media/05/3.gif)
+![ECR AWS CREATION](./media/3.gif)
 
 ### Paso 4: Construir y Subir la Imagen al Repositorio de ECR
 
@@ -305,7 +305,7 @@ aws ecr get-login-password --region us-east-1 | docker login --username AWS --pa
 
 Para extraer nuestro `account_id`, dirígete a la esquina superior derecha al costado de la región y haz clic. Esto abrirá una interfaz donde podemos copiar el ID de la cuenta:
 
-![Cuenta ID](../media/05/4.gif)
+![Cuenta ID](./media/4.gif)
 
 Si la autenticación es exitosa, veremos un mensaje de éxito similar a este:
 
@@ -335,7 +335,7 @@ docker tag dsoftware-app:latest <account_id>.dkr.ecr.us-east-1.amazonaws.com/dso
 docker push <account_id>.dkr.ecr.us-east-1.amazonaws.com/dsoftware-app:latest
 ```
 
-![ECR AWS PUSH](../media/05/5.gif)
+![ECR AWS PUSH](./media/5.gif)
 
 ¡Y listo! Nuestra imagen de Docker se ha subido al repositorio de ECR. Podemos verificarlo en la consola de AWS o directamente en la consola de ECR.
 
@@ -401,7 +401,7 @@ Para desplegar nuestra aplicación en contenedores, necesitamos crear un cluster
 4. **Finalizar y Crear**:
    - Revisamos las configuraciones y hacemos clic en "Crear" para finalizar el proceso.
 
-![ECS AWS CREATION](../media/05/6.gif)
+![ECS AWS CREATION](./media/6.gif)
 
 ## Paso 8: Definir una tarea de ECS
 
@@ -412,7 +412,7 @@ En este paso, definiremos una tarea de ECS para ejecutar nuestra aplicación Spr
    - Asignamos un nombre a la tarea, seleccionamos el tipo de tarea y configuramos los recursos necesarios (1 vCPU, 2 GB de RAM).
    - Para el rol de la tarea y el rol de ejecución, seleccionamos `LabRole`.
 
-![ECS TASK AWS CREATION](../media/05/8.gif)
+![ECS TASK AWS CREATION](./media/8.gif)
 
 2. **Definir el Contenedor**:
    - En la sección de contenedores, asignamos un nombre al contenedor y copiamos el URI de nuestra imagen de Docker en ECR. 
@@ -441,7 +441,7 @@ En este paso, definiremos una tarea de ECS para ejecutar nuestra aplicación Spr
 3. **Finalizar y Crear**:
    - Revisamos la configuración de la tarea y hacemos clic en "Crear" para finalizar el proceso.
 
-   ![ECS TASK AWS CREATION](../media/05/9.gif)
+   ![ECS TASK AWS CREATION](./media/9.gif)
 
 ## Paso 9: Crear un Servicio de ECS
 
