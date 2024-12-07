@@ -64,7 +64,80 @@
 
 ---
 
-## **3. Instalación**
+
+## **3. Diagrama de Arquitectura del Sistema**
+
+El sistema **Lost&Found** está compuesto por los siguientes elementos principales, organizados bajo el enfoque de **arquitectura hexagonal**:
+
+### **Componentes Principales**
+- **Frontend:**
+  - Una interfaz web desarrollada en **React.js** que permite a los usuarios interactuar con el sistema mediante operaciones como registrar reportes y consultar el estado de objetos perdidos.
+  - Se comunica con el backend a través de API REST utilizando adaptadores de entrada.
+
+- **Backend:**
+  - Un servicio desarrollado en **Spring Boot**, organizado en torno a un **núcleo de lógica de negocio**, que implementa las reglas y procesos principales del sistema.
+  - Utiliza puertos para interactuar con adaptadores de entrada (controladores REST) y salida (repositorios y servicios externos).
+  
+- **Base de Datos:**
+  - **PostgreSQL**, que almacena información estructurada sobre:
+    - Usuarios.
+    - Reportes de objetos perdidos.
+    - Historial de notificaciones.
+
+- **Adaptadores de Entrada:**
+  - **Controladores REST:** Permiten recibir las solicitudes de los usuarios desde el frontend.
+
+- **Adaptadores de Salida:**
+  - **Repositorio de datos:** Interfaz para interactuar con la base de datos PostgreSQL.
+  - **Servicio de notificaciones:** Conecta el backend con herramientas externas como correos electrónicos para enviar notificaciones sobre los reportes.
+
+### **Arquitectura Hexagonal**
+
+El sistema sigue el diseño de **arquitectura hexagonal**, organizándose en tres capas principales:
+
+1. **Núcleo de Lógica de Negocio:**
+   - Encargado de las operaciones principales, como la validación de reportes y la gestión de usuarios.
+   - Es independiente de las tecnologías externas, asegurando que pueda ser probado fácilmente sin necesidad de bases de datos o interfaces externas.
+
+2. **Puertos (Interfaces):**
+   - **Puertos de Entrada:** Interfaz para aceptar comandos del frontend (por ejemplo, crear reportes o consultar estados).
+   - **Puertos de Salida:** Interfaz para comunicarse con servicios externos, como la base de datos y las notificaciones.
+
+3. **Adaptadores:**
+   - **Adaptadores de Entrada:** Controladores REST que implementan los puertos de entrada y traducen solicitudes HTTP en comandos para el núcleo.
+   - **Adaptadores de Salida:** Implementaciones específicas de los puertos de salida, como repositorios para interactuar con PostgreSQL o servicios de correo.
+   
+
+### **Diagrama de Arquitectura**
+
+![Diagrama de Arquitectura Hexagonal](./images/arquitectura_sistema.png)
+
+
+### **Descripción del Flujo**
+1. El usuario interactúa con el **frontend**, realizando operaciones como registrar reportes.
+2. El **frontend** envía solicitudes al **backend** a través de API REST.
+3. Los **adaptadores de entrada** traducen estas solicitudes en comandos para el núcleo del sistema.
+4. El **núcleo de lógica de negocio** procesa las solicitudes, verificando las reglas de negocio (por ejemplo, validar si el correo del usuario ya está registrado).
+5. Si es necesario, el núcleo interactúa con los **adaptadores de salida**, que se encargan de consultar o actualizar datos en la base de datos, o enviar notificaciones a través de servicios externos.
+6. Las respuestas se envían de vuelta al **frontend** para mostrarlas al usuario.
+
+### **Beneficios del Enfoque Hexagonal**
+- **Desacoplamiento:**
+  - La lógica de negocio está completamente aislada de los detalles tecnológicos, como bases de datos o frameworks.
+- **Flexibilidad:**
+  - Cambiar el servicio de base de datos o proveedor de correos no afecta al núcleo del sistema.
+- **Facilidad de prueba:**
+  - El núcleo puede ser probado de manera independiente, sin necesidad de configurar bases de datos o servicios externos.
+- **Escalabilidad:**
+  - Es fácil extender el sistema añadiendo nuevos adaptadores o integraciones sin modificar la lógica central.
+
+
+Este diseño permite a **Lost&Found** ser un sistema robusto, flexible y preparado para escalar a medida que crecen las necesidades de la aplicación.
+
+
+---
+
+## **4. Instalación**
 
 ### **Pasos de Instalación**
 
@@ -79,7 +152,7 @@
       idea .\backend\
       ```
    - Abre el terminal y ejecutar el comando: docker run --name dsLostAndFound -e POSTGRES_PASSWORD=postgres -p 5555:5432 -d postgres
-   - 
+     
    - Abrir Docker Desktop y ejecutar el nuevo contenedor creado
      ![Abrir Docker Desktop](./images/contenedor.png)
      
@@ -122,7 +195,7 @@
 
 ---
 
-## **4. Interfaz de Usuario**
+## **5. Interfaz de Usuario**
 
 ### **Pantallas del Sistema**
 - **Página de Bienvenida:** Permite a los usuarios iniciar sesión o registrarse en la plataforma.
@@ -138,7 +211,7 @@
 
 ---
 
-## **5. Funcionalidades del Sistema**
+## **6. Funcionalidades del Sistema**
 
 1. **Registro de Reportes:**
    - Los estudiantes pueden crear reportes con detalles del objeto perdido, como descripción, lugar y fecha del incidente.
@@ -154,7 +227,7 @@
 
 ---
 
-## **6. Mantenimiento**
+## **7. Mantenimiento**
 
 1. **Actualizaciones:**
    - Mantener las dependencias actualizadas regularmente.
@@ -168,7 +241,7 @@
 
 ---
 
-## **7. Seguridad**
+## **8. Seguridad**
 
 1. **Autenticación y Autorización:**
    - Uso de JWT Web Token para sesiones seguras (hasheo de contraseñas con HMAC 256).
@@ -180,14 +253,41 @@
 
 ---
 
-## **8. Glosario**
+## **9. Glosario**
 - **Reporte:** Información detallada sobre un objeto perdido o incidente.
 - **Administrador:** Usuario encargado de gestionar la base de datos de reportes.
 - **Notificaciones por eventos asíncronos:** Mensajes enviados al correo del usuario para actualizar sobre el estado del reporte.
 
 ---
 
-## **9. Soporte Técnico**
+## **10. Política de Privacidad y Uso**
+
+En el sistema **Lost&Found**, respetamos la privacidad de los usuarios y gestionamos los datos personales con responsabilidad. Aquí se detallan los aspectos más importantes sobre cómo protegemos y usamos la información:
+
+### **Datos Recopilados**
+- **Correo Electrónico:** Se utiliza para identificar a los usuarios y enviar notificaciones relacionadas con los reportes.
+- **Contraseñas:** Se almacenan de manera segura utilizando algoritmos de hash (HMAC 256).
+- **Reportes:** Información detallada sobre los objetos perdidos o encontrados, incluyendo descripciones, fechas y ubicaciones.
+
+### **Uso de los Datos**
+- Los correos electrónicos se usan para:
+  - Evitar cuentas duplicadas mediante verificación.
+  - Enviar actualizaciones sobre reportes.
+- La información de los reportes se utiliza exclusivamente para gestionar incidentes dentro del sistema.
+
+### **Medidas de Seguridad**
+- Las contraseñas están protegidas mediante algoritmos de hash.
+- Los correos electrónicos actualmente no están encriptados, pero se verifica si ya están registrados para evitar duplicados.
+
+### **Limitaciones**
+- **Responsabilidad del Usuario:** Asegúrese de no compartir sus credenciales con terceros.
+- **Privacidad del Correo Electrónico:** Aunque el sistema evita registros duplicados, los correos no están encriptados. Se recomienda usar correos institucionales para mayor seguridad.
+
+Para más información, contacte al equipo de soporte técnico.
+
+---
+
+## **11. Soporte Técnico**
 
 - **Email:** 
   - fernando.munoz.p@utec.edu.pe
