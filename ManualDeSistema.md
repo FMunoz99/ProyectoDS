@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="images/image11.jpg" alt="Logo UTEC" width="150">
+  <img src="images/logo_utec.jpg" alt="Logo UTEC" width="150">
 </div>
 
 <div align="center">
@@ -7,10 +7,10 @@
   <h2>Manual del sistema</h2>
   <p><b>Profesor:</b> Jaime Farfán</p>
   <p><b>Alumno(s):</b></p>
-  <p>Aguinaga Pizarro, Piero Alessandro - 100%</p>
-  <p>Arellano, Jorge - 100%</p>
-  <p>Tabraj Morales, Sebastian - 100%</p>
-  <p><b>Fecha:</b> 28/10/2024</p>
+  <p>Muñoz Paucar, Fernando Jose</p>
+  <p>Ramírez Encinas, Oscar Gabriel</p>
+  <p>Tinco Aliaga, César</p>
+  <p><b>Fecha:</b> 06/12/2024</p>
   <p><b>Ciclo:</b> 2024-2</p>
 </div>
 ---
@@ -18,12 +18,23 @@
 ## **1. Introducción**
 
 ### **Descripción del Sistema**
-El sistema de rastreo de vehículos es una solución basada en visión por computadora que utiliza cámaras IP para detectar y rastrear vehículos en tiempo real. Este proyecto busca mejorar la seguridad y eficiencia en el seguimiento de vehículos sospechosos o robados, proporcionando datos valiosos para autoridades y usuarios.
+**Lost&Found** es una aplicación diseñada para que los estudiantes puedan reportar incidentes y objetos perdidos de manera rápida y eficiente. La plataforma centraliza la información de los reportes, permitiendo a los administradores dar seguimiento y coordinar la devolución de objetos encontrados. Los usuarios pueden detallar características del objeto o incidente, recibir notificaciones sobre el estado de su reporte y acceder a una base de datos organizada. Esto facilita la recuperación de pertenencias y mejora la eficiencia en la gestión de incidentes dentro de la institución.
 
 ### **Propósito y Objetivos**
-- Detectar y rastrear vehículos en tiempo real.
-- Mejorar la capacidad de respuesta ante incidentes vehiculares.
-- Reducir el índice de impunidad en robos vehiculares mediante una herramienta tecnológica eficiente.
+1. Centralización de Reportes
+Recopilar y organizar todos los reportes de incidentes y objetos perdidos en una plataforma única, facilitando su gestión y seguimiento.
+
+2. Eficiencia en la Recuperación
+Reducir el tiempo y esfuerzo necesario para devolver objetos encontrados a sus propietarios mediante un sistema claro y accesible.
+
+3. Accesibilidad para los Estudiantes
+Ofrecer una herramienta digital intuitiva y de fácil uso para que los estudiantes puedan registrar y consultar reportes en tiempo real.
+
+4. Mejora de la Comunicación
+Optimizar la interacción entre estudiantes y administradores, proporcionando actualizaciones y notificaciones sobre el estado de los reportes.
+
+5. Fomento de la Organización
+Crear un entorno más ordenado y confiable dentro de la institución al minimizar la pérdida de objetos y promover la responsabilidad compartida.
 
 ### **Alcance**
 - **Incluye**: Detección de vehículos, administración de cámaras IP y usuarios.
@@ -167,10 +178,9 @@ El sistema de rastreo de vehículos es una solución basada en visión por compu
 ## **9. Soporte Técnico**
 
 - **Email**: 
-  - sebastian.tabraj@utec.edu.pe
-  - piero.aguinaga@utec.edu.pe
-  - jorge.arellano@utec.edu.pe
-- **Repositorio GitHub**: [proyectoDS](https://github.com/PieroAguinaga/proyectoDS.git)
-- **Prototipo en Figma**: [Figma](https://www.figma.com/design/krOYk4TfxayrRUi2EkPnG1/Untitled?node-id=0-1&node-type=canvas&t=dQD6UwBkkeykYFyn-0)
+  - fernando.munoz.p@utec.edu.pe
+  - oscar.ramirez.e@utec.edu.pe
+  - cesar.tinco@utec.edu.pe
+- **Repositorio GitHub**: [proyectoDS](https://github.com/FMunoz99/ProyectoDS.git)
 
 
