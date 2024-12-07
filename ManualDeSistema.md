@@ -17,6 +17,21 @@
 
 ---
 
+## **Índice**
+1. [Introducción](#1-introducción)
+2. [Requisitos del Sistema](#2-requisitos-del-sistema)
+3. [Diagrama de Arquitectura del Sistema](#3-diagrama-de-arquitectura-del-sistema)
+4. [Instalación](#4-instalación)
+5. [Interfaz de Usuario](#5-interfaz-de-usuario)
+6. [Funcionalidades del Sistema](#6-funcionalidades-del-sistema)
+7. [Mantenimiento](#7-mantenimiento)
+8. [Seguridad](#8-seguridad)
+9. [Glosario](#9-glosario)
+10. [Política de Privacidad y Uso](#10-política-de-privacidad-y-uso)
+11. [Soporte Técnico](#11-soporte-técnico)
+
+---
+
 ## **1. Introducción**
 
 ### **Descripción del Sistema**
