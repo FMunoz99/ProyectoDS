@@ -625,32 +625,80 @@ Por ejemplo, en el contexto de una aplicación web donde los usuarios pueden sub
 
 Ahora para obtener la foto de perfil, generamos una URL pre-firmada que permite el acceso temporal al archivo almacenado en S3:
 
+- En el Controller de la entidad
 ```java
-@GetMapping("/profile-pic")
-public ResponseEntity<String> getProfilePic(Principal principal) {
-    UserAccount user = userService.findByEmail(principal.getName());
-
-    if (user.getProfilePictureKey() == null)
-        return ResponseEntity.notFound().build();
-
-    String presignedUrl = storageService.generatePresignedUrl(user.getProfilePictureKey());
-    return ResponseEntity.ok(presignedUrl);
-}
+@GetMapping("/me")
+    public ResponseEntity<EstudianteSelfResponseDto> getEstudiante() {
+        return ResponseEntity.ok(estudianteService.getEstudianteOwnInfo());
+    }
 ```
 
+- En el Servicio de la entidad
 ```java
-public String generatePresignedUrl(String objectKey) {
-    if (!s3Client.doesObjectExist(bucketName, objectKey))
-        throw new RuntimeException("File not found in S3");
+public EstudianteSelfResponseDto getEstudianteOwnInfo() {
+        // Verificar si el usuario autenticado tiene el rol de estudiante
+        if (!authorizationUtils.isEstudiante()) {
+            throw new UnauthorizeOperationException("Solo el estudiante autenticado puede acceder a este recurso");
+        }
 
-    Date expiration = new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 2);
-    GeneratePresignedUrlRequest generatePresignedUrlRequest =
-            new GeneratePresignedUrlRequest(bucketName, objectKey)
-                    .withExpiration(expiration);
+        // Obtener el email del usuario autenticado
+        String username = authorizationUtils.getCurrentUserEmail();
+        Estudiante estudiante = estudianteRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Estudiante no encontrado"));
 
-    URL url = s3Client.generatePresignedUrl(generatePresignedUrlRequest);
-    return url.toString();
-}
+        // Mapear a DTO
+        EstudianteSelfResponseDto estudianteDto = modelMapper.map(estudiante, EstudianteSelfResponseDto.class);
+
+        // Generar URL pre-firmada para la foto de perfil, si la URL no está vacía
+        if (estudiante.getFotoPerfilUrl() != null && !estudiante.getFotoPerfilUrl().isEmpty()) {
+            // Extraer la clave del objeto si es una URL completa
+            String fotoPerfilKey = estudiante.getFotoPerfilUrl();
+            if (fotoPerfilKey.startsWith("https://")) {
+                fotoPerfilKey = estudiante.getFotoPerfilUrl().replace("https://ds-proy-bucket.s3.amazonaws.com/", "");
+            }
+            // Intentar generar la URL pre-firmada
+            String presignedUrl = storageService.generatePresignedUrl(fotoPerfilKey);
+            estudianteDto.setFotoPerfilUrl(presignedUrl);
+        }
+
+        return estudianteDto;
+    }
+```
+
+- En StorageService
+
+```java
+public String generatePresignedUrl(String objectUrl) {
+        // Extraer la clave del objeto de la URL proporcionada
+        String objectKey = objectUrl.replace("https://ds-proy-bucket.s3.amazonaws.com/", "");
+        System.out.println("Generated Object Key (original): " + objectKey);
+
+        // Reemplazar %40 por @
+        String processedKey = objectKey.replace("%40", "@")
+                .replace("%20", " ");
+
+        System.out.println("Processed Object Key: " + processedKey);
+
+        System.out.println("Processed Key: " + processedKey);
+
+        // Verificar si el objeto existe en S3
+        if (!s3Client.doesObjectExist(bucketName, processedKey)) {
+            System.out.println("Imagen no encontrada en S3");
+            return null;
+        }
+
+        // Establecer la fecha de expiración para la URL pre-firmada
+        Date expiration = new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 2);
+
+        // Crear la solicitud para generar la URL pre-firmada
+        GeneratePresignedUrlRequest generatePresignedUrlRequest =
+                new GeneratePresignedUrlRequest(bucketName, processedKey)
+                        .withExpiration(expiration);
+
+        // Generar la URL pre-firmada
+        URL url = s3Client.generatePresignedUrl(generatePresignedUrlRequest);
+        return url.toString();
+    }
 ```
 
 **Detalles Importantes:**
