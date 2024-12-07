@@ -486,7 +486,7 @@ El frontend se despliega utilizando **AWS Amplify**, que simplifica la configura
 
 ### **5.3. Almacenamiento de Archivos en S3**
 
-### 5.3.1. Creación de un Bucket S3
+#### 5.3.1. Creación de un Bucket S3
 
 1. Acceder a la Consola de AWS:
    - Primero, inicia sesión en tu cuenta de AWS y navega hasta el servicio S3 desde el panel principal.
@@ -510,7 +510,7 @@ El frontend se despliega utilizando **AWS Amplify**, que simplifica la configura
 
 Una vez hayas obtenido las credenciales en tu sesión de AWS Academy, puedes empezar a implementar el backend del demo. En este demo, hemos implementado una API en Spring Boot que permite a los usuarios cargar, obtener y eliminar su foto de perfil, almacenándola de manera segura en Amazon S3. A continuación, te explico paso a paso cómo funciona cada parte del código, desde la subida de archivos hasta la generación de URLs pre-firmadas para acceder a las fotos de perfil. 
 
-### 1. Configuración de S3 en Spring Boot
+#### 1. Configuración de S3 en Spring Boot
 
 Primero, configuramos la conexión a S3 en nuestra aplicación utilizando las credenciales de AWS y la región correspondiente. Esto se hace en la clase `StorageConfig`:
 
@@ -546,7 +546,7 @@ En este fragmento de código:
 - **Credenciales Seguras**: Las credenciales de AWS (`accessKey`, `secretKey`, `sessionToken`) se inyectan desde el archivo `application.properties`, manteniéndolas seguras y fáciles de modificar.
 - **Cliente de S3**: Creamos un `AmazonS3` que es utilizado para interactuar con el servicio de almacenamiento S3.
 
-### 2. Subiendo una Foto de Perfil
+#### 2. Subiendo una Foto de Perfil
 
 El siguiente paso es permitir que los usuarios suban su foto de perfil. Esto se maneja en el controlador `MediaController`:
 
@@ -571,7 +571,7 @@ public ResponseEntity<?> uploadProfilePic(@RequestBody MultipartFile file, Princ
 - **Key Unica en S3**: El `objectKey` para almacenar el archivo en S3 se basa en el nombre de usuario, asegurando que cada usuario tenga su propio espacio en S3.
 - **Almacenamiento Seguro**: La foto se sube a S3 a través del `StorageService`. El key del objeto se guarda en la base de datos para referencia futura.
 
-### 3. Servicio de Almacenamiento: Subida de Archivos a S3
+#### 3. Servicio de Almacenamiento: Subida de Archivos a S3
 
 El servicio `StorageService` maneja la interacción directa con S3, incluyendo la subida de archivos:
 
@@ -604,9 +604,9 @@ public String uploadFile(MultipartFile file, String objectKey) throws Exception 
 - **Metadata del Archivo**: Se añaden metadatos como el tipo de contenido y la longitud del archivo, lo que es importante para un manejo correcto en S3.
 - **Eliminación de Archivos Duplicados**: Si ya existe un archivo con el mismo `objectKey`, se elimina antes de subir el nuevo archivo, asegurando que no haya conflictos.
 
-### 4. Generación de una URL Pre-firmada
+#### 4. Generación de una URL Pre-firmada
 
-####  ¿Qué es una URL Pre-firmada (Presigned URL)?
+#####  ¿Qué es una URL Pre-firmada (Presigned URL)?
 
 Una **URL pre-firmada** (Presigned URL) es una URL que proporciona acceso temporal y seguro a un objeto almacenado en Amazon S3, sin necesidad de que el usuario tenga credenciales directas de AWS. La URL pre-firmada está "firmada" con credenciales de AWS y tiene una duración limitada, después de la cual expira y deja de ser válida.
 
