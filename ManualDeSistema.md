@@ -80,7 +80,9 @@
       ```
    - Abre el terminal y ejecutar el comando: docker run --name dsLostAndFound -e POSTGRES_PASSWORD=postgres -p 5555:5432 -d postgres
    - Abrir Docker Desktop y ejecutar el nuevo contenedor creado
-   - Crear un archivo .env.local al mismo nivel del directorio /src
+     ![Abrir Docker Desktop](./images/contenedor.png)
+   - Crear un archivo `.env.local` al mismo nivel del directorio /src
+     ![Crear un archivo env](./images/archivo_env.png)
    - Abrir el editor de configuraciones  
      ![Abrir el editor de configuraciones](./images/editor_settings.png)
    - Ejecutar la modificación de opciones `Alt + M`  
