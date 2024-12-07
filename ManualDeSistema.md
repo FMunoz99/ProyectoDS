@@ -23,13 +23,13 @@
 3. [Diagrama de Arquitectura del Sistema](#3-diagrama-de-arquitectura-del-sistema)
 4. [Instalación](#4-instalación)
 5. [Despliegue en AWS](#5-despliegue)
-6. [Interfaz de Usuario](#5-interfaz-de-usuario)
-7. [Funcionalidades del Sistema](#6-funcionalidades-del-sistema)
-8. [Mantenimiento](#7-mantenimiento)
-9. [Seguridad](#8-seguridad)
-10. [Glosario](#9-glosario)
-11. [Política de Privacidad y Uso](#10-política-de-privacidad-y-uso)
-12. [Soporte Técnico](#11-soporte-técnico)
+6. [Interfaz de Usuario](#6-interfaz-de-usuario)
+7. [Funcionalidades del Sistema](#7-funcionalidades-del-sistema)
+8. [Mantenimiento](#8-mantenimiento)
+9. [Seguridad](#9-seguridad)
+10. [Glosario](#10-glosario)
+11. [Política de Privacidad y Uso](#11-política-de-privacidad-y-uso)
+12. [Soporte Técnico](#12-soporte-técnico)
 
 ---
 
