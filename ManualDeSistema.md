@@ -91,8 +91,6 @@ El sistema **Lost&Found** está compuesto por los siguientes elementos principal
   - **Repositorio de datos:** Interfaz para interactuar con la base de datos PostgreSQL.
   - **Servicio de notificaciones:** Conecta el backend con herramientas externas como correos electrónicos para enviar notificaciones sobre los reportes.
 
----
-
 ### **Arquitectura Hexagonal**
 
 El sistema sigue el diseño de **arquitectura hexagonal**, organizándose en tres capas principales:
@@ -108,14 +106,12 @@ El sistema sigue el diseño de **arquitectura hexagonal**, organizándose en tre
 3. **Adaptadores:**
    - **Adaptadores de Entrada:** Controladores REST que implementan los puertos de entrada y traducen solicitudes HTTP en comandos para el núcleo.
    - **Adaptadores de Salida:** Implementaciones específicas de los puertos de salida, como repositorios para interactuar con PostgreSQL o servicios de correo.
-
----
+   
 
 ### **Diagrama de Arquitectura**
 
-![Diagrama de Arquitectura Hexagonal](./images/arquitectura_hexagonal.png)
+![Diagrama de Arquitectura Hexagonal](./images/arquitectura_sistema.png)
 
----
 
 ### **Descripción del Flujo**
 1. El usuario interactúa con el **frontend**, realizando operaciones como registrar reportes.
@@ -124,8 +120,6 @@ El sistema sigue el diseño de **arquitectura hexagonal**, organizándose en tre
 4. El **núcleo de lógica de negocio** procesa las solicitudes, verificando las reglas de negocio (por ejemplo, validar si el correo del usuario ya está registrado).
 5. Si es necesario, el núcleo interactúa con los **adaptadores de salida**, que se encargan de consultar o actualizar datos en la base de datos, o enviar notificaciones a través de servicios externos.
 6. Las respuestas se envían de vuelta al **frontend** para mostrarlas al usuario.
-
----
 
 ### **Beneficios del Enfoque Hexagonal**
 - **Desacoplamiento:**
@@ -137,7 +131,6 @@ El sistema sigue el diseño de **arquitectura hexagonal**, organizándose en tre
 - **Escalabilidad:**
   - Es fácil extender el sistema añadiendo nuevos adaptadores o integraciones sin modificar la lógica central.
 
----
 
 Este diseño permite a **Lost&Found** ser un sistema robusto, flexible y preparado para escalar a medida que crecen las necesidades de la aplicación.
 
