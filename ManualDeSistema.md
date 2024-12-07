@@ -22,13 +22,14 @@
 2. [Requisitos del Sistema](#2-requisitos-del-sistema)
 3. [Diagrama de Arquitectura del Sistema](#3-diagrama-de-arquitectura-del-sistema)
 4. [Instalación](#4-instalación)
-5. [Interfaz de Usuario](#5-interfaz-de-usuario)
-6. [Funcionalidades del Sistema](#6-funcionalidades-del-sistema)
-7. [Mantenimiento](#7-mantenimiento)
-8. [Seguridad](#8-seguridad)
-9. [Glosario](#9-glosario)
-10. [Política de Privacidad y Uso](#10-política-de-privacidad-y-uso)
-11. [Soporte Técnico](#11-soporte-técnico)
+5. [Despliegue en AWS](#5-despliegue)
+6. [Interfaz de Usuario](#5-interfaz-de-usuario)
+7. [Funcionalidades del Sistema](#6-funcionalidades-del-sistema)
+8. [Mantenimiento](#7-mantenimiento)
+9. [Seguridad](#8-seguridad)
+10. [Glosario](#9-glosario)
+11. [Política de Privacidad y Uso](#10-política-de-privacidad-y-uso)
+12. [Soporte Técnico](#11-soporte-técnico)
 
 ---
 
@@ -265,7 +266,7 @@ Creamos la carpeta `app` y movemos los archivos a esta carpeta:
 
 ```bash
 mkdir app
-mv hackathon-0.0.1-SNAPSHOT.jar app
+mv backend-0.0.1-SNAPSHOT.jar app
 mv Dockerfile app
 ```
 
@@ -337,14 +338,14 @@ docker push <account_id>.dkr.ecr.us-east-1.amazonaws.com/dsoftware-app:latest
 
 ![ECR AWS PUSH](./media/5.gif)
 
-¡Y listo! Nuestra imagen de Docker se ha subido al repositorio de ECR. Podemos verificarlo en la consola de AWS o directamente en la consola de ECR.
+Nuestra imagen de Docker se ha subido al repositorio de ECR. Podemos verificarlo en la consola de AWS o directamente en la consola de ECR.
 
 ### Paso 5: Crear Grupos de Seguridad para ECS y RDS
 
 Para permitir que ECS se comunique con RDS, necesitamos crear un grupo de seguridad para cada uno. Sigamos estos pasos:
 
 1. **Crear Grupo de Seguridad para ECS (sg_ecs)**:
-   - **Nombre del Grupo**: sg-ecs
+   - **Nombre del Grupo**: sg_ecs
    - **Puertos**: Abrir el puerto 8080 para Spring Boot
    - **Fuente**: Todos los orígenes (0.0.0.0/0)
    - **Egreso**: Permitir todo el tráfico (0.0.0.0/0)
@@ -352,14 +353,14 @@ Para permitir que ECS se comunique con RDS, necesitamos crear un grupo de seguri
    Esto permitirá que nuestra aplicación Spring Boot reciba tráfico en el puerto 8080.
 
 2. **Crear Grupo de Seguridad para RDS (sg_rds)**:
-   - **Nombre del Grupo**: sg-rds
+   - **Nombre del Grupo**: sg_rds
    - **Puertos**: Abrir el puerto 5432 para Postgres
-   - **Fuente**: Limitar la entrada únicamente desde el grupo de seguridad sg-ecs
+   - **Fuente**: Limitar la entrada únicamente desde el grupo de seguridad sg_ecs
    - **Salida**: Sin reglas de salida (ya que RDS no necesita enviar tráfico saliente)
 
    Esto asegurará que nuestra base de datos Postgres solo acepte conexiones desde nuestra aplicación ECS.
 
-¡Ahora nuestros servicios podrán comunicarse de forma segura y eficiente!
+Ahora nuestros servicios podrán comunicarse de forma segura y eficiente.
 
 ## Paso 6: Crear la Base de Datos en RDS
 
@@ -385,7 +386,7 @@ Para almacenar nuestros datos, vamos a crear una base de datos en Amazon RDS usa
    - Al finalizar la configuración, copiamos las credenciales de la base de datos (nombre de usuario, contraseña, URL) y las guardamos en un lugar seguro.
    - Estas credenciales serán necesarias para configurar nuestra aplicación Spring Boot para conectarse a la base de datos.
 
-¡Y eso es todo! Ahora tenemos una base de datos PostgreSQL en Amazon RDS lista para ser utilizada por nuestra aplicación. 🎉
+Ahora tenemos una base de datos PostgreSQL en Amazon RDS lista para ser utilizada por nuestra aplicación.
 
 ## Paso 7: Crear un Cluster de ECS
 
