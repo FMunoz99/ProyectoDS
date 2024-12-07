@@ -496,7 +496,7 @@ El frontend se despliega utilizando **AWS Amplify**, que simplifica la configura
    - Asigna un nombre único a tu bucket. Este nombre debe ser globalmente único en AWS, lo que significa que ningún otro usuario de AWS en el mundo puede tener un bucket con el mismo nombre.
    - Ejemplo: mis-archivos-proyecto-utec.
 
-      ![new bucket](../media/s3/s3-create-bucket%20(2).gif) 
+      ![new bucket](./media/s3/s3-create-bucket%20(2).gif) 
 
 3. Opciones de Configuración: 
    - Dejar las configuraciones por defecto y hacer clic en "Create bucket".
@@ -504,7 +504,7 @@ El frontend se despliega utilizando **AWS Amplify**, que simplifica la configura
 4. Obtener las credenciales de acceso:
    - Para interactuar con S3 desde nuestra aplicación, necesitamos obtener las credenciales de acceso. Estas credenciales consisten en un Access Key ID y un Secret Access Key que se utilizan para autenticar las solicitudes a S3. Además es necesario un session token que cambia cada cierto tiempo. Todas estas credenciales se pueden obtener en la sección AWS Details de la consola de AWS academy
       
-      ![new bucket](../media/s3/S3-credentials.gif)
+      ![new bucket](./media/s3/S3-credentials.gif)
 
 ###  ¿Cómo Funciona la Gestión de Fotos de Perfil con S3 y Spring Boot?
 
