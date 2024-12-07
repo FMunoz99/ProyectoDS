@@ -217,7 +217,18 @@ Este diseño permite a **Lost&Found** ser un sistema robusto, flexible y prepara
 
 ## **5. Despliegue con los servicios de AWS**
 
-### Paso 1: Añadir Dockerfile al Proyecto de Spring Boot con Java 21
+En esta sección se detalla cómo desplegar el sistema **Lost&Found** utilizando diversos servicios de AWS, asegurando una integración eficiente y escalable. Este despliegue comprende tanto el backend como el frontend, utilizando herramientas como ECS, RDS, ECR, EC2, S3 y Amplify.
+
+### **5.1. Despliegue del Backend**
+
+El backend del sistema se despliega utilizando los siguientes servicios de AWS:
+- **Amazon ECS (Elastic Container Service):** Gestiona los contenedores Docker que ejecutan la aplicación.
+- **Amazon ECR (Elastic Container Registry):** Almacena las imágenes Docker.
+- **Amazon RDS (Relational Database Service):** Proporciona la base de datos PostgreSQL para el sistema.
+- **Amazon EC2 (Elastic Compute Cloud):** Proporciona la infraestructura subyacente para los servicios de ECS.
+- **Amazon S3 (Simple Storage Service):** Almacena archivos como fotos de perfil y reportes de usuarios.
+
+#### Paso 1: Añadir Dockerfile al Proyecto de Spring Boot con Java 21
 
 Primero, crearemos un archivo `Dockerfile` para nuestro proyecto de Spring Boot:
 
@@ -229,7 +240,7 @@ EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
 ```
 
-#### Construcción del Proyecto
+##### Construcción del Proyecto
 
 A continuación, necesitamos construir el proyecto de Spring Boot para generar el archivo JAR. Ejecutamos el siguiente comando en la terminal de IntelliJ IDEA o en la terminal de tu sistema operativo:
 
@@ -252,7 +263,7 @@ target
 └── backend-0.0.1-SNAPSHOT.jar.original
 ```
 
-### Paso 2: Abrir la Cloud Shell de AWS
+#### Paso 2: Abrir la Cloud Shell de AWS
 
 Para desplegar nuestra aplicación en ECS, necesitamos acceder a la consola de AWS. Podemos hacerlo a través de la Cloud Shell de AWS, que nos permite ejecutar comandos de AWS directamente en el navegador.
 
@@ -286,7 +297,7 @@ app
 │   └── backend-0.0.1-SNAPSHOT.jar
 ```
 
-### Paso 3: Crear un Repositorio en ECR
+#### Paso 3: Crear un Repositorio en ECR
 
 Amazon ECR (Elastic Container Registry) es el servicio equivalente de AWS a Docker Hub, permitiéndonos almacenar, administrar y desplegar nuestras imágenes de contenedores de manera eficiente.
 
@@ -296,7 +307,7 @@ Amazon ECR (Elastic Container Registry) es el servicio equivalente de AWS a Dock
 
 ![ECR AWS CREATION](./media/3.gif)
 
-### Paso 4: Construir y Subir la Imagen al Repositorio de ECR
+#### Paso 4: Construir y Subir la Imagen al Repositorio de ECR
 
 1. **Autenticar Docker con ECR**: Primero, necesitamos autenticar Docker con nuestro repositorio de ECR. Copiamos el URI del repositorio de ECR que acabamos de crear y ejecutamos el siguiente comando desde la Cloud Shell de AWS:
 
@@ -340,7 +351,7 @@ docker push <account_id>.dkr.ecr.us-east-1.amazonaws.com/dsoftware-app:latest
 
 Nuestra imagen de Docker se ha subido al repositorio de ECR. Podemos verificarlo en la consola de AWS o directamente en la consola de ECR.
 
-### Paso 5: Crear Grupos de Seguridad para ECS y RDS
+#### Paso 5: Crear Grupos de Seguridad para ECS y RDS
 
 Para permitir que ECS se comunique con RDS, necesitamos crear un grupo de seguridad para cada uno. Sigamos estos pasos:
 
@@ -362,7 +373,7 @@ Para permitir que ECS se comunique con RDS, necesitamos crear un grupo de seguri
 
 Ahora nuestros servicios podrán comunicarse de forma segura y eficiente.
 
-## Paso 6: Crear la Base de Datos en RDS
+### Paso 6: Crear la Base de Datos en RDS
 
 Para almacenar nuestros datos, vamos a crear una base de datos en Amazon RDS usando el motor PostgreSQL. Sigamos estos pasos para asegurarnos de tener todo correctamente configurado:
 
@@ -388,7 +399,7 @@ Para almacenar nuestros datos, vamos a crear una base de datos en Amazon RDS usa
 
 Ahora tenemos una base de datos PostgreSQL en Amazon RDS lista para ser utilizada por nuestra aplicación.
 
-## Paso 7: Crear un Cluster de ECS
+### Paso 7: Crear un Cluster de ECS
 
 Para desplegar nuestra aplicación en contenedores, necesitamos crear un cluster en Amazon ECS. Aquí están los pasos detallados:
 
@@ -404,7 +415,7 @@ Para desplegar nuestra aplicación en contenedores, necesitamos crear un cluster
 
 ![ECS AWS CREATION](./media/6.gif)
 
-## Paso 8: Definir una tarea de ECS
+### Paso 8: Definir una tarea de ECS
 
 En este paso, definiremos una tarea de ECS para ejecutar nuestra aplicación Spring Boot en un contenedor. Aquí están los pasos detallados:
 
@@ -444,7 +455,7 @@ En este paso, definiremos una tarea de ECS para ejecutar nuestra aplicación Spr
 
    ![ECS TASK AWS CREATION](./media/9.gif)
 
-## Paso 9: Crear un Servicio de ECS
+### Paso 9: Crear un Servicio de ECS
 
 Ahora nos toca crear un servicio de ECS para ejecutar nuestra tarea en el cluster. Aquí están los pasos detallados:
 
@@ -460,13 +471,20 @@ Ahora nos toca crear un servicio de ECS para ejecutar nuestra tarea en el cluste
 
 Demora unos minutos en desplegar el servicio. Una vez completado, podremos ver nuestra aplicación Spring Boot ejecutándose en un contenedor en ECS.
 
-## Paso 10: Acceder a la Aplicación en ECS
+### Paso 10: Acceder a la Aplicación en ECS
 
 La tarea tiene una dirección IP publica que podemos usar para acceder a nuestra aplicación Spring Boot. 
 
 Nos conectamos a la dirección IP pública de la tarea en el puerto 8080 para acceder a nuestra aplicación.
 
 ¡Y eso es todo! Hemos desplegado nuestra aplicación Spring Boot en un contenedor en Amazon ECS.
+
+### **5.2. Despliegue del Frontend**
+
+El frontend se despliega utilizando **AWS Amplify**, que simplifica la configuración y el mantenimiento de aplicaciones web.
+
+
+### **5.3. Almacenamiento de Archivos en S3**
 
 ---
 
