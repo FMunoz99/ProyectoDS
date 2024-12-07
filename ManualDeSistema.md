@@ -200,6 +200,7 @@ Este diseño permite a **Lost&Found** ser un sistema robusto, flexible y prepara
 
 3. **Instalar dependencias del frontend**:
    - Iniciar Visual Studio Code
+   - Abrir el terminal y ejecutar los siguientes comandos:
    ```bash
    cd Frontend
    npm install
