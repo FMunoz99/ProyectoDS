@@ -258,9 +258,9 @@ Este diseño permite a **Lost&Found** ser un sistema robusto, flexible y prepara
       - **Estudiante:** Registro de reportes y consulta de estados.
 
 2. **Buenas Prácticas:**
-- Uso de **contraseñas seguras**, almacenadas con algoritmos de hash.
-- Todas las conexiones entre cliente y servidor están protegidas mediante **HTTPS**.
-- Implementación de políticas de seguridad en endpoints para garantizar que solo los roles autorizados puedan acceder a los recursos específicos.
+  - Uso de **contraseñas seguras**, almacenadas con algoritmos de hash.
+  - Todas las conexiones entre cliente y servidor están protegidas mediante **HTTPS**.
+  - Implementación de políticas de seguridad en endpoints para garantizar que solo los roles autorizados puedan acceder a los recursos específicos.
 
 ### **Uso de Spring Security**
 
