@@ -26,13 +26,13 @@ export interface TestConnectionResponse {
 }
 
 // Servicio de autenticación
-const API_URL = `${import.meta.env.VITE_BASE_URL}/auth`;
+const API_URL = `${import.meta.env.VITE_BASE_URL}`;
 
 export class AuthService {
 
     // Método para login
     static async login(data: LoginRequestDto): Promise<AuthResponseDto> {
-        const response = await axios.post<AuthResponseDto>(`${API_URL}/login`, data);
+        const response = await axios.post<AuthResponseDto>(`${API_URL}/auth/login`, data);
         
         // Guardamos el token en el localStorage
         if (response.data.token) {
@@ -44,7 +44,7 @@ export class AuthService {
 
     // Método para registro
     static async register(data: RegisterRequestDto): Promise<AuthResponseDto> {
-        const response = await axios.post<AuthResponseDto>(`${API_URL}/register`, data);
+        const response = await axios.post<AuthResponseDto>(`${API_URL}/auth/register`, data);
         return response.data;
     }
     

@@ -25,11 +25,11 @@ public class BackendApplication {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("https://main.d9bfrvw1xfmjv.amplifyapp.com")
+                        .allowedOrigins("*")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD","PATCH")
                         .maxAge(3600)
                         .allowedHeaders("*")
-                        .allowCredentials(true);
+                        .allowCredentials(false);
             };
         };
     };

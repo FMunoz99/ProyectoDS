@@ -81,7 +81,7 @@ export enum EstadoTarea {
 
 // Servicio para las operaciones relacionadas con Estudiante
 export class EstudianteService {
-  private baseUrl: string = BASE_URL;
+  //private baseUrl: string = BASE_URL;
 
   private getToken() {
     return AuthService.getToken();
@@ -93,7 +93,7 @@ export class EstudianteService {
       if (!token) {
         throw new Error('No autorizado. El token de autenticación no está presente.');
       }
-      const response = await axios.get<EstudianteResponseDto[]>(`${this.baseUrl}/lista`,{
+      const response = await axios.get<EstudianteResponseDto[]>(`${BASE_URL}/lista`,{
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data; // Devuelve los datos de los estudiantes
@@ -110,7 +110,7 @@ export class EstudianteService {
     if (!token) {
       throw new Error('No autorizado. El token de autenticación no está presente.');
     }
-    const response = await axios.get<EstudianteResponseDto>(`${this.baseUrl}/${id}`, {
+    const response = await axios.get<EstudianteResponseDto>(`${BASE_URL}/${id}`, {
       headers: { Authorization: `Bearer ${token}`}
     });
     return response.data;
@@ -122,7 +122,7 @@ export class EstudianteService {
     if (!token) {
       throw new Error('No autorizado. El token de autenticación no está presente.');
     }
-    const response = await axios.get<EstudianteSelfResponseDto>(`${this.baseUrl}/me`, {
+    const response = await axios.get<EstudianteSelfResponseDto>(`${BASE_URL}/me`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
@@ -134,7 +134,7 @@ export class EstudianteService {
     if (!token) {
       throw new Error('No autorizado. El token de autenticación no está presente.');
     }
-    const response = await axios.post<EstudianteResponseDto>(this.baseUrl, dto, {
+    const response = await axios.post<EstudianteResponseDto>(`${BASE_URL}`, dto, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
@@ -188,7 +188,7 @@ export class EstudianteService {
       throw new Error('No autorizado. El token de autenticación no está presente.');
     }
 
-    await axios.delete(`${this.baseUrl}/${id}`, {
+    await axios.delete(`${BASE_URL}/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
   }
@@ -201,7 +201,7 @@ export class EstudianteService {
       throw new Error('No autorizado. El token de autenticación no está presente.');
     }
 
-    const response = await axios.get<IncidenteResponseDto[]>(`${this.baseUrl}/me/incidentes`, {
+    const response = await axios.get<IncidenteResponseDto[]>(`${BASE_URL}/me/incidentes`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
@@ -216,7 +216,7 @@ export class EstudianteService {
       }
     
       try {
-        const response = await axios.get<ObjetoPerdidoResponseDto[]>(`${this.baseUrl}/me/objetos-perdidos`, {
+        const response = await axios.get<ObjetoPerdidoResponseDto[]>(`${BASE_URL}/me/objetos-perdidos`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         console.log('Objetos perdidos obtenidos:', response.data);  // Verifica los datos recibidos desde el backend
@@ -241,7 +241,7 @@ export class EstudianteService {
       throw new Error('No autorizado. El token de autenticación no está presente.');
     }
 
-    const response = await axios.post<ObjetoPerdidoResponseDto>(`${this.baseUrl}/me/objetos-perdidos`, dto, {
+    const response = await axios.post<ObjetoPerdidoResponseDto>(`${BASE_URL}/me/objetos-perdidos`, dto, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
@@ -255,7 +255,7 @@ export class EstudianteService {
       throw new Error('No autorizado. El token de autenticación no está presente.');
     }
 
-    const response = await axios.patch<ObjetoPerdidoResponseDto>(`${this.baseUrl}/me/objetos-perdidos/${id}`, {
+    const response = await axios.patch<ObjetoPerdidoResponseDto>(`${BASE_URL}/me/objetos-perdidos/${id}`, {
       estadoReporte,
       estadoTarea,
     }, {
