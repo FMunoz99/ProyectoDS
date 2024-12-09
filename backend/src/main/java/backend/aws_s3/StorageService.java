@@ -39,7 +39,7 @@ public class StorageService {
 
     public String generatePresignedUrl(String objectUrl) {
         // Extraer la clave del objeto de la URL proporcionada
-        String objectKey = objectUrl.replace("https://ds-proy-bucket.s3.amazonaws.com/", "");
+        String objectKey = objectUrl.replace("https://ds-proy-bucket-1.s3.amazonaws.com/", "");
         System.out.println("Generated Object Key (original): " + objectKey);
 
         // Reemplazar %40 por @

@@ -1,0 +1,261 @@
+[33mcommit 2e929402709968eebe52a0cc5461538a240d7d9a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: fjmunozp <fernando.munoz.p@utec.edu.pe>
+Date:   Sat Dec 7 18:06:53 2024 -0500
+
+    properties
+
+[33mcommit d6f40242f0fc0a6e8ff6193a240238325492a7c5[m
+Author: fmunoz <fernando.munoz.p@utec.edu.pe>
+Date:   Sat Dec 7 12:50:18 2024 -0500
+
+    aws
+
+[33mcommit f99e9f2d345abc8c5ac400816091bab7b32b4ddb[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 12:50:03 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit 4b3d7518bee1e53e379d2f61869c292458f0100a[m
+Author: fmunoz <fernando.munoz.p@utec.edu.pe>
+Date:   Sat Dec 7 12:45:26 2024 -0500
+
+    amplify
+
+[33mcommit 0204c24356186e42c205b4a2a01080ea40aef750[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 12:44:34 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit be0d97dc563ec4131b6794237f7232ded7e8cbc7[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 12:38:56 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit efb86839650e3835b8ecd768c805383c7bb2a2d9[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 12:33:40 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit 132092138fa0ffc7c6714ffae82c4bfa73a0545a[m
+Author: fmunoz <fernando.munoz.p@utec.edu.pe>
+Date:   Sat Dec 7 12:32:20 2024 -0500
+
+    s3
+
+[33mcommit fb98be0efd4c5ddacd3b68fe4a15aa289af7f9cf[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 12:29:41 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit 934011204fdcb98929e35ea837a051c8a766a13b[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 12:25:56 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit e772d5ef29886d23870b59990c4dc245c1874b46[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 12:15:19 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit 5ec2e3cc90fd9c57aa79d007f791476dec3fff07[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 10:36:45 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit dd45402f9e96855b663b649b256d1e3ec345ce12[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 10:34:12 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit 9f895e6d2ef89837f9aebf2ac904ac06f7c737c8[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 10:33:20 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit 396facde96573a51cc902692f449817275e028f5[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 10:21:57 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit c828bebf1aed9b56ab3f90ea919319f653707ac6[m
+Author: fmunoz <fernando.munoz.p@utec.edu.pe>
+Date:   Sat Dec 7 10:19:36 2024 -0500
+
+    despliegue
+
+[33mcommit aedb8db2e8c1c55a50aaf20f1d55fae6b0dd6fb0[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 10:14:37 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit c95d8be4aa6fb7fbd7f64752307f4b1e977a9444[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 04:11:19 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit 5926f6e90e2e0f304a0cb368c86e2c0499e13d71[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 04:08:00 2024 -0500
+
+    Create LICENSE
+
+[33mcommit 3e06aadb58571ff787bd03517257191992e9b179[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 03:59:22 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit 65c01fa4606daecd67b2e01da2614e7d630b54a5[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 03:57:31 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit a0494591d230162473b634dee517991d4f96d305[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 03:56:49 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit 799247cae237534188cc1f2e6fba67b618418218[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 03:53:25 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit d72c88aaa8789350b11313ae056be9193c89533d[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 03:51:50 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit 269f8637aad08214cb5921f376b365930aa90b09[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 03:48:12 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit 048fce38f8fcf5b2d6ffad8f15834f7b449abab9[m
+Merge: 5b44a95 a85db1a
+Author: fmunoz <fernando.munoz.p@utec.edu.pe>
+Date:   Sat Dec 7 03:48:01 2024 -0500
+
+    Merge branch 'main' of github.com:FMunoz99/ProyectoDS
+
+[33mcommit 5b44a95a381cebb33be0f7c138314c8b77cd2439[m
+Author: fmunoz <fernando.munoz.p@utec.edu.pe>
+Date:   Sat Dec 7 03:47:53 2024 -0500
+
+    spring security
+
+[33mcommit a85db1a1be85dde47e622495680d65afe8b74ab8[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 03:37:49 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit 73aca30088c67a3d26f9de331a63ddaa10494411[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 03:36:25 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit 6dc0e6127698ae597481de2174baa291d54b2994[m
+Merge: 6122f3e 74cbf8b
+Author: fmunoz <fernando.munoz.p@utec.edu.pe>
+Date:   Sat Dec 7 03:31:57 2024 -0500
+
+    Merge branch 'main' of github.com:FMunoz99/ProyectoDS
+
+[33mcommit 6122f3ec5254a92305b507fa6f99e37ed9cffeeb[m
+Author: fmunoz <fernando.munoz.p@utec.edu.pe>
+Date:   Sat Dec 7 03:31:49 2024 -0500
+
+    arquitectura
+
+[33mcommit 74cbf8ba179ba6870b0d7e1b61229d12a8f885b2[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 03:11:39 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit 3224ca5cfba7850c5f7653f5b80681328760e28f[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 03:09:27 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit 4899be4095858ff5d88d3ac4aa803a649f82e620[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 03:08:12 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit 4cc094f35ffda70827878ef0f4ef3abe2b71278b[m
+Merge: 37e4497 da20688
+Author: fmunoz <fernando.munoz.p@utec.edu.pe>
+Date:   Sat Dec 7 03:07:53 2024 -0500
+
+    Merge branch 'main' of github.com:FMunoz99/ProyectoDS
+
+[33mcommit 37e44978885011364482cbc2e746549934d1b774[m
+Author: fmunoz <fernando.munoz.p@utec.edu.pe>
+Date:   Sat Dec 7 03:07:37 2024 -0500
+
+    imagenes
+
+[33mcommit da206885eee707c0a50d42b2bac788b86dba5c00[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 03:02:19 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit d31b38c9fd2eb2186da0aa73248d23f39f049906[m
+Author: fmunoz <fernando.munoz.p@utec.edu.pe>
+Date:   Sat Dec 7 02:49:14 2024 -0500
+
+    imagenes
+
+[33mcommit 6b7614a7b7c0e7b81f4b19f359f545ae7a06fa96[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Sat Dec 7 02:47:52 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit 601ede2580e248cde8dab3d0c157e97e16f480b7[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Fri Dec 6 21:59:39 2024 -0500
+
+    Update ManualDeSistema.md
+
+[33mcommit d3bd934e7ba8729d005fdb9a9ee2332ac18b82e4[m
+Author: fjmunozp <fernando.munoz.p@utec.edu.pe>
+Date:   Fri Dec 6 21:41:22 2024 -0500
+
+    logo
+
+[33mcommit 0b18874eecc8fb2c9335fd7a45c04ef5134a6aab[m
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Fri Dec 6 21:38:44 2024 -0500
+
+    Create images
+
+[33mcommit 08682a3b3c019f9e6289f77c964d14b19570c831[m
+Merge: 012e5d8 5d1086c
+Author: Fernando Muñoz <91229687+FMunoz99@users.noreply.github.com>
+Date:   Fri Dec 6 21:37:37 2024 -0500
+
+    Merge pull request #11 fro
