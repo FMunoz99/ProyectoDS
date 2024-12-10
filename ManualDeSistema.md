@@ -229,6 +229,7 @@ El backend del sistema se despliega utilizando los siguientes servicios de AWS:
 - **Amazon RDS (Relational Database Service):** Proporciona la base de datos PostgreSQL para el sistema.
 - **Amazon EC2 (Elastic Compute Cloud):** Proporciona la infraestructura subyacente para los servicios de ECS.
 - **Amazon S3 (Simple Storage Service):** Almacena archivos como fotos de perfil y reportes de usuarios.
+- **Amazon IAM (Identity and Access Management):** Proporciona credenciales de acceso mediante creación de roles o usuarios.
 
 ### Paso 1: Añadir Dockerfile al Proyecto de Spring Boot con Java 21
 
@@ -401,7 +402,56 @@ Para almacenar nuestros datos, vamos a crear una base de datos en Amazon RDS usa
 
 Ahora tenemos una base de datos PostgreSQL en Amazon RDS lista para ser utilizada por nuestra aplicación.
 
-### Paso 7: Crear un Cluster de ECS
+### Paso 7: Crear un Usuario y un Rol en IAM
+
+Para poder crear nuestro clúster y poder definir una nueva tarea dentro del servicio, necesitamos obtener credenciales que nos permitan acceder a estos nuevos espacios de Amazon. Para ello, debemos seguir los siguientes pasos:
+
+1. **Buscar el servicio IAM**:
+   - En la barra de búsqueda, escribimos "IAM" y seleccionamos el servicio Amazon IAM.
+     
+2. **Crear un nuevo usuario**:
+   - Una vez en la página de IAM, en la barra lateral izquierda selecciona `Usuarios` y luego sigue las instrucciones para crear un nuevo usuario y dale el nombre que prefieras.
+     ![AWS IAM USER CREATION](./media/3.gif)
+     
+3. **Crear un nuevo grupo de usuarios y establecer los permisos**:
+   - Seleccionamos `Agregar usuario al grupo` y luego creamos un nuevo grupo de usuarios, en el cual seleccionaremos las políticas de permisos `AdministratorAccess`, `AmazonECS_FullAccess` y `AmazonECSTaskExecutionRolePolicy`.
+     ![GROUP CREATION](./media/3.gif)
+     
+4. **Crear y guardar el nuevo usuario**:
+   - Al finalizar la configuración, luego de revisar y crear, confirmamos la creación del nuevo usuario.
+  
+5. **Crear un nuevo role**:
+   - En la barra lateral izquierda, buscamos `Roles`, el cual aparece debajo de `Usuarios` y luego sigue las instrucciones para crear un nuevo role.
+     ![ROLE CREATION](./media/3.gif)
+
+6. **Entidad de confianza y casos de uso**:
+   - Seleccionamos `Servicio de AWS` como entidad de confianza y en caso de uso buscamos `Elastic Container Service` y seleccionamos la opción `Elastic Container Service Task`.
+     ![USE CASE](./media/3.gif)
+     
+7. **Permisos de role**:
+   - Buscamos las políticas de permiso `AdministratorAccess` y `AmazonECSTaskExecutionRolePolicy`.
+
+8. **Asignación de nombre y confirmación**:
+   - Asignamos un nombre a nuestro nuevo role, por ejemplo `ecsTaskExecutionRole` y creamos el role.
+
+### Paso 8: Obtención de credenciales de seguridad
+
+Ya que ahora hemos creado un nuevo usuario, debemos crearle unas credenciales de seguridad a partir de los siguientes pasos: 
+
+1. **Buscar nuestro usuario**:
+   - Accedemos al servicio AWS IAM y buscamos nuestro usuario, luego procedemos a darle clic al nombre de nuestro usuario.
+
+2. **Credenciales de seguridad**:
+   - Seleccionamos la opción de `Credenciales de seguridad` y buscamos dentro `Claves de acceso` y luego `Aplicación ejecutada fuera de AWS`.
+     ![USE CASE](./media/3.gif)
+
+3. **Asignación de nombre y generación de credenciales**:
+   - Asignamos un nombre a nuestras credenciales de seguridad, por ejemplo, `dsoftware-key` y luego guardamos en un lugar seguro nuestras credenciales.
+     ![USE CASE](./media/3.gif)
+
+### Paso 9: Obtención de Session Token
+
+### Paso 10: Crear un Cluster de ECS
 
 Para desplegar nuestra aplicación en contenedores, necesitamos crear un cluster en Amazon ECS. Aquí están los pasos detallados:
 
@@ -417,7 +467,7 @@ Para desplegar nuestra aplicación en contenedores, necesitamos crear un cluster
 
 ![ECS AWS CREATION](./media/6.gif)
 
-### Paso 8: Definir una tarea de ECS
+### Paso 11: Definir una tarea de ECS
 
 En este paso, definiremos una tarea de ECS para ejecutar nuestra aplicación Spring Boot en un contenedor. Aquí están los pasos detallados:
 
@@ -457,7 +507,7 @@ En este paso, definiremos una tarea de ECS para ejecutar nuestra aplicación Spr
 
    ![ECS TASK AWS CREATION](./media/9.gif)
 
-### Paso 9: Crear un Servicio de ECS
+### Paso 12: Crear un Servicio de ECS
 
 Ahora nos toca crear un servicio de ECS para ejecutar nuestra tarea en el cluster. Aquí están los pasos detallados:
 
@@ -473,7 +523,7 @@ Ahora nos toca crear un servicio de ECS para ejecutar nuestra tarea en el cluste
 
 Demora unos minutos en desplegar el servicio. Una vez completado, podremos ver nuestra aplicación Spring Boot ejecutándose en un contenedor en ECS.
 
-### Paso 10: Acceder a la Aplicación en ECS
+### Paso 13: Acceder a la Aplicación en ECS
 
 La tarea tiene una dirección IP publica que podemos usar para acceder a nuestra aplicación Spring Boot. 
 
