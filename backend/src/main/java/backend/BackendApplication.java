@@ -25,7 +25,7 @@ public class BackendApplication {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("*")
+                        .allowedOrigins("https://main.dt5p4te1q76jq.amplifyapp.com")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD","PATCH")
                         .maxAge(3600)
                         .allowedHeaders("*")
